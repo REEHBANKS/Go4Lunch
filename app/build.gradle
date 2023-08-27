@@ -1,8 +1,15 @@
 plugins {
     id 'com.android.application'
-
-
 }
+    def localProperties = new Properties()
+    def localPropertiesFile = rootProject.file('local.properties')
+    if (localPropertiesFile.exists()) {
+        localProperties.load(new FileInputStream(localPropertiesFile))
+    }
+
+    def apiKey = localProperties['RR_KEY'] ?: "DefaultAPIKey"
+
+
 
 android {
     namespace 'com.metanoiasystem.go4lunchxoc'
@@ -14,6 +21,8 @@ android {
         targetSdk 32
         versionCode 1
         versionName "1.0"
+        buildConfigField 'String', 'RR_KEY', "\"${apiKey}\""
+
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -29,6 +38,7 @@ android {
         targetCompatibility JavaVersion.VERSION_1_8
     }
 }
+
 
 dependencies {
 

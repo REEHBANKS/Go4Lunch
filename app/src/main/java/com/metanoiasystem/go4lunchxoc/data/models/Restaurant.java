@@ -132,5 +132,22 @@ public class Restaurant  implements Serializable {
         this.urlPictureRestaurant = urlPictureRestaurant;
     }
 
+    @Override
+    public String toString() {
+        return "Restaurant{" +
+                "id='" + id + '\'' +
+                ", restaurantName='" + restaurantName + '\'' +
+                ", latitude=" + latitude +
+                ", longitude=" + longitude +
+                ", urlPictureRestaurant='" + urlPictureRestaurant + '\'' +
+                ", restaurantAddress='" + restaurantAddress + '\'' +
+                ", openingHours=" + openingHours +
+                ", rating=" + rating +
+                ", distanceKm=" + distanceKm +
+                ", numberPhone='" + numberPhone + '\'' +
+                ", email='" + email + '\'' +
+                '}';
+    }
+
 
 }
