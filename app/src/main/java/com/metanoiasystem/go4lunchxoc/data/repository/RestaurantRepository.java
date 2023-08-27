@@ -65,14 +65,14 @@ public class RestaurantRepository {
 
     // Function to fetch all restaurants. It calls the function to fetch all restaurants and then updates
     // the MutableLiveData object with the fetched data.
-    public void fetchRestaurant() {
+    public void fetchRestaurant(Double latitude, Double longitude) {
         // If a previous fetch operation was still ongoing, it is stopped.
         if (restaurantDisposable != null && !restaurantDisposable.isDisposed()) {
             restaurantDisposable.dispose();
         }
 
         // Start a new fetch operation.
-        restaurantDisposable = streamFetchRestaurantResponse()
+        restaurantDisposable = streamFetchRestaurantResponse(latitude, longitude)
                 .subscribeWith(new DisposableObserver<List<Restaurant>>() {
 
                     @Override
@@ -98,13 +98,11 @@ public class RestaurantRepository {
 
     // Function that makes a request to the RestaurantService to fetch all restaurants.
     // It then maps the response to a list of Restaurant objects.
-    public Observable<List<Restaurant>> streamFetchRestaurantResponse() {
+    public Observable<List<Restaurant>> streamFetchRestaurantResponse(Double latitude, Double longitude) {
 
-      //  String lat = ,
-      //  String lng =
-        String location = "49.1479317" + "," + "2.2466113";
-        double latitude = 49.1479317;
-        double longitude = 2.2466113;
+        String lat = Double.toString(latitude);
+        String lng = Double.toString(longitude);
+        String location = lat + "," + lng;
 
 
         RestaurantService restaurantService = RetrofitClient.getRetrofit().create(RestaurantService.class);
@@ -142,7 +140,7 @@ public class RestaurantRepository {
                     // Log de la liste des restaurants avant de la retourner
                     for (Restaurant restaurant : restaurants) {
                         // TODO: 27/08/2023 Test network call to fetch restaurants  
-                        Log.d("RestaurantList", restaurant.toString());
+
                     }
 
                     return restaurants;
