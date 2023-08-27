@@ -141,6 +141,7 @@ public class RestaurantRepository {
 
                     // Log de la liste des restaurants avant de la retourner
                     for (Restaurant restaurant : restaurants) {
+                        // TODO: 27/08/2023 Test network call to fetch restaurants  
                         Log.d("RestaurantList", restaurant.toString());
                     }
 
