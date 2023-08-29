@@ -38,7 +38,7 @@ public class ListRestaurantsFragment extends Fragment {
         mapViewModel.fetchMapViewModel(mapLatitude, mapLongitude);
 
 
-        return inflater.inflate(R.layout.activity_list_restaurants_frgment, container, false);
+        return inflater.inflate(R.layout.fragment_list_restaurants, container, false);
     }
 
 }

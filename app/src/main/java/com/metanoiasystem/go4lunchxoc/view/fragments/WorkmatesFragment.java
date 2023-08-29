@@ -2,7 +2,6 @@ package com.metanoiasystem.go4lunchxoc.view.fragments;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import android.os.Bundle;
@@ -21,6 +20,6 @@ public class WorkmatesFragment extends Fragment {
                              @Nullable Bundle savedInstanceState) {
 
 
-        return inflater.inflate(R.layout.activity_workmates_fragment, container, false);
+        return inflater.inflate(R.layout.fragment_workmates, container, false);
     }
 }
