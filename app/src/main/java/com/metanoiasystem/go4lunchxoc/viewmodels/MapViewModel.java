@@ -4,16 +4,17 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
-import com.metanoiasystem.go4lunchxoc.domain.usecases.GetAllRestaurantsUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
+
 
 import java.util.List;
 
 public class MapViewModel extends ViewModel {
 
-    private final GetAllRestaurantsUseCase getAllRestaurantsUseCase;
+    private final FetchRestaurantListUseCase getAllRestaurantsUseCase;
 
     public MapViewModel() {
-        getAllRestaurantsUseCase = new GetAllRestaurantsUseCase();
+        getAllRestaurantsUseCase = new FetchRestaurantListUseCase();
     }
 
     public LiveData<List<Restaurant>> getMapLiveData() {

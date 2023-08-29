@@ -1,4 +1,4 @@
-package com.metanoiasystem.go4lunchxoc.domain.usecases;
+package com.metanoiasystem.go4lunchxoc.domain.usecase;
 
 import androidx.lifecycle.LiveData;
 
@@ -7,11 +7,11 @@ import com.metanoiasystem.go4lunchxoc.data.repository.RestaurantRepository;
 
 import java.util.List;
 
-public class GetAllRestaurantsUseCase {
+public class FetchRestaurantListUseCase {
 
     private final RestaurantRepository restaurantRepository;
 
-    public GetAllRestaurantsUseCase() {
+    public FetchRestaurantListUseCase() {
         this.restaurantRepository = RestaurantRepository.getInstance();
     }
 
@@ -22,4 +22,5 @@ public class GetAllRestaurantsUseCase {
     public void execute(Double latitude, Double longitude) {
         restaurantRepository.fetchRestaurant(latitude, longitude);
     }
+
 }
