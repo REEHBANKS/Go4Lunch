@@ -1,3 +1,14 @@
 <resources>
     <string name="app_name">Go4LunchXoc</string>
+    <string name="app_name_toolbar">I\'m Hungry!</string>
+    <string name="map_view">Map View</string>
+    <string name="list_view">List View</string>
+    <string name="workmates">Workmates</string>
+    <string name="your_lunch">YOUR LUNCH</string>
+    <string name="settings">SETTINGS</string>
+    <string name="logout">LOGOUT</string>
+    <string name="go4lunch">Go4Lunch</string>
+    <string name="todo14">\"TODO\"</string>
+    <string name="kyllian_mbappe">Kyllian Mbappe</string>
+    <string name="km_gmail_com">km@gmail.com</string>
 </resources>

@@ -10,17 +10,17 @@ import java.util.List;
 
 public class MapViewModel extends ViewModel {
 
-    private final GetAllRestaurantsUseCase getRestaurantsUseCase;
+    private final GetAllRestaurantsUseCase getAllRestaurantsUseCase;
 
     public MapViewModel() {
-        getRestaurantsUseCase = new GetAllRestaurantsUseCase();
+        getAllRestaurantsUseCase = new GetAllRestaurantsUseCase();
     }
 
     public LiveData<List<Restaurant>> getMapLiveData() {
-        return getRestaurantsUseCase.getRestaurantsLiveData();
+        return getAllRestaurantsUseCase.getRestaurantsLiveData();
     }
 
     public void fetchMapViewModel(Double latitude, Double longitude) {
-        getRestaurantsUseCase.execute(latitude, longitude);
+        getAllRestaurantsUseCase.execute(latitude, longitude);
     }
 }
