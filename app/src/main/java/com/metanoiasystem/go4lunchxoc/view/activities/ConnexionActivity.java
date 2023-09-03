@@ -30,11 +30,17 @@ public class ConnexionActivity extends AppCompatActivity {
 
 
         setupEmailListeners();
+        setupGoogleListeners();
     }
 
     // Set up listener for email login button
     private void setupEmailListeners() {
         binding.loginButton.setOnClickListener(view -> startEmailConnexionInActivity());
+    }
+
+    // Set up listener for Google login button
+    private void setupGoogleListeners() {
+        binding.gmailButton.setOnClickListener(view -> startGoogleConnexionInActivity());
     }
 
     // Start the email sign-in flow
@@ -55,5 +61,22 @@ public class ConnexionActivity extends AppCompatActivity {
                 RC_SIGN_IN);
     }
 
+    // Start the Google sign-in flow
+    private void startGoogleConnexionInActivity() {
+        // Choose authentication providers
+        List<AuthUI.IdpConfig> providers = Collections.singletonList(
+                new AuthUI.IdpConfig.GoogleBuilder().build());
+
+        // Launch the activity with specified theme, providers, and logo
+        startActivityForResult(
+                AuthUI.getInstance()
+                        .createSignInIntentBuilder()
+                        .setTheme(R.style.LoginTheme)
+                        .setAvailableProviders(providers)
+                        .setIsSmartLockEnabled(false, true)
+                        .setLogo(R.drawable.ic_login_24)
+                        .build(),
+                RC_SIGN_IN);
+    }
 
 }
