@@ -11,32 +11,19 @@ import com.metanoiasystem.go4lunchxoc.view.viewholders.ListRestaurantsViewHolder
 public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurantsViewHolder> {
 
 
-
-
-
     @NonNull
     @Override
     public ListRestaurantsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
-        FragmentListItemBinding fragmentListItemBinding = FragmentListItemBinding.inflate(layoutInflater, parent, false);
-        return new ListRestaurantsViewHolder(fragmentListItemBinding);
+        return null;
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull ListRestaurantsViewHolder holder, int position) {
+
     }
 
     @Override
     public int getItemCount() {
-        return restaurants.size();
+        return 0;
     }
-
-    static String statusRestaurant = "";
-
-    public static String openOrClose(RestaurantWithNumberUser restaurant) {
-        if (restaurant.getRestaurant().getOpeningHours()) {
-            statusRestaurant = "Ouvert";
-        } else {
-            statusRestaurant = "Fermé";
-        }
-        return statusRestaurant;
-    }
-
-
 }
