@@ -20,4 +20,9 @@
     <string name="_2">2</string>
     <string name="bottom_gmail">Sign in with Google</string>
     <string name="bottom_login">Sign in with Login</string>
+    <string name="connection_succeed">Connection succeed!</string>
+    <string name="error_authentication_canceled">Authentication canceled!</string>
+    <string name="error_no_internet">Not internet!</string>
+    <string name="error_unknown_error">Unknown error!</string>
+    <string name="Restaurant_reminder">Restaurant reminder</string>
 </resources>
