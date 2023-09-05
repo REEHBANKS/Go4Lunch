@@ -15,5 +15,6 @@
     <color name="switch_thumb_color">#FFFFFF</color>
     <color name="switch_track_color_enabled">#03DAC5</color>
     <color name="switch_track_color_disabled">#BEBEBE</color>
+    <string name="todo13">TODO</string>
 
 </resources>

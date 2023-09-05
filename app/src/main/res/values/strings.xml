@@ -25,4 +25,5 @@
     <string name="error_no_internet">Not internet!</string>
     <string name="error_unknown_error">Unknown error!</string>
     <string name="Restaurant_reminder">Restaurant reminder</string>
+    <string name="kylian">Kylian</string>
 </resources>
