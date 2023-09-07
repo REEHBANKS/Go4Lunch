@@ -1,4 +1,8 @@
 package com.metanoiasystem.go4lunchxoc.viewmodels;
 
-public class WorkmatesViewModel {
+import androidx.lifecycle.ViewModel;
+
+public class WorkmatesViewModel extends ViewModel {
+
+
 }

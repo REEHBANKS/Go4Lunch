@@ -35,11 +35,15 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesViewHolder>{
 
     @Override
     public void onBindViewHolder(@NonNull WorkmatesViewHolder holder, int position) {
+        User user = users.get(position);
+
+        //set name
+        holder.getBinding().userNameFragmentWorkMates.setText(user.getUsername());
 
     }
 
     @Override
     public int getItemCount() {
-        return 0;
+        return users.size();
     }
 }
