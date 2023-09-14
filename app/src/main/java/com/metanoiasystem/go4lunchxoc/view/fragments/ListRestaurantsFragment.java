@@ -7,36 +7,40 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.annotation.SuppressLint;
+import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
+import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
 import com.metanoiasystem.go4lunchxoc.view.adapters.ListRestaurantsAdapter;
+import com.metanoiasystem.go4lunchxoc.view.callbacks.LocationUpdateCallback;
 import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
-import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListRestaurantsFragment extends Fragment {
+public class ListRestaurantsFragment extends Fragment implements LocationUpdateCallback {
 
     private ListRestaurantsAdapter adapter;
     private List<Restaurant> restaurants;
     private FragmentListRestaurantsBinding binding;
+    private LocationProvider provider;
 
 
     private ListRestaurantsViewModel listRestaurantsViewModel;
-    double mapLatitude = 49.1479317;
-    double mapLongitude = 2.2466113;
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
+        provider = new LocationProvider(requireContext(), this);
 
         binding = FragmentListRestaurantsBinding.inflate(getLayoutInflater(), container, false);
         this.configureRecyclerView();
@@ -45,11 +49,19 @@ public class ListRestaurantsFragment extends Fragment {
 
         listRestaurantsViewModel.getListRestaurants().observe(getViewLifecycleOwner(), this::updateUI);
 
-
-        listRestaurantsViewModel.fetchListRestaurants(mapLatitude, mapLongitude);
-
-
+        provider.requestLocation();
         return binding.getRoot();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        provider.requestLocation();
+    }
+
+    @Override
+    public void onLocationUpdated(Location location) {
+        listRestaurantsViewModel.fetchListRestaurants(location.getLatitude(),location.getLongitude());
     }
 
     // -----------------
@@ -70,5 +82,6 @@ public class ListRestaurantsFragment extends Fragment {
         restaurants.addAll(theRestaurants);
         adapter.notifyDataSetChanged();
     }
+
 
 }
