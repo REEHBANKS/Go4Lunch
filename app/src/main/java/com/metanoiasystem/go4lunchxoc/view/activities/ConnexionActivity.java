@@ -1,6 +1,7 @@
 package com.metanoiasystem.go4lunchxoc.view.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,10 +10,12 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.firestore.util.Logger;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.databinding.ActivityConnexionBinding;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateUserUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.Injector;
+import com.metanoiasystem.go4lunchxoc.viewmodels.UserViewModel;
+import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.UserViewModelFactory;
 
 
 import java.util.Collections;
@@ -20,6 +23,7 @@ import java.util.List;
 
 public class ConnexionActivity extends AppCompatActivity {
 
+    private UserViewModel userViewModel;
     private ActivityConnexionBinding binding;
     private static final int RC_SIGN_IN = 123; // Request code for sign in
 
@@ -32,10 +36,16 @@ public class ConnexionActivity extends AppCompatActivity {
 
         //FirebaseAuth.getInstance().setLogLevel(Logger.Level.DEBUG);
 
-
         setupEmailListeners();
         setupGoogleListeners();
+
+        CreateUserUseCase createUserUseCase = Injector.provideCreateUserUseCase();
+
+        UserViewModelFactory factory = new UserViewModelFactory(createUserUseCase);
+
+        userViewModel = new ViewModelProvider(this, factory).get(UserViewModel.class);
     }
+
 
     // Set up listener for email login button
     private void setupEmailListeners() {
@@ -101,7 +111,7 @@ public class ConnexionActivity extends AppCompatActivity {
         if (requestCode == RC_SIGN_IN) {
             // SUCCESS
             if (resultCode == RESULT_OK) {
-
+                userViewModel.createUser();
                 showSnackBar(getString(R.string.connection_succeed));
                 startMainActivity();
 
