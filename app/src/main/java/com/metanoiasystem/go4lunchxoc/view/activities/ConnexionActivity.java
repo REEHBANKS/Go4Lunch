@@ -13,6 +13,7 @@ import com.google.android.material.snackbar.Snackbar;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.databinding.ActivityConnexionBinding;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateUserUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.viewmodels.UserViewModel;
 import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.UserViewModelFactory;
@@ -40,8 +41,9 @@ public class ConnexionActivity extends AppCompatActivity {
         setupGoogleListeners();
 
         CreateUserUseCase createUserUseCase = Injector.provideCreateUserUseCase();
+        FetchAllUsersUseCase fetchAllUsersUseCase = Injector.provideFetchAllUsersUseCase();
 
-        UserViewModelFactory factory = new UserViewModelFactory(createUserUseCase);
+        UserViewModelFactory factory = new UserViewModelFactory(createUserUseCase,fetchAllUsersUseCase);
 
         userViewModel = new ViewModelProvider(this, factory).get(UserViewModel.class);
     }
