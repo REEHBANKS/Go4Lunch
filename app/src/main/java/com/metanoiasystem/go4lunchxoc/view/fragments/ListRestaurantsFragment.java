@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import android.annotation.SuppressLint;
+import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
+import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
 import com.metanoiasystem.go4lunchxoc.view.adapters.ListRestaurantsAdapter;
 import com.metanoiasystem.go4lunchxoc.view.callbacks.LocationUpdateCallback;
 import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
@@ -23,7 +25,7 @@ import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ListRestaurantsFragment extends Fragment implements LocationUpdateCallback {
+public class ListRestaurantsFragment extends Fragment implements LocationUpdateCallback, ListRestaurantsAdapter.OnRestaurantClickListener {
 
     private ListRestaurantsAdapter adapter;
     private List<Restaurant> restaurants;
@@ -54,6 +56,19 @@ public class ListRestaurantsFragment extends Fragment implements LocationUpdateC
     }
 
     @Override
+    public void onRestaurantClicked(Restaurant restaurant) {
+        launchRestaurantDetailActivity(restaurant);
+    }
+
+    private void launchRestaurantDetailActivity(Restaurant restaurant) {
+        Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
+        intent.putExtra(RestaurantDetailActivity.RESTAURANT_KEY, restaurant);
+        startActivity(intent);
+    }
+
+
+
+    @Override
     public void onStart() {
         super.onStart();
         provider.requestLocation();
@@ -69,7 +84,7 @@ public class ListRestaurantsFragment extends Fragment implements LocationUpdateC
     // -----------------
     private void configureRecyclerView() {
         this.restaurants = new ArrayList<>();
-        this.adapter = new ListRestaurantsAdapter(this.restaurants);
+        this.adapter = new ListRestaurantsAdapter(this.restaurants, this);
         binding.fragmentMainRecyclerView.setAdapter(this.adapter);
         this.binding.fragmentMainRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }

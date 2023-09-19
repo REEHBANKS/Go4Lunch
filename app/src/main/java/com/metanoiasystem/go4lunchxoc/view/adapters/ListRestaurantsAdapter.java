@@ -19,12 +19,18 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
 
     private final List<Restaurant> restaurants;
 
+    private final OnRestaurantClickListener mListener;
 
 
-    public ListRestaurantsAdapter(List<Restaurant> restaurants) {
+
+    public ListRestaurantsAdapter(List<Restaurant> restaurants, OnRestaurantClickListener listener) {
         this.restaurants = restaurants;
+        this.mListener = listener;
     }
 
+    public interface OnRestaurantClickListener {
+        void onRestaurantClicked(Restaurant restaurant);
+    }
 
 
     @RequiresApi(api = Build.VERSION_CODES.M)
@@ -43,6 +49,11 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
         // Set Name
 
         holder.getBinding().itemListRestaurantName.setText(restaurant.getRestaurantName());
+
+        holder.itemView.setOnClickListener(v -> {
+            mListener.onRestaurantClicked(restaurant);
+        });
+
 
     }
 

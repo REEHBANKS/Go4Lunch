@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">Go4LunchXoc</string>
+    <string name="title_activity_restaurant_detail">RestaurantDetailActivity</string>
     <string name="app_name_toolbar">I\'m Hungry!</string>
     <string name="map_view">Map View</string>
     <string name="list_view">List View</string>
@@ -26,4 +27,14 @@
     <string name="error_unknown_error">Unknown error!</string>
     <string name="Restaurant_reminder">Restaurant reminder</string>
     <string name="kylian">Kylian</string>
+    <string name="le_zinc">Le Zinc</string>
+    <string name="_5_avenue_des_renards">5 avenue des Renards</string>
+    <string name="todo">todo</string>
+    <string name="todo2">todo2</string>
+    <string name="todo3">todo3</string>
+    <string name="todo4">todo4</string>
+    <string name="todo5">todo5</string>
+    <string name="call">call</string>
+    <string name="website">website</string>
+    <string name="like">like</string>
 </resources>
