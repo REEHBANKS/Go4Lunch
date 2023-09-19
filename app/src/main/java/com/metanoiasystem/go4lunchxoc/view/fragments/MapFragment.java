@@ -9,6 +9,7 @@ import androidx.lifecycle.Observer;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -37,6 +38,7 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
+import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
 import com.metanoiasystem.go4lunchxoc.view.callbacks.LocationUpdateCallback;
 import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
 
@@ -109,6 +111,23 @@ public class MapFragment extends Fragment implements LocationUpdateCallback {
         public void onMapReady(@NonNull GoogleMap googleMap) {
             mMap = googleMap;
             checkAccessRestaurant();
+
+            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+                @Override
+                public boolean onMarkerClick(@NonNull Marker marker) {
+                    Object tag = marker.getTag();
+                    if (tag instanceof Restaurant) {
+                        Restaurant clickedRestaurant = (Restaurant) tag;
+                        Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
+                        intent.putExtra(RestaurantDetailActivity.RESTAURANT_KEY, clickedRestaurant);
+                        startActivity(intent);
+                        return true;  // indique que nous avons géré le clic
+                    }
+                    return false;  // laissez Google Maps gérer le clic si nous ne l'avons pas fait
+                }
+            });
+
+
 
 
         }
@@ -195,10 +214,13 @@ public class MapFragment extends Fragment implements LocationUpdateCallback {
 
         for (Restaurant restaurant : restaurants) {
             LatLng restaurantLocation = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
-            mMap.addMarker(new MarkerOptions()
+            Marker marker = mMap.addMarker(new MarkerOptions()
                     .icon(bitmapDescriptorFactory(getContext(), R.drawable.icon_green_lunch))
                     .position(restaurantLocation)
                     .title(restaurant.getRestaurantName()));
+
+            marker.setTag(restaurant);
+            restaurantMarkers.add(marker);
         }
     }
 
