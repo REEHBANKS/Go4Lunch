@@ -18,7 +18,7 @@ public class UserViewModel extends ViewModel {
 
     // LiveData pour notifier l'UI des changements
     private final MutableLiveData<List<User>> usersLiveData = new MutableLiveData<>();
-    private final MutableLiveData<String> errorLiveData = new MutableLiveData<>(); // Pour notifier l'UI d'erreurs éventuelles
+    private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
 
     public UserViewModel(CreateUserUseCase createUserUseCase, FetchAllUsersUseCase fetchAllUsersUseCase) {
         this.createUserUseCase = createUserUseCase;
@@ -27,6 +27,10 @@ public class UserViewModel extends ViewModel {
 
     public LiveData<List<User>> getUsers() {
         return usersLiveData;
+    }
+
+    public LiveData <String> getError() {
+        return errorLiveData;
     }
 
 
@@ -41,7 +45,7 @@ public class UserViewModel extends ViewModel {
                 usersLiveData.setValue(users);
                 Log.d("UserViewModel", "Successfully fetched " + users.size() + " users.");
             } else {
-                // Gérer l'erreur comme vous le souhaitez. Peut-être mettre à jour un autre LiveData pour indiquer l'erreur.
+                errorLiveData.setValue("Error fetching users.");
                 Log.e("UserViewModel", "Error fetching users.", task.getException());
             }
 

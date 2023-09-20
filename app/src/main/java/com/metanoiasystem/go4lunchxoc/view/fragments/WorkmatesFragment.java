@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.User;
@@ -78,5 +79,11 @@ public class WorkmatesFragment extends Fragment {
     private void observeViewModel() {
         userViewModel.getUsers().observe(getViewLifecycleOwner(), this::updateUI);
 
+        userViewModel.getError().observe(getViewLifecycleOwner(), errorMsg -> {
+            // Show the error message to the user
+            Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+        });
+
     }
+
 }
