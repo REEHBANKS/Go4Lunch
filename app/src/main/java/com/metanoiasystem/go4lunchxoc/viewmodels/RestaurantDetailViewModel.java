@@ -21,14 +21,15 @@ public class RestaurantDetailViewModel extends ViewModel {
 
     // LiveData to indicate a successful addition to favorites
     private final MutableLiveData<Boolean> addSuccessLiveData = new MutableLiveData<>();
+    public LiveData<Boolean> getAddSuccess() {
+        return addSuccessLiveData;
+    }
 
     // LiveData to hold any error message
     private final MutableLiveData<String> _errorMessage = new MutableLiveData<>();
     public LiveData<String> errorMessage = _errorMessage;
 
-    public LiveData<Boolean> getAddSuccess() {
-        return addSuccessLiveData;
-    }
+
 
     public void addRestaurantToFavorites(String restaurantId) {
         addToFavoritesUseCase.execute(restaurantId).addOnCompleteListener(task -> {
