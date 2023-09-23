@@ -13,7 +13,7 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationRequest;
-import com.metanoiasystem.go4lunchxoc.view.callbacks.LocationUpdateCallback;
+import com.metanoiasystem.go4lunchxoc.view.viewholders.callbacks.LocationUpdateCallback;
 
 public class LocationProvider {
 
