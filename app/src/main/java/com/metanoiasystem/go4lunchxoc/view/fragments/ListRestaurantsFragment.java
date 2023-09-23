@@ -19,7 +19,7 @@ import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
 import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
 import com.metanoiasystem.go4lunchxoc.view.adapters.ListRestaurantsAdapter;
-import com.metanoiasystem.go4lunchxoc.view.callbacks.LocationUpdateCallback;
+import com.metanoiasystem.go4lunchxoc.view.viewholders.callbacks.LocationUpdateCallback;
 import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
 
 import java.util.ArrayList;

@@ -69,6 +69,12 @@ public class RestaurantDetailActivity extends AppCompatActivity {
             }
         });
 
+        binding.buttonSelectedRestaurant.setOnClickListener(view -> {
+            if (restaurant != null) {
+                viewModel.createOrUpdateSelectedRestaurant(restaurant.getId());
+            }
+        });
+
     }
 
     private void observeViewModel() {
@@ -80,6 +86,12 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
         viewModel.errorMessage.observe(this, errorMsg -> {
             Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
+        });
+
+        viewModel.getRestaurantSelected().observe(this, success -> {
+            if (success) {
+                Toast.makeText(this, "Restaurant ajouté aux selection avec succès!", Toast.LENGTH_SHORT).show();
+            }
         });
     }
 

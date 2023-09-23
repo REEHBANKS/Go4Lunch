@@ -1,4 +1,4 @@
-package com.metanoiasystem.go4lunchxoc.view.callbacks;
+package com.metanoiasystem.go4lunchxoc.view.viewholders.callbacks;
 
 import android.location.Location;
 

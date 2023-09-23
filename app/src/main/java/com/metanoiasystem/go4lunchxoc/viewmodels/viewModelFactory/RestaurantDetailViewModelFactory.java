@@ -34,7 +34,10 @@ public class RestaurantDetailViewModelFactory implements ViewModelProvider.Facto
     public <T extends ViewModel> T create(@NonNull Class<T> modelClass) {
         if (modelClass.isAssignableFrom(RestaurantDetailViewModel.class)) {
             @SuppressWarnings("unchecked")
-            T viewModel = (T) new RestaurantDetailViewModel(addToFavoritesUseCase);
+            T viewModel = (T) new RestaurantDetailViewModel(addToFavoritesUseCase,
+                                                            checkIfRestaurantSelectedUseCase,
+                                                            createNewSelectedRestaurantUseCase,
+                                                            updateSelectedRestaurantUseCase);
             return viewModel;
         }
         throw new IllegalArgumentException("Unknown ViewModel class");
