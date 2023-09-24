@@ -6,14 +6,15 @@ import androidx.lifecycle.ViewModelProvider;
 import android.os.Bundle;
 import android.widget.Toast;
 
-import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.databinding.ActivityRestaurantDetailBinding;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.AddToFavoritesUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateSelectedRestaurantUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.ImageLoader;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
+import com.metanoiasystem.go4lunchxoc.utils.RatingUtils;
 import com.metanoiasystem.go4lunchxoc.viewmodels.RestaurantDetailViewModel;
 import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.RestaurantDetailViewModelFactory;
 
@@ -37,7 +38,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         UpdateSelectedRestaurantUseCase updateSelectedRestaurantUseCase = Injector.provideUpdateSelectedRestaurantUseCase();
         CreateNewSelectedRestaurantUseCase createNewSelectedRestaurantUseCase = Injector.provideCreateNewSelectedRestaurantUseCase();
 
-// Création de la Factory avec les UseCases en paramètre
+        // Création de la Factory avec les UseCases en paramètre
         RestaurantDetailViewModelFactory restaurantDetailViewModelFactory = new RestaurantDetailViewModelFactory(
                 addToFavoritesUseCase,
                 checkIfRestaurantSelectedUseCase,
@@ -45,23 +46,33 @@ public class RestaurantDetailActivity extends AppCompatActivity {
                 updateSelectedRestaurantUseCase
         );
 
-// Obtention du ViewModel à partir de la Factory
+        // Obtention du ViewModel à partir de la Factory
         viewModel = new ViewModelProvider(this, restaurantDetailViewModelFactory).get(RestaurantDetailViewModel.class);
-
-
 
         // Récupération de l'objet Restaurant passé en extra
         restaurant = (Restaurant) getIntent().getSerializableExtra(RESTAURANT_KEY);
 
         observeViewModel();
-        updateUi();
+        setPicture();
+        setNameAndAddress(restaurant);
+        setRating();
+        UpdateButton();
     }
 
+    public void setPicture(){
+        ImageLoader.loadRestaurantImage(binding.pictureRestaurantDetail, restaurant.getUrlPictureRestaurant());
+    }
 
-    public void updateUi() {
-        // Mettez à jour l'UI en fonction de l'objet 'restaurant'
-
+    private void setNameAndAddress(Restaurant restaurant) {
         binding.nameRestaurantDetail.setText(restaurant.getRestaurantName());
+        binding.addressRestaurantDetail.setText(restaurant.getRestaurantAddress());
+    }
+
+    public void setRating() {
+        RatingUtils.setRating(binding.itemListRestaurantRatingBar, restaurant.getRating());
+    }
+
+    public void UpdateButton() {
 
         binding.buttonLikeRestaurantDetail.setOnClickListener(view -> {
             if (restaurant != null) {
@@ -74,6 +85,22 @@ public class RestaurantDetailActivity extends AppCompatActivity {
                 viewModel.createOrUpdateSelectedRestaurant(restaurant.getId());
             }
         });
+
+        if (restaurant.getNumberPhone() != null) {
+            binding.buttonCallRestaurantDetail.setOnClickListener(v -> Toast.makeText(getApplicationContext()
+                    , restaurant.getNumberPhone(), Toast.LENGTH_SHORT).show());
+        } else {
+            binding.buttonCallRestaurantDetail.setOnClickListener(v -> Toast.makeText(getApplicationContext()
+                    , "Unavailable number!", Toast.LENGTH_SHORT).show());
+        }
+
+        if (restaurant.getEmail() != null) {
+            binding.buttonWebsiteRestaurantDetail.setOnClickListener(v -> Toast.makeText(getApplicationContext()
+                    , restaurant.getEmail(), Toast.LENGTH_SHORT).show());
+        } else {
+            binding.buttonWebsiteRestaurantDetail.setOnClickListener(v -> Toast.makeText(getApplicationContext()
+                    , "Unavailable website!", Toast.LENGTH_SHORT).show());
+        }
 
     }
 
