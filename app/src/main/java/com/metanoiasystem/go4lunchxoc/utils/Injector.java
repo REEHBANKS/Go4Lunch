@@ -8,6 +8,7 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUs
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateUserUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateSelectedRestaurantUseCase;
 
 public class Injector {
@@ -21,6 +22,8 @@ public class Injector {
     private static CheckIfRestaurantSelectedUseCase checkIfRestaurantSelectedUseCase = null;
     private static CreateNewSelectedRestaurantUseCase createNewSelectedRestaurantUseCase = null;
     private static UpdateSelectedRestaurantUseCase updateSelectedRestaurantUseCase = null;
+    private static GetSelectedRestaurantsWithIdUseCase getSelectedRestaurantsWithIdUseCase = null;
+
 
     public static synchronized UserRepository provideUserRepository() {
         if (userRepository == null) {
@@ -84,6 +87,14 @@ public class Injector {
             updateSelectedRestaurantUseCase = new UpdateSelectedRestaurantUseCase(provideSelectedRestaurantRepository());
         }
         return updateSelectedRestaurantUseCase;
+    }
+
+    public static synchronized GetSelectedRestaurantsWithIdUseCase provideGetSelectedRestaurantsWithIdUseCase(){
+        if (getSelectedRestaurantsWithIdUseCase == null) {
+            getSelectedRestaurantsWithIdUseCase = new GetSelectedRestaurantsWithIdUseCase(provideSelectedRestaurantRepository());
+        }
+
+        return getSelectedRestaurantsWithIdUseCase;
     }
 
 

@@ -33,7 +33,7 @@ public class WorkmatesFragment extends Fragment {
     private UserViewModel userViewModel;
     private List<User> users;
 
-    @Override
+   @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 

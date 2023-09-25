@@ -61,6 +61,12 @@ public class SelectedRestaurantRepository {
         );
     }
 
+    public Task<QuerySnapshot> getAllSelectedRestaurantsWithId(String restaurantId) {
+        return getSelectedRestaurantCollection()
+                .whereEqualTo("restaurantId", restaurantId)
+                .get();
+    }
+
 
 
 

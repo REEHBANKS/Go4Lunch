@@ -6,20 +6,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
-import com.metanoiasystem.go4lunchxoc.data.models.User;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.AddToFavoritesUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateSelectedRestaurantUseCase;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.List;
 
 public class RestaurantDetailViewModel extends ViewModel {
 
@@ -33,7 +31,7 @@ public class RestaurantDetailViewModel extends ViewModel {
     public RestaurantDetailViewModel(AddToFavoritesUseCase addToFavoritesUseCase,
                                      CheckIfRestaurantSelectedUseCase checkIfRestaurantSelectedUseCase,
                                      CreateNewSelectedRestaurantUseCase createNewSelectedRestaurantUseCase,
-                                     UpdateSelectedRestaurantUseCase updateSelectedRestaurantUseCase) {
+                                     UpdateSelectedRestaurantUseCase updateSelectedRestaurantUseCase, GetSelectedRestaurantsWithIdUseCase getSelectedRestaurantsWithIdUseCase) {
         this.addToFavoritesUseCase = addToFavoritesUseCase;
         this.checkIfRestaurantSelectedUseCase = checkIfRestaurantSelectedUseCase;
         this.createNewSelectedRestaurantUseCase = createNewSelectedRestaurantUseCase;

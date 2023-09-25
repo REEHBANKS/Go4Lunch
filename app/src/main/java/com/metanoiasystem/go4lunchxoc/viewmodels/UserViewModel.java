@@ -16,7 +16,7 @@ public class UserViewModel extends ViewModel {
     private final CreateUserUseCase createUserUseCase;
     private final FetchAllUsersUseCase fetchAllUsersUseCase;
 
-    // LiveData pour notifier l'UI des changements
+    // LiveData poantSelectorLisur notifier l'UI des changements
     private final MutableLiveData<List<User>> usersLiveData = new MutableLiveData<>();
     private final MutableLiveData<String> errorLiveData = new MutableLiveData<>();
 
