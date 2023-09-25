@@ -38,5 +38,7 @@
     <string name="website">website</string>
     <string name="like">like</string>
     <string name="error_no_user_connected">Tentative de création d\'un restaurant favori sans utilisateur connecté</string>
+    <string name="todo11">todo11</string>
+    <string name="kylian_is_eating_french_chez_guy">Kylian is eating french chz guy</string>
 
 </resources>

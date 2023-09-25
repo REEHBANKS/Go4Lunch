@@ -18,11 +18,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Go4LunchXoc"
         tools:targetApi="31">
+
         <activity
             android:name=".view.activities.RestaurantDetailActivity"
-            android:launchMode="singleTop"
             android:exported="false"
             android:label="@string/title_activity_restaurant_detail"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.Go4LunchXoc.NoActionBar">
             <meta-data
                 android:name="android.app.lib_name"
