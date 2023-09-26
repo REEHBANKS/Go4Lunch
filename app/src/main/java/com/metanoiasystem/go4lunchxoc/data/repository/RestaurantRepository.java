@@ -69,6 +69,8 @@ public class RestaurantRepository {
         // If a previous fetch operation was still ongoing, it is stopped.
         if (restaurantDisposable != null && !restaurantDisposable.isDisposed()) {
             restaurantDisposable.dispose();
+            Log.d("RestaurantRepository", "fetchRestaurant called with latitude: " + latitude + ", longitude: " + longitude);
+
         }
 
         // Start a new fetch operation.
@@ -84,13 +86,13 @@ public class RestaurantRepository {
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        Log.d("Renel", "On error");
+                        Log.d("RestaurantRepository", "On error");
 
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.d("Renel", "On complete");
+                        Log.d("RestaurantRepository", "On complete");
 
                     }
                 });

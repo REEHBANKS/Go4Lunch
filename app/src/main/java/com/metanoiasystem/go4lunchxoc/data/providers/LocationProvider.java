@@ -9,50 +9,78 @@ import android.os.Looper;
 
 import androidx.core.app.ActivityCompat;
 
+import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationRequest;
-import com.metanoiasystem.go4lunchxoc.view.viewholders.callbacks.LocationUpdateCallback;
+import com.google.android.gms.tasks.Task;
 
 public class LocationProvider {
 
-
     private final Context context;
-    private final LocationUpdateCallback callback;
+    private final FusedLocationProviderClient fusedLocationProviderClient;
+    private LocationCallback locationCallback;
+    private OnLocationReceivedListener listener;
+    private Location previousLocation = null;
+    private static final float LOCATION_CHANGE_THRESHOLD = 100.0f;
 
-    public LocationProvider(Context context, LocationUpdateCallback callback) {
+    public LocationProvider(Context context) {
         this.context = context;
-        this.callback = callback;
-    }
-
-    private boolean hasLocationPermission() {
-        return ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
     }
 
     @SuppressLint("MissingPermission")
-    public void requestLocation() {
-        if (!hasLocationPermission()) {
-            // Si vous n'avez pas la permission, vous pouvez lancer une exception, afficher un message ou autre chose selon votre cas d'utilisation.
-            throw new SecurityException("Location permission not granted");
-        }
+    public void requestLocationUpdates(OnLocationReceivedListener listener) {
+        this.listener = listener;
         LocationRequest locationRequest = new LocationRequest();
         locationRequest.setInterval(10000);
         locationRequest.setFastestInterval(3000);
         locationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
 
-        LocationServices.getFusedLocationProviderClient(context)
-                .requestLocationUpdates(locationRequest, new LocationCallback() {
+        locationCallback = new LocationCallback() {
 
-                    @Override
-                    public void onLocationResult(LocationResult locationResult) {
-                        super.onLocationResult(locationResult);
-                        if (locationResult != null && locationResult.getLocations().size() > 0) {
-                            Location location = locationResult.getLocations().get(0);
-                            callback.onLocationUpdated(location);
-                        }
+
+            @Override
+            public void onLocationResult(LocationResult locationResult) {
+                super.onLocationResult(locationResult);
+                if (locationResult != null && locationResult.getLocations().size() > 0) {
+                    int latestLocationIndex = locationResult.getLocations().size() - 1;
+                    Location newLocation = locationResult.getLocations().get(latestLocationIndex);
+
+                    if (previousLocation == null || previousLocation.distanceTo(newLocation) > LOCATION_CHANGE_THRESHOLD) {
+                        double latitude = newLocation.getLatitude();
+                        double longitude = newLocation.getLongitude();
+                        listener.onLocationReceived(latitude, longitude);
+                        previousLocation = newLocation;
                     }
-                }, Looper.getMainLooper());
+                }
+            }
+
+
+        };
+
+        fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
+    public void requestCurrentLocation(OnLocationReceivedListener listener) {
+        // Ici, vous pourriez soit envoyer la dernière localisation connue, soit faire une seule requête de localisation
+        @SuppressLint("MissingPermission")
+        Task<Location> task = fusedLocationProviderClient.getLastLocation();
+        task.addOnSuccessListener(location -> {
+            if (location != null) {
+                listener.onLocationReceived(location.getLatitude(), location.getLongitude());
+            }
+        });
+    }
+
+    public void stopLocationUpdates() {
+        if (locationCallback != null) {
+            fusedLocationProviderClient.removeLocationUpdates(locationCallback);
+        }
+    }
+
+    public interface OnLocationReceivedListener {
+        void onLocationReceived(double latitude, double longitude);
+    }
 }

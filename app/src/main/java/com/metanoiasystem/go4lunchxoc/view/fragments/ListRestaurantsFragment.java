@@ -19,22 +19,17 @@ import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
 import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
 import com.metanoiasystem.go4lunchxoc.view.adapters.ListRestaurantsAdapter;
-import com.metanoiasystem.go4lunchxoc.view.viewholders.callbacks.LocationUpdateCallback;
 import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
-
-public class ListRestaurantsFragment extends Fragment implements LocationUpdateCallback, ListRestaurantsAdapter.OnRestaurantClickListener {
+public class ListRestaurantsFragment extends Fragment implements LocationProvider.OnLocationReceivedListener, ListRestaurantsAdapter.OnRestaurantClickListener {
 
     private ListRestaurantsAdapter adapter;
     private List<Restaurant> restaurants;
     private FragmentListRestaurantsBinding binding;
     private LocationProvider provider;
-
-
     private ListRestaurantsViewModel listRestaurantsViewModel;
-
 
     @Nullable
     @Override
@@ -42,16 +37,15 @@ public class ListRestaurantsFragment extends Fragment implements LocationUpdateC
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        provider = new LocationProvider(requireContext(), this);
+        provider = new LocationProvider(requireContext());
 
         binding = FragmentListRestaurantsBinding.inflate(getLayoutInflater(), container, false);
         this.configureRecyclerView();
 
         listRestaurantsViewModel = new ViewModelProvider(this).get(ListRestaurantsViewModel.class);
-
         listRestaurantsViewModel.getListRestaurants().observe(getViewLifecycleOwner(), this::updateUI);
 
-        provider.requestLocation();
+        provider.requestLocationUpdates(this);
         return binding.getRoot();
     }
 
@@ -66,17 +60,9 @@ public class ListRestaurantsFragment extends Fragment implements LocationUpdateC
         startActivity(intent);
     }
 
-
-
     @Override
-    public void onStart() {
-        super.onStart();
-        provider.requestLocation();
-    }
-
-    @Override
-    public void onLocationUpdated(Location location) {
-        listRestaurantsViewModel.fetchListRestaurants(location.getLatitude(),location.getLongitude());
+    public void onLocationReceived(double latitude, double longitude) {
+        listRestaurantsViewModel.fetchListRestaurants(latitude, longitude);
     }
 
     // -----------------

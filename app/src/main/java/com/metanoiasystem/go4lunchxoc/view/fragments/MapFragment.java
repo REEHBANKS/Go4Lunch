@@ -37,26 +37,24 @@ import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
 import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
-import com.metanoiasystem.go4lunchxoc.view.viewholders.callbacks.LocationUpdateCallback;
 import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 
-public class MapFragment extends Fragment implements LocationUpdateCallback {
 
+public class MapFragment extends Fragment implements LocationProvider.OnLocationReceivedListener {
 
     private LocationProvider locationProvider;
     private static final int REQUEST_CODE_LOCATION_PERMISSION = 1001;
     private GoogleMap mMap;
-    private final List<Restaurant> mapRestaurants = new ArrayList<>();
-    MapViewModel mapViewModel = new MapViewModel();
+    private final MapViewModel mapViewModel = new MapViewModel();
     private Marker userMarker;
     private final List<Marker> restaurantMarkers = new ArrayList<>();
-
-
-
-
+    private boolean locationRequested = false;
 
 
     @Nullable
@@ -64,8 +62,6 @@ public class MapFragment extends Fragment implements LocationUpdateCallback {
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
-
-
         return inflater.inflate(R.layout.fragment_map, container, false);
     }
 
@@ -73,17 +69,11 @@ public class MapFragment extends Fragment implements LocationUpdateCallback {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        locationProvider = new LocationProvider(requireContext(), this);
+        locationProvider = new LocationProvider(requireContext());
 
-        mapViewModel.getMapLiveData().observe(getViewLifecycleOwner(), new Observer<List<Restaurant>>() {
-            @Override
-            public void onChanged(List<Restaurant> restaurants) {
-                addRestaurantMarkers(restaurants);
-            }
-        });
+        mapViewModel.getMapLiveData().observe(getViewLifecycleOwner(), restaurants -> addRestaurantMarkers(restaurants));
 
-        SupportMapFragment mapFragment =
-                (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
+        SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
@@ -92,100 +82,74 @@ public class MapFragment extends Fragment implements LocationUpdateCallback {
     @Override
     public void onStart() {
         super.onStart();
-        locationProvider.requestLocation();
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationProvider.requestLocationUpdates(this);
+        } else {
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION_PERMISSION);
+        }
     }
 
-   @Override
-   public void onPause() {
+    @Override
+    public void onPause() {
         super.onPause();
+        locationProvider.stopLocationUpdates();
         userMarker = null;
-
-   }
-
-
+    }
 
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         @Override
         public void onMapReady(@NonNull GoogleMap googleMap) {
             mMap = googleMap;
             checkAccessRestaurant();
-
-            mMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-                @Override
-                public boolean onMarkerClick(@NonNull Marker marker) {
-                    Object tag = marker.getTag();
-                    if (tag instanceof Restaurant) {
-                        Restaurant clickedRestaurant = (Restaurant) tag;
-                        Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
-                        intent.putExtra(RestaurantDetailActivity.RESTAURANT_KEY, clickedRestaurant);
-                        startActivity(intent);
-                        return true;  // indique que nous avons géré le clic
-                    }
-                    return false;  // laissez Google Maps gérer le clic si nous ne l'avons pas fait
-                }
-            });
-
-
-
-
         }
     };
 
     private void checkAccessRestaurant() {
-        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(requireActivity(),
-                    new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_CODE_LOCATION_PERMISSION
-            );
-        } else {
-            //
-            locationProvider.requestLocation();
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             mMap.setMyLocationEnabled(true);
+            if (!locationRequested) {
+                locationProvider.requestCurrentLocation(new LocationProvider.OnLocationReceivedListener() {
+                    @Override
+                    public void onLocationReceived(double latitude, double longitude) {
+                        // Votre code pour traiter la nouvelle localisation reçue
+                    }
+                });
+                locationRequested = true;
+            }
+        } else {
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION_PERMISSION);
         }
     }
+
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (requestCode == REQUEST_CODE_LOCATION_PERMISSION) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                // La permission est accordée, activez la localisation
-                locationProvider.requestLocation();
+                locationProvider.requestLocationUpdates(this);
             } else {
-                // Montrez un message à l'utilisateur expliquant pourquoi vous avez besoin de cette permission
                 Toast.makeText(getContext(), "Permission required to show location on map", Toast.LENGTH_LONG).show();
             }
         }
     }
 
-
     @Override
-    public void onLocationUpdated(Location location) {
-        mapViewModel.fetchMapViewModel(location.getLatitude(), location.getLongitude());
-        setMarkerAtCurrentPosition(location);
-    }
-
-    private void setMarkerAtCurrentPosition(Location location) {
-        if (mMap == null || location == null) return;
-
-        LatLng myLocation = new LatLng(location.getLatitude(), location.getLongitude());
-
-        if(userMarker == null) {
-            userMarker = mMap.addMarker(new MarkerOptions()
-                    .icon(bitmapDescriptorFactory(getContext(), R.drawable.icon_you_are_here))
-                    .position(myLocation)
-                    .title("You're here!"));
-            mMap.getUiSettings().setZoomControlsEnabled(true);
-
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(myLocation));
+    public void onLocationReceived(double latitude, double longitude) {
+        mapViewModel.fetchMapViewModel(latitude, longitude);
+        if (mMap != null) {
+            LatLng myLocation = new LatLng(latitude, longitude);
+            if (userMarker == null) {
+                userMarker = mMap.addMarker(new MarkerOptions()
+                        .icon(bitmapDescriptorFactory(getContext(), R.drawable.icon_you_are_here))
+                        .position(myLocation)
+                        .title("You're here!"));
                 mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
-
-
-        } else {
-            userMarker.setPosition(myLocation);
+            } else {
+                userMarker.setPosition(myLocation);
+            }
         }
-
     }
-
 
 
 
@@ -204,23 +168,47 @@ public class MapFragment extends Fragment implements LocationUpdateCallback {
     private void addRestaurantMarkers(List<Restaurant> restaurants) {
         if (mMap == null ) return;
 
-        // Supprimer les marqueurs des restaurants précédents
-        for (Marker marker : restaurantMarkers) {
-            marker.remove();
+        // Créer un set de tous les restaurants par leur id ou une autre propriété unique
+        Set<String> newRestaurants = new HashSet<>();
+        for (Restaurant restaurant : restaurants) {
+            newRestaurants.add(restaurant.getId()); // Remplacez getId() par une méthode appropriée pour obtenir un identifiant unique pour le restaurant
         }
-        restaurantMarkers.clear();
 
+        // Supprimer les marqueurs des restaurants qui ne sont plus dans la liste
+        Iterator<Marker> iterator = restaurantMarkers.iterator();
+        while (iterator.hasNext()) {
+            Marker marker = iterator.next();
+            Restaurant restaurant = (Restaurant) marker.getTag();
+            if (!newRestaurants.contains(restaurant.getId())) { // Remplacez getId() par une méthode appropriée
+                marker.remove();
+                iterator.remove();
+            }
+        }
+
+        // Ajouter les marqueurs pour les nouveaux restaurants
         for (Restaurant restaurant : restaurants) {
             LatLng restaurantLocation = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
-            Marker marker = mMap.addMarker(new MarkerOptions()
-                    .icon(bitmapDescriptorFactory(getContext(), R.drawable.icon_green_lunch))
-                    .position(restaurantLocation)
-                    .title(restaurant.getRestaurantName()));
+            // Vérifiez si le marqueur pour ce restaurant existe déjà
+            boolean exists = false;
+            for (Marker marker : restaurantMarkers) {
+                if (marker.getTag().equals(restaurant)) {
+                    exists = true;
+                    break;
+                }
+            }
+            // Si le marqueur n'existe pas, créez-en un nouveau
+            if (!exists) {
+                Marker marker = mMap.addMarker(new MarkerOptions()
+                        .icon(bitmapDescriptorFactory(getContext(), R.drawable.icon_green_lunch))
+                        .position(restaurantLocation)
+                        .title(restaurant.getRestaurantName()));
 
-            marker.setTag(restaurant);
-            restaurantMarkers.add(marker);
+                marker.setTag(restaurant);
+                restaurantMarkers.add(marker);
+            }
         }
     }
+
 
 
 }
