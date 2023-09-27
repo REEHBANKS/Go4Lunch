@@ -15,7 +15,7 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurant
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateSelectedRestaurantUseCase;
-import com.metanoiasystem.go4lunchxoc.utils.ImageLoader;
+import com.metanoiasystem.go4lunchxoc.utils.ImageUtils;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.RatingUtils;
 import com.metanoiasystem.go4lunchxoc.view.fragments.RestaurantSelectorListFragment;
@@ -92,9 +92,13 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
     }
 
+    // Set Image
+
     public void setPicture(){
-        ImageLoader.loadRestaurantImage(binding.pictureRestaurantDetail, restaurant.getUrlPictureRestaurant());
+        ImageUtils.loadRestaurantImage(binding.pictureRestaurantDetail, restaurant);
     }
+
+
 
     private void setNameAndAddress(Restaurant restaurant) {
         binding.nameRestaurantDetail.setText(restaurant.getRestaurantName());

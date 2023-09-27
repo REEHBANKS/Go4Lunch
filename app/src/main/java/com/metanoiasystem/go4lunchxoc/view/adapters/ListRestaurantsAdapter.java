@@ -11,6 +11,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsItemBinding;
+import com.metanoiasystem.go4lunchxoc.utils.ImageUtils;
 import com.metanoiasystem.go4lunchxoc.view.viewholders.ListRestaurantsViewHolder;
 
 import java.util.List;
@@ -49,6 +50,11 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
         // Set Name
 
         holder.getBinding().itemListRestaurantName.setText(restaurant.getRestaurantName());
+
+        // Set Image
+
+        ImageUtils.loadRestaurantImage(holder.getBinding().itemListRestaurantPicture, restaurant);
+
 
         holder.itemView.setOnClickListener(v -> {
             mListener.onRestaurantClicked(restaurant);
