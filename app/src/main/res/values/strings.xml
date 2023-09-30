@@ -40,8 +40,9 @@
     <string name="error_no_user_connected">Tentative de création d\'un restaurant favori sans utilisateur connecté</string>
     <string name="todo11">todo11</string>
     <string name="kylian_is_eating_french_chez_guy">Kylian is eating french chz guy</string>
-    <string name="open">Ouvert</string>
-    <string name="closed">Fermé</string>
+    <string name="open"><font color="#00FF00">Ouvert</font></string>
+    <string name="closed"><font color="#FF0000">Fermé</font></string>
+    <string name="not_available"></string> <!-- Chaîne vide pour "information non disponible" -->
 
 
 </resources>

@@ -67,6 +67,9 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
 
         // Set Open or close
 
+        holder.getBinding().itemListRestaurantOpening.setText(String.valueOf(RestaurantStatusUtils
+                .getOpeningStatus(holder.getBinding().getRoot().getContext(),restaurant)));
+
 
 
 
