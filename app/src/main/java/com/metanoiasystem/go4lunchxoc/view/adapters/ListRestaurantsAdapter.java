@@ -13,6 +13,7 @@ import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsItemBinding;
 import com.metanoiasystem.go4lunchxoc.utils.ImageUtils;
 import com.metanoiasystem.go4lunchxoc.utils.RatingUtils;
+import com.metanoiasystem.go4lunchxoc.utils.RestaurantStatusUtils;
 import com.metanoiasystem.go4lunchxoc.view.viewholders.ListRestaurantsViewHolder;
 
 import java.util.List;
@@ -65,6 +66,8 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
         RatingUtils.setRating(holder.getBinding().itemListRestaurantRatingBar, restaurant.getRating());
 
         // Set Open or close
+
+
 
 
 

@@ -15,7 +15,7 @@
     <string name="todo8">TODO</string>
     <string name="le_zinc1">le Zinc</string>
     <string name="_20_rue_de_paris">"20 rue de paris "</string>
-    <string name="open">open</string>
+    <string name="openn">open</string>
     <string name="_200m">200m</string>
     <string name="todo10">TODO10</string>
     <string name="_2">2</string>
@@ -40,5 +40,8 @@
     <string name="error_no_user_connected">Tentative de création d\'un restaurant favori sans utilisateur connecté</string>
     <string name="todo11">todo11</string>
     <string name="kylian_is_eating_french_chez_guy">Kylian is eating french chz guy</string>
+    <string name="open">Ouvert</string>
+    <string name="closed">Fermé</string>
+
 
 </resources>
