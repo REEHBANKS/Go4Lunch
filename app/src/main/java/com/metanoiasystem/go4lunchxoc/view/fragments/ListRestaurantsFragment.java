@@ -10,13 +10,16 @@ import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
+import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
 import com.metanoiasystem.go4lunchxoc.view.adapters.ListRestaurantsAdapter;
 import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
@@ -27,9 +30,15 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
 
     private ListRestaurantsAdapter adapter;
     private List<Restaurant> restaurants;
+    private  List<SelectedRestaurant> listAllSelectedRestaurants;
     private FragmentListRestaurantsBinding binding;
     private LocationProvider provider;
     private ListRestaurantsViewModel listRestaurantsViewModel;
+    private CountUsersForRestaurantUseCase useCase;
+
+
+
+
 
     @Nullable
     @Override
@@ -39,11 +48,34 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
 
         provider = new LocationProvider(requireContext());
 
+        listRestaurantsViewModel = new ViewModelProvider(this).get(ListRestaurantsViewModel.class);
+        listRestaurantsViewModel.fetchAllSelectedRestaurants();
+
+
         binding = FragmentListRestaurantsBinding.inflate(getLayoutInflater(), container, false);
         this.configureRecyclerView();
 
-        listRestaurantsViewModel = new ViewModelProvider(this).get(ListRestaurantsViewModel.class);
-        listRestaurantsViewModel.getListRestaurants().observe(getViewLifecycleOwner(), this::updateUI);
+
+
+
+        listRestaurantsViewModel.getRestaurants().observe(getViewLifecycleOwner(), this::updateUI);
+        listRestaurantsViewModel.getSelectedRestaurants().observe(getViewLifecycleOwner(), selectedRestaurants -> {
+
+            adapter.setAllSelectedRestaurants(selectedRestaurants);
+            listAllSelectedRestaurants = selectedRestaurants;
+
+        });
+
+        listRestaurantsViewModel.getCountUsersPerRestaurantLiveData().observe(getViewLifecycleOwner(), countMap -> {
+            adapter.setCountUsersMap(countMap);
+            adapter.notifyDataSetChanged();
+        });
+
+        listRestaurantsViewModel.getError().observe(getViewLifecycleOwner(), throwable -> {
+            Log.e("errorListViewModel", "Sorry, error!");
+        });
+
+
 
         provider.requestLocationUpdates(this);
         return binding.getRoot();
@@ -62,15 +94,27 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
 
     @Override
     public void onLocationReceived(double latitude, double longitude) {
-        listRestaurantsViewModel.fetchListRestaurants(latitude, longitude);
+        listRestaurantsViewModel.fetchRestaurants(latitude, longitude);
     }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        List<SelectedRestaurant> allSelectedRestaurants = listAllSelectedRestaurants;
+
+        for (Restaurant restaurant : restaurants) {
+            listRestaurantsViewModel.fetchCountUsersForRestaurant(restaurant, allSelectedRestaurants);
+        }
+    }
+
+
 
     // -----------------
     // CONFIGURATION RECYCLERVIEW
     // -----------------
     private void configureRecyclerView() {
         this.restaurants = new ArrayList<>();
-        this.adapter = new ListRestaurantsAdapter(this.restaurants, this);
+        this.adapter = new ListRestaurantsAdapter(this.restaurants, this, useCase);
         binding.fragmentMainRecyclerView.setAdapter(this.adapter);
         this.binding.fragmentMainRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
@@ -80,6 +124,7 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
     // -------------------
     @SuppressLint("NotifyDataSetChanged")
     public void updateUI(List<Restaurant> theRestaurants) {
+        restaurants.clear();
         restaurants.addAll(theRestaurants);
         adapter.notifyDataSetChanged();
     }

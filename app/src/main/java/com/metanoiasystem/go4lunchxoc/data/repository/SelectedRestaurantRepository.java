@@ -39,6 +39,13 @@ public class SelectedRestaurantRepository {
                 .collection(SELECTED_RESTAURANTS_SUBCOLLECTION);
     }
 
+    // Get all restaurant selected
+
+    public Task<QuerySnapshot> getAllSelectedRestaurants() {
+        return getSelectedRestaurantCollection().get();
+    }
+
+
     // Methode pour vérifier si un restaurant est déjà sélectionné par l'utilisateur actuel
     public Task<QuerySnapshot> checkIfRestaurantSelected(String userId, String date) {
         return getSelectedRestaurantCollection()
@@ -66,6 +73,8 @@ public class SelectedRestaurantRepository {
                 .whereEqualTo("restaurantId", restaurantId)
                 .get();
     }
+
+
 
 
 

@@ -65,7 +65,7 @@ public class RestaurantRepository {
 
     // Function to fetch all restaurants. It calls the function to fetch all restaurants and then updates
     // the MutableLiveData object with the fetched data.
-    public void fetchRestaurant(Double latitude, Double longitude) {
+    public void fetchRestaurant(Double latitude, Double longitude, RestaurantFetchCallback callback) {
         // If a previous fetch operation was still ongoing, it is stopped.
         if (restaurantDisposable != null && !restaurantDisposable.isDisposed()) {
             restaurantDisposable.dispose();
@@ -80,6 +80,7 @@ public class RestaurantRepository {
                     @Override
                     public void onNext(@NonNull List<Restaurant> restaurants) {
                         result.setValue(restaurants);
+                        callback.onSuccess(restaurants);
 
 
                     }
@@ -87,6 +88,7 @@ public class RestaurantRepository {
                     @Override
                     public void onError(@NonNull Throwable e) {
                         Log.d("RestaurantRepository", "On error");
+                        callback.onError(e);
 
                     }
 
@@ -151,6 +153,11 @@ public class RestaurantRepository {
 
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public interface RestaurantFetchCallback {
+        void onSuccess(List<Restaurant> restaurants);
+        void onError(Throwable error);
     }
 
 }

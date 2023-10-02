@@ -71,7 +71,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
 
         locationProvider = new LocationProvider(requireContext());
 
-        mapViewModel.getMapLiveData().observe(getViewLifecycleOwner(), restaurants -> addRestaurantMarkers(restaurants));
+        mapViewModel.getMapLiveData().observe(getViewLifecycleOwner(), this::addRestaurantMarkers);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
@@ -136,7 +136,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
 
     @Override
     public void onLocationReceived(double latitude, double longitude) {
-        mapViewModel.fetchMapViewModel(latitude, longitude);
+        mapViewModel.fetchRestaurants(latitude, longitude);
         if (mMap != null) {
             LatLng myLocation = new LatLng(latitude, longitude);
             if (userMarker == null) {

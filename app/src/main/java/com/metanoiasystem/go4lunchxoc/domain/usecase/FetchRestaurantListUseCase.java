@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.repository.RestaurantRepository;
+import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 
 import java.util.List;
 
@@ -15,12 +16,20 @@ public class FetchRestaurantListUseCase {
         this.restaurantRepository = RestaurantRepository.getInstance();
     }
 
-    public LiveData<List<Restaurant>> getRestaurantsLiveData() {
-        return restaurantRepository.getRestaurantLiveData();
+    public void execute(Double latitude, Double longitude, UseCaseCallback<List<Restaurant>> callback) {
+        restaurantRepository.fetchRestaurant(latitude, longitude, new RestaurantRepository.RestaurantFetchCallback() {
+            @Override
+            public void onSuccess(List<Restaurant> restaurants) {
+                callback.onSuccess(restaurants);
+            }
+
+            @Override
+            public void onError(Throwable error) {
+                callback.onError(error);
+            }
+        });
     }
 
-    public void execute(Double latitude, Double longitude) {
-        restaurantRepository.fetchRestaurant(latitude, longitude);
-    }
+
 
 }

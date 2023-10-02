@@ -9,32 +9,40 @@ import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
+import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsItemBinding;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.ImageUtils;
 import com.metanoiasystem.go4lunchxoc.utils.RatingUtils;
 import com.metanoiasystem.go4lunchxoc.utils.RestaurantStatusUtils;
 import com.metanoiasystem.go4lunchxoc.view.viewholders.ListRestaurantsViewHolder;
 
+import java.util.HashMap;
 import java.util.List;
-
+import java.util.Map;
 public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurantsViewHolder> {
 
     private final List<Restaurant> restaurants;
-
+    private List<SelectedRestaurant> allSelectedRestaurants;
+    private final CountUsersForRestaurantUseCase useCase;
+    private Map<String, Integer> countUsersMap = new HashMap<>();
     private final OnRestaurantClickListener mListener;
 
-
-
-    public ListRestaurantsAdapter(List<Restaurant> restaurants, OnRestaurantClickListener listener) {
+    public ListRestaurantsAdapter(List<Restaurant> restaurants, OnRestaurantClickListener listener,
+                                  CountUsersForRestaurantUseCase useCase) {
         this.restaurants = restaurants;
         this.mListener = listener;
+        this.useCase = useCase;
+    }
+
+    public void setCountUsersMap(Map<String, Integer> countUsersMap) {
+        this.countUsersMap = countUsersMap;
     }
 
     public interface OnRestaurantClickListener {
         void onRestaurantClicked(Restaurant restaurant);
     }
-
 
     @RequiresApi(api = Build.VERSION_CODES.M)
     @NonNull
@@ -43,57 +51,57 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
         LayoutInflater layoutInflater = LayoutInflater.from(parent.getContext());
         FragmentListRestaurantsItemBinding fragmentListRestaurantsItemBinding = FragmentListRestaurantsItemBinding.inflate(layoutInflater, parent, false);
         return new ListRestaurantsViewHolder(fragmentListRestaurantsItemBinding);
-        }
+    }
 
     @Override
     public void onBindViewHolder(ListRestaurantsViewHolder holder, int position) {
         Restaurant restaurant = restaurants.get(position);
 
-        // Set Name
+        // Get the user count from the map
+        Integer count = countUsersMap.get(restaurant.getId());
+        int userCount = (count != null) ? count : 0;
 
+
+
+
+        // Set Name
         holder.getBinding().itemListRestaurantName.setText(restaurant.getRestaurantName());
 
         // Set Address
-
         holder.getBinding().itemListRestaurantAddress.setText(restaurant.getRestaurantAddress());
 
         // Set Image
-
         ImageUtils.loadRestaurantImage(holder.getBinding().itemListRestaurantPicture, restaurant);
 
         // Set Rating
-
         RatingUtils.setRating(holder.getBinding().itemListRestaurantRatingBar, restaurant.getRating());
 
-        // Set Open or close
+        // Set Open or Close status
+        holder.getBinding().itemListRestaurantOpening.setText(String.valueOf(RestaurantStatusUtils.getOpeningStatus(holder.getBinding().getRoot().getContext(), restaurant)));
 
-        holder.getBinding().itemListRestaurantOpening.setText(String.valueOf(RestaurantStatusUtils
-                .getOpeningStatus(holder.getBinding().getRoot().getContext(),restaurant)));
+        // Set the number of users who chose this restaurant
 
-
-
-
-
-        // Set User Number who choose this restaurant
-
-
+            holder.getBinding().itemListRestaurantPersonNumber.setText(String.valueOf(userCount));
 
 
         // Set Distance
         holder.getBinding().itemListRestaurantDistance.setText(String.valueOf(restaurant.getDistanceKm() + " m"));
 
-
-
-
-        holder.itemView.setOnClickListener(v -> {
-            mListener.onRestaurantClicked(restaurant);
-        });
-
-
+        // Set the click listener
+        holder.itemView.setOnClickListener(v -> mListener.onRestaurantClicked(restaurant));
     }
 
     @Override
     public int getItemCount() {
         return restaurants.size();
+    }
+
+    // When updating the list of selected restaurants, update the countUsersMap accordingly
+    public void setAllSelectedRestaurants(List<SelectedRestaurant> allSelectedRestaurants) {
+        this.allSelectedRestaurants = allSelectedRestaurants;
+
+
+
+        notifyDataSetChanged();
     }
 }
