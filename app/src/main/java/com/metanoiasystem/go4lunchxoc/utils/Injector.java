@@ -1,13 +1,17 @@
 package com.metanoiasystem.go4lunchxoc.utils;
 
 import com.metanoiasystem.go4lunchxoc.data.repository.FavoriteRestaurantRepository;
+import com.metanoiasystem.go4lunchxoc.data.repository.RestaurantRepository;
 import com.metanoiasystem.go4lunchxoc.data.repository.SelectedRestaurantRepository;
 import com.metanoiasystem.go4lunchxoc.data.repository.UserRepository;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.AddToFavoritesUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateUserUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateSelectedRestaurantUseCase;
 
@@ -16,6 +20,7 @@ public class Injector {
     private static UserRepository userRepository = null;
     private static FavoriteRestaurantRepository favoriteRestaurantRepository = null;
     private static SelectedRestaurantRepository selectedRestaurantRepository = null;
+    private static RestaurantRepository restaurantRepository = null;
     private static CreateUserUseCase createUserUseCase = null;
     private static FetchAllUsersUseCase fetchAllUsersUseCase = null;
     private static AddToFavoritesUseCase addToFavoritesUseCase = null;
@@ -23,6 +28,9 @@ public class Injector {
     private static CreateNewSelectedRestaurantUseCase createNewSelectedRestaurantUseCase = null;
     private static UpdateSelectedRestaurantUseCase updateSelectedRestaurantUseCase = null;
     private static GetSelectedRestaurantsWithIdUseCase getSelectedRestaurantsWithIdUseCase = null;
+    private static FetchRestaurantListUseCase fetchRestaurantListUseCase = null;
+    private static CountUsersForRestaurantUseCase countUsersForRestaurantUseCase = null;
+    private static GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase = null;
 
 
     public static synchronized UserRepository provideUserRepository() {
@@ -44,6 +52,13 @@ public class Injector {
             selectedRestaurantRepository = SelectedRestaurantRepository.getInstance();
         }
         return selectedRestaurantRepository;
+    }
+
+    public static synchronized RestaurantRepository provideRestaurantRepository() {
+        if (restaurantRepository == null) {
+            restaurantRepository = RestaurantRepository.getInstance();
+        }
+        return restaurantRepository;
     }
 
 
@@ -96,6 +111,34 @@ public class Injector {
 
         return getSelectedRestaurantsWithIdUseCase;
     }
+
+    public static synchronized FetchRestaurantListUseCase provideFetchRestaurantListUseCase(){
+        if (fetchRestaurantListUseCase == null) {
+            fetchRestaurantListUseCase = new FetchRestaurantListUseCase();
+        }
+
+        return fetchRestaurantListUseCase;
+    }
+
+    public static synchronized CountUsersForRestaurantUseCase provideCountUsersForRestaurantUseCase(){
+        if (countUsersForRestaurantUseCase == null) {
+            countUsersForRestaurantUseCase = new CountUsersForRestaurantUseCase(provideSelectedRestaurantRepository());
+        }
+
+        return countUsersForRestaurantUseCase;
+    }
+
+    public static synchronized GetAllSelectedRestaurantsUseCase provideGetAllSelectedRestaurantsUseCase(){
+        if (getAllSelectedRestaurantsUseCase == null) {
+            getAllSelectedRestaurantsUseCase = new GetAllSelectedRestaurantsUseCase(provideSelectedRestaurantRepository());
+        }
+
+        return getAllSelectedRestaurantsUseCase;
+    }
+
+
+
+
 
 
 

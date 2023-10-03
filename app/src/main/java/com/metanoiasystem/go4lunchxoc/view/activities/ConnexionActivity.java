@@ -10,6 +10,9 @@ import com.firebase.ui.auth.AuthUI;
 import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.firebase.FirebaseApp;
+import com.google.firebase.FirebaseOptions;
+import com.google.firebase.firestore.util.Logger;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.databinding.ActivityConnexionBinding;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateUserUseCase;
@@ -32,6 +35,9 @@ public class ConnexionActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        FirebaseApp.initializeApp(this);
+
+
         binding = ActivityConnexionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 

@@ -1,5 +1,6 @@
 package com.metanoiasystem.go4lunchxoc.view.adapters;
 
+import android.annotation.SuppressLint;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -25,15 +26,13 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
 
     private final List<Restaurant> restaurants;
     private List<SelectedRestaurant> allSelectedRestaurants;
-    private final CountUsersForRestaurantUseCase useCase;
     private Map<String, Integer> countUsersMap = new HashMap<>();
     private final OnRestaurantClickListener mListener;
 
-    public ListRestaurantsAdapter(List<Restaurant> restaurants, OnRestaurantClickListener listener,
-                                  CountUsersForRestaurantUseCase useCase) {
+    public ListRestaurantsAdapter(List<Restaurant> restaurants, OnRestaurantClickListener listener) {
         this.restaurants = restaurants;
         this.mListener = listener;
-        this.useCase = useCase;
+
     }
 
     public void setCountUsersMap(Map<String, Integer> countUsersMap) {
@@ -97,11 +96,10 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
     }
 
     // When updating the list of selected restaurants, update the countUsersMap accordingly
+
     public void setAllSelectedRestaurants(List<SelectedRestaurant> allSelectedRestaurants) {
         this.allSelectedRestaurants = allSelectedRestaurants;
 
 
-
-        notifyDataSetChanged();
     }
 }

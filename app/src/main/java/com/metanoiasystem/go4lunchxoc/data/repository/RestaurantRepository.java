@@ -3,10 +3,16 @@ package com.metanoiasystem.go4lunchxoc.data.repository;
 import android.location.Location;
 import android.util.Log;
 
+
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.Task;
+import com.google.android.gms.tasks.Tasks;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.QueryDocumentSnapshot;
 import com.metanoiasystem.go4lunchxoc.BuildConfig;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.apiresponse.AllTheListRestaurantsResponse;
@@ -26,79 +32,123 @@ import io.reactivex.schedulers.Schedulers;
 
 public class RestaurantRepository {
 
-    // MutableLiveData that will hold a list of all restaurants.
-            MutableLiveData<List<Restaurant>> result = new MutableLiveData<>();
 
-    // Function to get the LiveData object that holds the list of all restaurants.
+    private static volatile  RestaurantRepository restaurantRepository;
+    private final MutableLiveData<List<Restaurant>> result = new MutableLiveData<>();
+    private final CollectionReference restaurantsCollection = FirebaseFirestore.getInstance().collection("restaurants");
+    private Disposable restaurantDisposable;
+
     public LiveData<List<Restaurant>> getRestaurantLiveData() {
         return result;
     }
 
-    // MutableLiveData that will hold data of a single restaurant
-    MutableLiveData<Restaurant> oneResult = new MutableLiveData<>();
-
-    // Function to get the LiveData object that holds data of a single restaurant.
-    public LiveData<Restaurant> getOneRestaurantLiveData() {
-        return oneResult;
-    }
-
-    // Disposables are used in RxJava to manage memory. When you don't need your Observable anymore you can dispose it.
-    // In this case, we have a Disposable to manage the streamFetchOneRestaurantResponse Observable.
-    private Disposable restaurantDisposable;
-    private Disposable oneRestaurantDisposable;
-
-    // Singleton instance of the RestaurantRepository class.
-    private static RestaurantRepository restaurantRepository;
-
-    // String constant to represent all restaurants field.
-    private static final String ALL_RESTAURANTS_FIELD = "all_restaurants";
-
-    // Singleton getter function for the RestaurantRepository class.
     public static RestaurantRepository getInstance() {
         if (restaurantRepository == null) {
             restaurantRepository = new RestaurantRepository();
         }
         return restaurantRepository;
-
     }
 
-
-    // Function to fetch all restaurants. It calls the function to fetch all restaurants and then updates
-    // the MutableLiveData object with the fetched data.
     public void fetchRestaurant(Double latitude, Double longitude, RestaurantFetchCallback callback) {
-        // If a previous fetch operation was still ongoing, it is stopped.
-        if (restaurantDisposable != null && !restaurantDisposable.isDisposed()) {
-            restaurantDisposable.dispose();
-            Log.d("RestaurantRepository", "fetchRestaurant called with latitude: " + latitude + ", longitude: " + longitude);
 
-        }
+        fetchFromNetwork(latitude, longitude, callback);
+    }
 
-        // Start a new fetch operation.
+    private void fetchFromNetwork(Double latitude, Double longitude, RestaurantFetchCallback callback) {
         restaurantDisposable = streamFetchRestaurantResponse(latitude, longitude)
                 .subscribeWith(new DisposableObserver<List<Restaurant>>() {
-
                     @Override
                     public void onNext(@NonNull List<Restaurant> restaurants) {
-                        result.setValue(restaurants);
-                        callback.onSuccess(restaurants);
-
-
+                        // Avant d'ajouter les nouveaux restaurants, supprimez les anciens de Firestore
+                        clearRestaurantsFromFirestore().addOnCompleteListener(task -> {
+                            if (task.isSuccessful()) {
+                                for (Restaurant restaurant : restaurants) {
+                                    addRestaurantToFirestore(restaurant);
+                                }
+                                result.setValue(restaurants);
+                                callback.onSuccess(restaurants);
+                            } else {
+                                Log.e("Firestore", "Erreur lors de la suppression des restaurants", task.getException());
+                                callback.onError(task.getException());
+                            }
+                        });
                     }
 
                     @Override
                     public void onError(@NonNull Throwable e) {
-                        Log.d("RestaurantRepository", "On error");
                         callback.onError(e);
-
                     }
 
                     @Override
                     public void onComplete() {
-                        Log.d("RestaurantRepository", "On complete");
-
+                        // Vous pouvez ajouter des logs ou d'autres opérations si nécessaire
                     }
                 });
     }
+
+    public void dispose() {
+        if (restaurantDisposable != null && !restaurantDisposable.isDisposed()) {
+            restaurantDisposable.dispose();
+        }
+    }
+
+
+
+    private Task<Void> clearRestaurantsFromFirestore() {
+        // Utilisez une liste pour stocker toutes les tâches de suppression
+        List<Task<Void>> deleteTasks = new ArrayList<>();
+
+        // Récupérez tous les documents et ajoutez leurs tâches de suppression à la liste
+        return restaurantsCollection.get().continueWithTask(task -> {
+            if (task.isSuccessful() && task.getResult() != null) {
+                for (QueryDocumentSnapshot document : task.getResult()) {
+                    String docId = document.getId();
+                    // Ne supprimez pas les documents "favoris" et "selected"
+                    if (!docId.equals("favorites") && !docId.equals("selected")) {
+                        deleteTasks.add(document.getReference().delete());
+                    }
+                }
+            }
+            // Attendez que toutes les tâches de suppression soient terminées
+            return Tasks.whenAll(deleteTasks);
+        });
+    }
+
+
+    // TEST LIST ADD RESTAURANT FIRESTORE
+
+    private void addRestaurantToFirestore(Restaurant restaurant) {
+        restaurantsCollection.document(restaurant.getId()).set(restaurant)
+                .addOnSuccessListener(aVoid -> {
+                    // Once the restaurant is added, fetch and log the names
+                    fetchAndLogRestaurants();
+                })
+                .addOnFailureListener(e -> {
+                    Log.e("Firestore", "Error adding restaurant", e);
+                });
+    }
+
+    public void fetchAndLogRestaurants() {
+        restaurantsCollection
+                .get()
+                .addOnCompleteListener(task -> {
+                    if (task.isSuccessful()) {
+                        StringBuilder table = new StringBuilder("| Restaurant Names |\n");
+                        table.append("|------------------|\n");
+                        for (QueryDocumentSnapshot document : task.getResult()) {
+                            Log.d("Firestore", "Raw Document: " + document.getData());
+                            Restaurant restaurant = document.toObject(Restaurant.class);
+                            Log.d("Firestore", "Mapped Restaurant: " + restaurant.toString());
+                            table.append("| ").append(restaurant.getRestaurantName()).append(" |\n");
+                        }
+
+                        Log.d("Firestore", table.toString());
+                    } else {
+                        Log.e("Firestore", "Error fetching restaurants", task.getException());
+                    }
+                });
+    }
+
 
     // Function that makes a request to the RestaurantService to fetch all restaurants.
     // It then maps the response to a list of Restaurant objects.
@@ -141,11 +191,6 @@ public class RestaurantRepository {
                         restaurants.add(restaurant);
                     }
 
-                    // Log de la liste des restaurants avant de la retourner
-                    for (Restaurant restaurant : restaurants) {
-                        // TODO: 27/08/2023 Test network call to fetch restaurants  
-
-                    }
 
                     return restaurants;
                 })

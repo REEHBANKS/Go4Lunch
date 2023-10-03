@@ -1,5 +1,7 @@
 package com.metanoiasystem.go4lunchxoc.viewmodels;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -57,6 +59,7 @@ public class ListRestaurantsViewModel extends ViewModel {
             @Override
             public void onSuccess(List<Restaurant> result) {
                 restaurantsLiveData.setValue(result);
+                Log.d("ListViewModel", "Successfully fetched " + result.size() + " restaurants.");
             }
 
             @Override

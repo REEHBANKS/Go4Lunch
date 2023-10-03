@@ -2,28 +2,21 @@ package com.metanoiasystem.go4lunchxoc.view.fragments;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.drawable.Drawable;
-import android.location.Location;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
 
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -36,8 +29,12 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
-import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
+import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.RestaurantViewModelFactory;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -51,7 +48,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     private LocationProvider locationProvider;
     private static final int REQUEST_CODE_LOCATION_PERMISSION = 1001;
     private GoogleMap mMap;
-    private final MapViewModel mapViewModel = new MapViewModel();
+    private  MapViewModel mapViewModel;
     private Marker userMarker;
     private final List<Marker> restaurantMarkers = new ArrayList<>();
     private boolean locationRequested = false;
@@ -62,7 +59,24 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     public View onCreateView(@NonNull LayoutInflater inflater,
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+
+
+        FetchRestaurantListUseCase fetchRestaurantListUseCase = Injector.provideFetchRestaurantListUseCase();
+        CountUsersForRestaurantUseCase countUsersForRestaurantUseCase = Injector.provideCountUsersForRestaurantUseCase();
+        GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase = Injector.provideGetAllSelectedRestaurantsUseCase();
+
+        RestaurantViewModelFactory factory = new RestaurantViewModelFactory(fetchRestaurantListUseCase,
+                countUsersForRestaurantUseCase, getAllSelectedRestaurantsUseCase);
+        mapViewModel = new ViewModelProvider(this, factory).get(MapViewModel.class);
+
+
+
         return inflater.inflate(R.layout.fragment_map, container, false);
+
+
+
+
+
     }
 
     @Override

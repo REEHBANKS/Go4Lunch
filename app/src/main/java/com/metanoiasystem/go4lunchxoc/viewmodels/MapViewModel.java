@@ -1,5 +1,7 @@
 package com.metanoiasystem.go4lunchxoc.viewmodels;
 
+import android.util.Log;
+
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -17,8 +19,8 @@ public class MapViewModel extends ViewModel {
     private final MutableLiveData<List<Restaurant>> restaurantsLiveData = new MutableLiveData<>();
     private final MutableLiveData<Throwable> errorLiveData = new MutableLiveData<>();
 
-    public MapViewModel() {
-        fetchRestaurantListUseCase = new FetchRestaurantListUseCase();
+    public MapViewModel(FetchRestaurantListUseCase fetchRestaurantListUseCase) {
+        this.fetchRestaurantListUseCase = fetchRestaurantListUseCase;
     }
 
     public LiveData<List<Restaurant>> getMapLiveData() {
@@ -31,16 +33,20 @@ public class MapViewModel extends ViewModel {
 
 
     public void fetchRestaurants(Double latitude, Double longitude) {
+
         fetchRestaurantListUseCase.execute(latitude, longitude, new UseCaseCallback<List<Restaurant>>() {
             @Override
             public void onSuccess(List<Restaurant> result) {
+                Log.d("MapViewModel", "Successfully fetched " + result.size() + " restaurants.");
                 restaurantsLiveData.setValue(result);
             }
 
             @Override
             public void onError(Throwable error) {
+                Log.e("MapViewModel", "Error fetching restaurants: " + error.getMessage());
                 errorLiveData.setValue(error);
             }
         });
     }
+
 }
