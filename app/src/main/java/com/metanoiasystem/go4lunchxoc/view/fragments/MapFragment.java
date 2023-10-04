@@ -28,15 +28,18 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
+import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
+import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
 import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
 import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.RestaurantViewModelFactory;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
@@ -50,6 +53,8 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     private GoogleMap mMap;
     private  MapViewModel mapViewModel;
     private Marker userMarker;
+    private  List<Restaurant> allRestaurants = new ArrayList<>();
+    private  List<SelectedRestaurant> selectedAllRestaurants = new ArrayList<>();
     private final List<Marker> restaurantMarkers = new ArrayList<>();
     private boolean locationRequested = false;
 
@@ -68,13 +73,9 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
         RestaurantViewModelFactory factory = new RestaurantViewModelFactory(fetchRestaurantListUseCase,
                 countUsersForRestaurantUseCase, getAllSelectedRestaurantsUseCase);
         mapViewModel = new ViewModelProvider(this, factory).get(MapViewModel.class);
-
-
+        mapViewModel.fetchAllSelectedRestaurants();
 
         return inflater.inflate(R.layout.fragment_map, container, false);
-
-
-
 
 
     }
@@ -85,12 +86,23 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
 
         locationProvider = new LocationProvider(requireContext());
 
-        mapViewModel.getMapLiveData().observe(getViewLifecycleOwner(), this::addRestaurantMarkers);
-
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
+
+        mapViewModel.getMapLiveData().observe(getViewLifecycleOwner(), restaurants -> {
+            allRestaurants = restaurants;
+            addRestaurantMarkers(allRestaurants,selectedAllRestaurants);
+        });
+
+        mapViewModel.getSelectedRestaurants().observe(getViewLifecycleOwner(), selectedRestaurants ->{
+
+            selectedAllRestaurants = selectedRestaurants;
+            addRestaurantMarkers(allRestaurants,selectedAllRestaurants);
+        } );
+
+
     }
 
     @Override
@@ -101,6 +113,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
         } else {
             requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION_PERMISSION);
         }
+
     }
 
     @Override
@@ -114,6 +127,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
         @Override
         public void onMapReady(@NonNull GoogleMap googleMap) {
             mMap = googleMap;
+            mMap.getUiSettings().setZoomControlsEnabled(true);
             checkAccessRestaurant();
         }
     };
@@ -158,10 +172,11 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
                         .icon(bitmapDescriptorFactory(getContext(), R.drawable.icon_you_are_here))
                         .position(myLocation)
                         .title("You're here!"));
-                mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 16));
+
             } else {
                 userMarker.setPosition(myLocation);
             }
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17));
         }
     }
 
@@ -179,13 +194,19 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
         return BitmapDescriptorFactory.fromBitmap(bitmap);
     }
 
-    private void addRestaurantMarkers(List<Restaurant> restaurants) {
-        if (mMap == null ) return;
+    private void addRestaurantMarkers(List<Restaurant> restaurants, List<SelectedRestaurant> selectedRestaurants) {
+        if (mMap == null) return;
 
-        // Créer un set de tous les restaurants par leur id ou une autre propriété unique
+        // Créer un HashMap pour vérifier rapidement si un restaurant est sélectionné
+        HashMap<String, Boolean> isSelectedMap = new HashMap<>();
+        for (SelectedRestaurant selectedRestaurant : selectedRestaurants) {
+            isSelectedMap.put(selectedRestaurant.getRestaurantId(), true);
+        }
+
+        // Créer un set de tous les restaurants par leur id
         Set<String> newRestaurants = new HashSet<>();
         for (Restaurant restaurant : restaurants) {
-            newRestaurants.add(restaurant.getId()); // Remplacez getId() par une méthode appropriée pour obtenir un identifiant unique pour le restaurant
+            newRestaurants.add(restaurant.getId());
         }
 
         // Supprimer les marqueurs des restaurants qui ne sont plus dans la liste
@@ -193,7 +214,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
         while (iterator.hasNext()) {
             Marker marker = iterator.next();
             Restaurant restaurant = (Restaurant) marker.getTag();
-            if (!newRestaurants.contains(restaurant.getId())) { // Remplacez getId() par une méthode appropriée
+            if (!newRestaurants.contains(restaurant.getId())) {
                 marker.remove();
                 iterator.remove();
             }
@@ -212,8 +233,9 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
             }
             // Si le marqueur n'existe pas, créez-en un nouveau
             if (!exists) {
+                int markerIcon = isSelectedMap.containsKey(restaurant.getId()) ? R.drawable.icon_green_lunch : R.drawable.icon_red_lunch;
                 Marker marker = mMap.addMarker(new MarkerOptions()
-                        .icon(bitmapDescriptorFactory(getContext(), R.drawable.icon_green_lunch))
+                        .icon(bitmapDescriptorFactory(getContext(), markerIcon))
                         .position(restaurantLocation)
                         .title(restaurant.getRestaurantName()));
 
@@ -222,6 +244,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
             }
         }
     }
+
 
 
 

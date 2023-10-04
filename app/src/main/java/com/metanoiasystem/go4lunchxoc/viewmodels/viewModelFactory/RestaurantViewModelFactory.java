@@ -35,7 +35,7 @@ public class RestaurantViewModelFactory implements ViewModelProvider.Factory {
             return (T) new ListRestaurantsViewModel(fetchRestaurantListUseCase,
                     countUsersForRestaurantUseCase, getAllSelectedRestaurantsUseCase);
         } else if (modelClass.isAssignableFrom(MapViewModel.class)) {
-            return (T) new MapViewModel(fetchRestaurantListUseCase);
+            return (T) new MapViewModel(fetchRestaurantListUseCase, getAllSelectedRestaurantsUseCase);
 
 
         }

@@ -7,7 +7,9 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
+import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 
 
@@ -16,15 +18,24 @@ import java.util.List;
 public class MapViewModel extends ViewModel {
 
     private final FetchRestaurantListUseCase fetchRestaurantListUseCase;
+    private final GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase;
+
     private final MutableLiveData<List<Restaurant>> restaurantsLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<SelectedRestaurant>> selectedRestaurantsLiveData = new MutableLiveData<>();
     private final MutableLiveData<Throwable> errorLiveData = new MutableLiveData<>();
 
-    public MapViewModel(FetchRestaurantListUseCase fetchRestaurantListUseCase) {
+    public MapViewModel(FetchRestaurantListUseCase fetchRestaurantListUseCase,
+                        GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase) {
         this.fetchRestaurantListUseCase = fetchRestaurantListUseCase;
+        this.getAllSelectedRestaurantsUseCase = getAllSelectedRestaurantsUseCase;
     }
 
     public LiveData<List<Restaurant>> getMapLiveData() {
         return restaurantsLiveData;
+    }
+
+    public LiveData<List<SelectedRestaurant>> getSelectedRestaurants() {
+        return selectedRestaurantsLiveData;
     }
 
     public LiveData<Throwable> getError() {
@@ -44,6 +55,20 @@ public class MapViewModel extends ViewModel {
             @Override
             public void onError(Throwable error) {
                 Log.e("MapViewModel", "Error fetching restaurants: " + error.getMessage());
+                errorLiveData.setValue(error);
+            }
+        });
+    }
+
+    public void fetchAllSelectedRestaurants() {
+        getAllSelectedRestaurantsUseCase.execute(new UseCaseCallback<List<SelectedRestaurant>>() {
+            @Override
+            public void onSuccess(List<SelectedRestaurant> result) {
+                selectedRestaurantsLiveData.setValue(result);
+            }
+
+            @Override
+            public void onError(Throwable error) {
                 errorLiveData.setValue(error);
             }
         });
