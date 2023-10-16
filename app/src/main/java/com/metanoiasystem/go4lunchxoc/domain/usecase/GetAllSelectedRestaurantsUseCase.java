@@ -16,8 +16,8 @@ public class GetAllSelectedRestaurantsUseCase {
         this.repository = repository;
     }
 
-    public void execute(UseCaseCallback<List<SelectedRestaurant>> callback) {
-        repository.getAllSelectedRestaurants().addOnCompleteListener(task -> {
+    public void execute(String dateDuJour,UseCaseCallback<List<SelectedRestaurant>> callback) {
+        repository.getAllSelectedRestaurants( dateDuJour).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<SelectedRestaurant> list = new ArrayList<>();
                 for (DocumentSnapshot doc : task.getResult()) {

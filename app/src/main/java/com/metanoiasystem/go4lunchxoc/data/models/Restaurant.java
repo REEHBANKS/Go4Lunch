@@ -48,6 +48,10 @@ public class Restaurant  implements Serializable {
         this.email = email;
     }
 
+//    public Restaurant (String id){this.id = id;}
+
+
+
     // --- GETTERS ---
     public String getId() {
         return id;

@@ -152,7 +152,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
             Toast.makeText(this, errorMsg, Toast.LENGTH_SHORT).show();
         });
 
-        viewModel.getRestaurantSelected().observe(this, success -> {
+        viewModel.isRestaurantCreated().observe(this, success -> {
             if (success) {
                 Toast.makeText(this, "Restaurant ajouté aux selection avec succès!", Toast.LENGTH_SHORT).show();
             }

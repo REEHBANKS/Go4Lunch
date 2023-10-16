@@ -7,6 +7,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 
+import java.util.Date;
+
 public class SelectedRestaurantRepository {
 
     private static volatile SelectedRestaurantRepository instance;
@@ -41,8 +43,10 @@ public class SelectedRestaurantRepository {
 
     // Get all restaurant selected
 
-    public Task<QuerySnapshot> getAllSelectedRestaurants() {
-        return getSelectedRestaurantCollection().get();
+    public Task<QuerySnapshot> getAllSelectedRestaurants(String dateDuJour) {
+        return getSelectedRestaurantCollection()
+         .whereEqualTo("dateSelected", dateDuJour)
+                .get();
     }
 
 
@@ -73,6 +77,8 @@ public class SelectedRestaurantRepository {
                 .whereEqualTo("restaurantId", restaurantId)
                 .get();
     }
+
+
 
 
 

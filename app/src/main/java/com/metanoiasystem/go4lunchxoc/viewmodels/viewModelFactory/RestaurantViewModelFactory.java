@@ -6,8 +6,8 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
-import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
 import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
@@ -15,15 +15,15 @@ import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
 public class RestaurantViewModelFactory implements ViewModelProvider.Factory {
 
     private final FetchRestaurantListUseCase fetchRestaurantListUseCase;
-    private final CountUsersForRestaurantUseCase countUsersForRestaurantUseCase;
     private final GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase;
+    private final GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebase;
 
     public RestaurantViewModelFactory(FetchRestaurantListUseCase fetchRestaurantListUseCase,
-                                      CountUsersForRestaurantUseCase countUsersForRestaurantUseCase,
-                                      GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase) {
+                                      GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase,
+                                      GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebase) {
         this.fetchRestaurantListUseCase = fetchRestaurantListUseCase;
-        this.countUsersForRestaurantUseCase = countUsersForRestaurantUseCase;
         this.getAllSelectedRestaurantsUseCase = getAllSelectedRestaurantsUseCase;
+        this.getAllRestaurantsFromFirebase = getAllRestaurantsFromFirebase;
     }
 
     @NonNull
@@ -33,9 +33,9 @@ public class RestaurantViewModelFactory implements ViewModelProvider.Factory {
 
         if (modelClass.isAssignableFrom(ListRestaurantsViewModel.class)) {
             return (T) new ListRestaurantsViewModel(fetchRestaurantListUseCase,
-                    countUsersForRestaurantUseCase, getAllSelectedRestaurantsUseCase);
+                     getAllSelectedRestaurantsUseCase, getAllRestaurantsFromFirebase);
         } else if (modelClass.isAssignableFrom(MapViewModel.class)) {
-            return (T) new MapViewModel(fetchRestaurantListUseCase, getAllSelectedRestaurantsUseCase);
+            return (T) new MapViewModel(fetchRestaurantListUseCase, getAllSelectedRestaurantsUseCase, getAllRestaurantsFromFirebase);
 
 
         }

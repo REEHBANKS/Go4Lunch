@@ -11,6 +11,7 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurant
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateUserUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateSelectedRestaurantUseCase;
@@ -31,6 +32,7 @@ public class Injector {
     private static FetchRestaurantListUseCase fetchRestaurantListUseCase = null;
     private static CountUsersForRestaurantUseCase countUsersForRestaurantUseCase = null;
     private static GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase = null;
+    private static GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase = null;
 
 
     public static synchronized UserRepository provideUserRepository() {
@@ -134,6 +136,13 @@ public class Injector {
         }
 
         return getAllSelectedRestaurantsUseCase;
+    }
+
+    public static synchronized GetAllRestaurantsFromFirebaseUseCase provideGetAllRestaurantsFromFirebaseUseCase(){
+        if(getAllRestaurantsFromFirebaseUseCase == null){
+           getAllRestaurantsFromFirebaseUseCase = new GetAllRestaurantsFromFirebaseUseCase(provideRestaurantRepository());
+        }
+        return getAllRestaurantsFromFirebaseUseCase;
     }
 
 

@@ -8,11 +8,15 @@ import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QueryDocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
+import com.google.firebase.firestore.WriteBatch;
 import com.metanoiasystem.go4lunchxoc.BuildConfig;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.apiresponse.AllTheListRestaurantsResponse;
@@ -34,13 +38,10 @@ public class RestaurantRepository {
 
 
     private static volatile  RestaurantRepository restaurantRepository;
-    private final MutableLiveData<List<Restaurant>> result = new MutableLiveData<>();
     private final CollectionReference restaurantsCollection = FirebaseFirestore.getInstance().collection("restaurants");
     private Disposable restaurantDisposable;
+    private boolean apiCalledDuringSession = false; // TODO: Ajouté pour vérifier si l'API a été appelée
 
-    public LiveData<List<Restaurant>> getRestaurantLiveData() {
-        return result;
-    }
 
     public static RestaurantRepository getInstance() {
         if (restaurantRepository == null) {
@@ -50,25 +51,41 @@ public class RestaurantRepository {
     }
 
     public void fetchRestaurant(Double latitude, Double longitude, RestaurantFetchCallback callback) {
+        if (apiCalledDuringSession) {
 
-        fetchFromNetwork(latitude, longitude, callback);
+            getAllRestaurantsFromFirebase();
+        } else {
+            fetchFromNetwork(latitude, longitude, callback);
+        }
     }
+
+    public Task<QuerySnapshot> getAllRestaurantsFromFirebase() {
+        return restaurantsCollection.get();
+    }
+
 
     private void fetchFromNetwork(Double latitude, Double longitude, RestaurantFetchCallback callback) {
         restaurantDisposable = streamFetchRestaurantResponse(latitude, longitude)
+                .doFinally(this::dispose) // TODO dispose à la fin de la chaîne d'opération
                 .subscribeWith(new DisposableObserver<List<Restaurant>>() {
                     @Override
                     public void onNext(@NonNull List<Restaurant> restaurants) {
                         // Avant d'ajouter les nouveaux restaurants, supprimez les anciens de Firestore
                         clearRestaurantsFromFirestore().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                for (Restaurant restaurant : restaurants) {
-                                    addRestaurantToFirestore(restaurant);
-                                }
-                                result.setValue(restaurants);
-                                callback.onSuccess(restaurants);
+                                apiCalledDuringSession = true; // Mise à jour du drapeau une fois que les données ont été récupérées avec succès
+
+                                // Ajout des nouveaux restaurants à Firestore
+                                addRestaurantsToFirestore(restaurants).addOnCompleteListener(additionTask -> {
+                                    if (additionTask.isSuccessful()) {
+                                        // TODO TO DELETE result.setValue(restaurants);
+                                        // Log.d("API_CALLING", "Nombre de restaurants reçus : " + restaurants.size());
+                                        callback.onSuccess(restaurants);
+                                    } else {
+                                        callback.onError(additionTask.getException());
+                                    }
+                                });
                             } else {
-                                Log.e("Firestore", "Erreur lors de la suppression des restaurants", task.getException());
                                 callback.onError(task.getException());
                             }
                         });
@@ -91,6 +108,18 @@ public class RestaurantRepository {
             restaurantDisposable.dispose();
         }
     }
+
+    private Task<Void> addRestaurantsToFirestore(List<Restaurant> restaurants) {
+        WriteBatch batch = FirebaseFirestore.getInstance().batch();
+
+        for (Restaurant restaurant : restaurants) {
+            DocumentReference docRef = restaurantsCollection.document(); // Création d'un ID de document unique
+            batch.set(docRef, restaurant); // Ajout du restaurant au batch
+        }
+
+        return batch.commit(); // Commit le batch pour ajouter tous les restaurants à Firestore
+    }
+
 
 
 
@@ -115,39 +144,6 @@ public class RestaurantRepository {
     }
 
 
-    // TEST LIST ADD RESTAURANT FIRESTORE
-
-    private void addRestaurantToFirestore(Restaurant restaurant) {
-        restaurantsCollection.document(restaurant.getId()).set(restaurant)
-                .addOnSuccessListener(aVoid -> {
-                    // Once the restaurant is added, fetch and log the names
-                    fetchAndLogRestaurants();
-                })
-                .addOnFailureListener(e -> {
-                    Log.e("Firestore", "Error adding restaurant", e);
-                });
-    }
-
-    public void fetchAndLogRestaurants() {
-        restaurantsCollection
-                .get()
-                .addOnCompleteListener(task -> {
-                    if (task.isSuccessful()) {
-                        StringBuilder table = new StringBuilder("| Restaurant Names |\n");
-                        table.append("|------------------|\n");
-                        for (QueryDocumentSnapshot document : task.getResult()) {
-                            Log.d("Firestore", "Raw Document: " + document.getData());
-                            Restaurant restaurant = document.toObject(Restaurant.class);
-                            Log.d("Firestore", "Mapped Restaurant: " + restaurant.toString());
-                            table.append("| ").append(restaurant.getRestaurantName()).append(" |\n");
-                        }
-
-                        Log.d("Firestore", table.toString());
-                    } else {
-                        Log.e("Firestore", "Error fetching restaurants", task.getException());
-                    }
-                });
-    }
 
 
     // Function that makes a request to the RestaurantService to fetch all restaurants.
@@ -162,8 +158,10 @@ public class RestaurantRepository {
         RestaurantService restaurantService = RetrofitClient.getRetrofit().create(RestaurantService.class);
         return restaurantService.getAllRestaurantsResponse(BuildConfig.RR_KEY, location)
 
+
                 .map((Function<AllTheListRestaurantsResponse, List<Restaurant>>) resultsResponse -> {
                     ArrayList<Restaurant> restaurants = new ArrayList<>();
+
 
 
                     for (RestaurantResponse restaurantResponse : resultsResponse.getResults()) {
@@ -191,8 +189,8 @@ public class RestaurantRepository {
                         restaurants.add(restaurant);
                     }
 
-
                     return restaurants;
+
                 })
 
 

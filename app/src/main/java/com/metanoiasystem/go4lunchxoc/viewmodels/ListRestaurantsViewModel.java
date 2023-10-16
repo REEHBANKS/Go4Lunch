@@ -8,21 +8,21 @@ import androidx.lifecycle.ViewModel;
 
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
-import com.metanoiasystem.go4lunchxoc.data.repository.SelectedRestaurantRepository;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 
-import java.util.HashMap;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
 public class ListRestaurantsViewModel extends ViewModel {
 
     private final FetchRestaurantListUseCase fetchRestaurantListUseCase;
-    private final CountUsersForRestaurantUseCase countUsersForRestaurantUseCase;
     private final GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase;
+    private final GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebase;
 
     private final MutableLiveData<Map<String, Integer>> countUsersPerRestaurantLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<Restaurant>> restaurantsLiveData = new MutableLiveData<>();
@@ -30,12 +30,14 @@ public class ListRestaurantsViewModel extends ViewModel {
     private final MutableLiveData<Throwable> errorLiveData = new MutableLiveData<>();
 
     public ListRestaurantsViewModel(FetchRestaurantListUseCase fetchRestaurantListUseCase,
-                                    CountUsersForRestaurantUseCase countUsersForRestaurantUseCase,
-                                    GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase) {
+                                    GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase,
+    GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebase ) {
         this.fetchRestaurantListUseCase = fetchRestaurantListUseCase;
-        this.countUsersForRestaurantUseCase = countUsersForRestaurantUseCase;
         this.getAllSelectedRestaurantsUseCase = getAllSelectedRestaurantsUseCase;
+        this.getAllRestaurantsFromFirebase = getAllRestaurantsFromFirebase;
     }
+
+    String dateDeJour = new SimpleDateFormat("dd/MM/yy").format(new Date());
 
     public LiveData<List<Restaurant>> getRestaurants() {
         return restaurantsLiveData;
@@ -69,9 +71,27 @@ public class ListRestaurantsViewModel extends ViewModel {
         });
     }
 
+    public void setGetAllSelectedRestaurantsUseCase() {
+            getAllRestaurantsFromFirebase.execute(new UseCaseCallback<List<Restaurant>>(){
+
+        @Override
+        public void onSuccess(List<Restaurant> result) {
+            restaurantsLiveData.setValue(result);
+
+        }
+
+        @Override
+        public void onError(Throwable error) {
+            errorLiveData.setValue(error);
+
+        }
+    });
+
+    }
 
 
-    public void fetchCountUsersForRestaurant(Restaurant restaurant, List<SelectedRestaurant> allSelectedRestaurants) {
+//TODO TO DELETE
+  /*  public void fetchCountUsersForRestaurant(Restaurant restaurant, List<SelectedRestaurant> allSelectedRestaurants) {
         countUsersForRestaurantUseCase.execute(restaurant, allSelectedRestaurants, new UseCaseCallback<Integer>() {
             @Override
             public void onSuccess(Integer result) {
@@ -89,10 +109,10 @@ public class ListRestaurantsViewModel extends ViewModel {
             }
         });
     }
-
+*/
 
     public void fetchAllSelectedRestaurants() {
-        getAllSelectedRestaurantsUseCase.execute(new UseCaseCallback<List<SelectedRestaurant>>() {
+        getAllSelectedRestaurantsUseCase. execute(dateDeJour, new UseCaseCallback<List<SelectedRestaurant>>() {
             @Override
             public void onSuccess(List<SelectedRestaurant> result) {
                 selectedRestaurantsLiveData.setValue(result);

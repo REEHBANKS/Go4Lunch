@@ -19,6 +19,7 @@ import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
@@ -42,11 +43,10 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
         super.onCreate(savedInstanceState);
 
         FetchRestaurantListUseCase fetchRestaurantListUseCase = Injector.provideFetchRestaurantListUseCase();
-        CountUsersForRestaurantUseCase countUsersForRestaurantUseCase = Injector.provideCountUsersForRestaurantUseCase();
         GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase = Injector.provideGetAllSelectedRestaurantsUseCase();
-
+        GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase = Injector.provideGetAllRestaurantsFromFirebaseUseCase();
         RestaurantViewModelFactory factory = new RestaurantViewModelFactory(fetchRestaurantListUseCase,
-                countUsersForRestaurantUseCase, getAllSelectedRestaurantsUseCase);
+                 getAllSelectedRestaurantsUseCase,getAllRestaurantsFromFirebaseUseCase);
         listRestaurantsViewModel = new ViewModelProvider(this, factory).get(ListRestaurantsViewModel.class);
 
 
@@ -61,9 +61,7 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
 
         provider = new LocationProvider(requireContext());
         configureRecyclerView();
-        listRestaurantsViewModel.fetchAllSelectedRestaurants();
-
-
+        listRestaurantsViewModel.setGetAllSelectedRestaurantsUseCase();
 
         provider.requestLocationUpdates(this);
 
@@ -106,7 +104,7 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
 
     @Override
     public void onLocationReceived(double latitude, double longitude) {
-        listRestaurantsViewModel.fetchRestaurants(latitude, longitude);
+       // listRestaurantsViewModel.fetchRestaurants(latitude, longitude);
     }
 
     private void configureRecyclerView() {
