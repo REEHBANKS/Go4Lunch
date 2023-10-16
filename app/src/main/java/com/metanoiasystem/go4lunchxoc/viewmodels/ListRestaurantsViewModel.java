@@ -85,6 +85,7 @@ public class ListRestaurantsViewModel extends ViewModel {
             errorLiveData.setValue(error);
 
         }
+
     });
 
     }
