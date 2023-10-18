@@ -278,7 +278,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
             marker.setTag(restaurant);
             restaurantMarkers.add(marker);
         }
-
     }
 
   /*  public void getListRestaurantWithAllItem(){
