@@ -16,6 +16,7 @@ import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 public class MapViewModel extends ViewModel {
@@ -62,7 +63,9 @@ public class MapViewModel extends ViewModel {
     private void combineData() {
         List<Restaurant> restaurants = restaurantsLiveData.getValue();
         List<SelectedRestaurant> selectedRestaurants = selectedRestaurantsLiveData.getValue();
-        combinedLiveData.setValue(new CombinedResult(restaurants, selectedRestaurants));
+        if (restaurants != null && selectedRestaurants != null) {
+            combinedLiveData.setValue(new CombinedResult(restaurants, selectedRestaurants));
+        }
     }
 
     public void fetchRestaurants(Double latitude, Double longitude) {
@@ -84,15 +87,20 @@ public class MapViewModel extends ViewModel {
         getAllSelectedRestaurantsUseCase.execute(dateDeJour, new UseCaseCallback<List<SelectedRestaurant>>() {
             @Override
             public void onSuccess(List<SelectedRestaurant> result) {
-                selectedRestaurantsLiveData.setValue(result);
+                Log.d("LiveDataDebu", "Selected Restaurants fetched successfully");
+                // Créez une nouvelle instance de la liste pour forcer une mise à jour du LiveData
+                List<SelectedRestaurant> updatedList = new ArrayList<>(result);
+                selectedRestaurantsLiveData.setValue(updatedList);
             }
 
             @Override
             public void onError(Throwable error) {
+                Log.e("LiveDataDebug", "Error fetching selected restaurants: " + error.getMessage());
                 errorLiveData.setValue(error);
             }
         });
     }
+
 
     public static class CombinedResult {
         public final List<Restaurant> allRestaurants;

@@ -5,6 +5,7 @@ import com.metanoiasystem.go4lunchxoc.data.repository.RestaurantRepository;
 import com.metanoiasystem.go4lunchxoc.data.repository.SelectedRestaurantRepository;
 import com.metanoiasystem.go4lunchxoc.data.repository.UserRepository;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.AddToFavoritesUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckAndHandleExistingRestaurantSelectionUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
@@ -13,8 +14,11 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentDateUseCaseImpl;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateSelectedRestaurantUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.HandleExistingSelectionUseCaseImpl;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSelectionUseCaseImpl;
 
 public class Injector {
 
@@ -27,12 +31,16 @@ public class Injector {
     private static AddToFavoritesUseCase addToFavoritesUseCase = null;
     private static CheckIfRestaurantSelectedUseCase checkIfRestaurantSelectedUseCase = null;
     private static CreateNewSelectedRestaurantUseCase createNewSelectedRestaurantUseCase = null;
-    private static UpdateSelectedRestaurantUseCase updateSelectedRestaurantUseCase = null;
+    private static UpdateExistingRestaurantSelectionUseCase updateExistingRestaurantSelectionUseCase = null;
     private static GetSelectedRestaurantsWithIdUseCase getSelectedRestaurantsWithIdUseCase = null;
     private static FetchRestaurantListUseCase fetchRestaurantListUseCase = null;
     private static CountUsersForRestaurantUseCase countUsersForRestaurantUseCase = null;
     private static GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase = null;
     private static GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase = null;
+    private static CheckAndHandleExistingRestaurantSelectionUseCase checkAndHandleExistingRestaurantSelectionUseCase = null;
+    private static HandleExistingSelectionUseCase handleExistingSelectionUseCase = null;
+    private static GetCurrentUseCase getCurrentUseCase = null;
+    private static GetCurrentDateUseCase getCurrentDateUseCase = null;
 
 
     public static synchronized UserRepository provideUserRepository() {
@@ -99,11 +107,11 @@ public class Injector {
         return checkIfRestaurantSelectedUseCase;
     }
 
-    public static synchronized UpdateSelectedRestaurantUseCase provideUpdateSelectedRestaurantUseCase() {
-        if (updateSelectedRestaurantUseCase == null) {
-            updateSelectedRestaurantUseCase = new UpdateSelectedRestaurantUseCase(provideSelectedRestaurantRepository());
+    public static synchronized UpdateExistingRestaurantSelectionUseCase provideUpdateExistingRestaurantSelectionUseCase() {
+        if (updateExistingRestaurantSelectionUseCase == null) {
+            updateExistingRestaurantSelectionUseCase = new UpdateExistingRestaurantSelectionUseCaseImpl(provideSelectedRestaurantRepository());
         }
-        return updateSelectedRestaurantUseCase;
+        return updateExistingRestaurantSelectionUseCase;
     }
 
     public static synchronized GetSelectedRestaurantsWithIdUseCase provideGetSelectedRestaurantsWithIdUseCase(){
@@ -145,13 +153,49 @@ public class Injector {
         return getAllRestaurantsFromFirebaseUseCase;
     }
 
+    public static synchronized CheckAndHandleExistingRestaurantSelectionUseCase provideCheckAndHandleExistingRestaurantSelectionUseCase(){
+        if(checkAndHandleExistingRestaurantSelectionUseCase == null){
+            checkAndHandleExistingRestaurantSelectionUseCase = new CheckAndHandleExistingRestaurantSelectionUseCaseImpl(provideCheckIfRestaurantSelectedUseCase(),
+                                                                                                                            provideHandleExistingSelectionUseCase());
+        }
+        return checkAndHandleExistingRestaurantSelectionUseCase;
+    }
 
+    public static synchronized HandleExistingSelectionUseCase provideHandleExistingSelectionUseCase(){
+        if(handleExistingSelectionUseCase == null){
+            handleExistingSelectionUseCase = new HandleExistingSelectionUseCaseImpl(provideUpdateExistingRestaurantSelectionUseCase(),
+                                                                                        provideCreateNewSelectedRestaurantUseCase());
+        }
+        return handleExistingSelectionUseCase;
+    }
 
+    public static synchronized GetCurrentUseCase provideGetCurrentUseCase(){
+        if(getCurrentUseCase == null){
+            getCurrentUseCase = new GetCurrentUseCaseImpl();
+        }
+        return getCurrentUseCase;
+    }
+
+    public static synchronized GetCurrentDateUseCase provideGetCurrentDateUseCase(){
+        if(getCurrentDateUseCase == null){
+            getCurrentDateUseCase = new GetCurrentDateUseCaseImpl();
+        }
+        return getCurrentDateUseCase;
+    }
 
 
 
 
 
 }
+
+
+
+
+
+
+
+
+
 
 

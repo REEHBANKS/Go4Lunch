@@ -19,7 +19,10 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUs
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateSelectedRestaurantUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSelectionUseCaseImpl;
+import com.metanoiasystem.go4lunchxoc.utils.CheckAndHandleExistingRestaurantSelectionUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.GetCurrentDateUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.GetCurrentUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.view.adapters.RestaurantSelectorListAdapter;
 import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.RestaurantDetailViewModelFactory;
@@ -43,20 +46,21 @@ public class RestaurantSelectorListFragment extends Fragment {
 
 
         AddToFavoritesUseCase addToFavoritesUseCase = Injector.provideAddToFavoritesUseCase();
-        CheckIfRestaurantSelectedUseCase checkIfRestaurantSelectedUseCase = Injector.provideCheckIfRestaurantSelectedUseCase();
-        UpdateSelectedRestaurantUseCase updateSelectedRestaurantUseCase = Injector.provideUpdateSelectedRestaurantUseCase();
         CreateNewSelectedRestaurantUseCase createNewSelectedRestaurantUseCase = Injector.provideCreateNewSelectedRestaurantUseCase();
         GetSelectedRestaurantsWithIdUseCase getSelectedRestaurantsWithIdUseCase = Injector.provideGetSelectedRestaurantsWithIdUseCase();
         FetchAllUsersUseCase fetchAllUsersUseCase = Injector.provideFetchAllUsersUseCase();
+        CheckAndHandleExistingRestaurantSelectionUseCase checkAndHandleExistingRestaurantSelectionUseCase = Injector.provideCheckAndHandleExistingRestaurantSelectionUseCase();
+        GetCurrentUseCase getCurrentUseCase = Injector.provideGetCurrentUseCase();
+        GetCurrentDateUseCase getCurrentDateUseCase = Injector.provideGetCurrentDateUseCase();
 
         // Création de la Factory avec les UseCases en paramètre
         RestaurantDetailViewModelFactory restaurantDetailViewModelFactory = new RestaurantDetailViewModelFactory(
                 addToFavoritesUseCase,
-                checkIfRestaurantSelectedUseCase,
                 createNewSelectedRestaurantUseCase,
-                updateSelectedRestaurantUseCase,
                 getSelectedRestaurantsWithIdUseCase,
-                fetchAllUsersUseCase
+                fetchAllUsersUseCase,
+                checkAndHandleExistingRestaurantSelectionUseCase,
+                getCurrentUseCase,getCurrentDateUseCase
         );
 
         restaurantSelectorListViewModel = new ViewModelProvider(this, restaurantDetailViewModelFactory).get(RestaurantSelectorListViewModel.class);

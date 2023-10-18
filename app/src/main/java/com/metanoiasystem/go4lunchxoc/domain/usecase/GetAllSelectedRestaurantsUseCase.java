@@ -1,5 +1,7 @@
 package com.metanoiasystem.go4lunchxoc.domain.usecase;
 
+import android.util.Log;
+
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.data.repository.SelectedRestaurantRepository;
@@ -23,7 +25,9 @@ public class GetAllSelectedRestaurantsUseCase {
                 for (DocumentSnapshot doc : task.getResult()) {
                     list.add(doc.toObject(SelectedRestaurant.class));
                 }
+                Log.d("ObserverDebug", "usecaseLiveData changed");
                 callback.onSuccess(list);
+
             } else {
                 callback.onError(task.getException());
             }

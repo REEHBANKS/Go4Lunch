@@ -14,7 +14,11 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUs
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateSelectedRestaurantUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSelectionUseCaseImpl;
+import com.metanoiasystem.go4lunchxoc.utils.CheckAndHandleExistingRestaurantSelectionUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.GetCurrentDateUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.GetCurrentUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.HandleExistingSelectionUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.ImageUtils;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.RatingUtils;
@@ -38,20 +42,21 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
         // Récupération des UseCases depuis l'Injector
         AddToFavoritesUseCase addToFavoritesUseCase = Injector.provideAddToFavoritesUseCase();
-        CheckIfRestaurantSelectedUseCase checkIfRestaurantSelectedUseCase = Injector.provideCheckIfRestaurantSelectedUseCase();
-        UpdateSelectedRestaurantUseCase updateSelectedRestaurantUseCase = Injector.provideUpdateSelectedRestaurantUseCase();
         CreateNewSelectedRestaurantUseCase createNewSelectedRestaurantUseCase = Injector.provideCreateNewSelectedRestaurantUseCase();
         GetSelectedRestaurantsWithIdUseCase getSelectedRestaurantsWithIdUseCase = Injector.provideGetSelectedRestaurantsWithIdUseCase();
         FetchAllUsersUseCase fetchAllUsersUseCase = Injector.provideFetchAllUsersUseCase();
+        CheckAndHandleExistingRestaurantSelectionUseCase checkAndHandleExistingRestaurantSelectionUseCase = Injector.provideCheckAndHandleExistingRestaurantSelectionUseCase();
+        GetCurrentUseCase getCurrentUseCase = Injector.provideGetCurrentUseCase();
+        GetCurrentDateUseCase getCurrentDateUseCase = Injector.provideGetCurrentDateUseCase();
 
         // Création de la Factory avec les UseCases en paramètre
         RestaurantDetailViewModelFactory restaurantDetailViewModelFactory = new RestaurantDetailViewModelFactory(
                 addToFavoritesUseCase,
-                checkIfRestaurantSelectedUseCase,
                 createNewSelectedRestaurantUseCase,
-                updateSelectedRestaurantUseCase,
                 getSelectedRestaurantsWithIdUseCase,
-                fetchAllUsersUseCase
+                fetchAllUsersUseCase,
+                checkAndHandleExistingRestaurantSelectionUseCase,
+                getCurrentUseCase, getCurrentDateUseCase
         );
 
         // Obtention du ViewModel à partir de la Factory
@@ -113,7 +118,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
         binding.buttonLikeRestaurantDetail.setOnClickListener(view -> {
             if (restaurant != null) {
-                viewModel.addRestaurantToFavorites(restaurant.getId());
+                viewModel.createNewRestaurantFavorites(restaurant.getId());
             }
         });
 
@@ -155,6 +160,12 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         viewModel.isRestaurantCreated().observe(this, success -> {
             if (success) {
                 Toast.makeText(this, "Restaurant ajouté aux selection avec succès!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        viewModel.isRestaurantUpdated().observe (this, success -> {
+            if (success) {
+                Toast.makeText(this, "Selection restaurant modifier!", Toast.LENGTH_SHORT).show();
             }
         });
     }

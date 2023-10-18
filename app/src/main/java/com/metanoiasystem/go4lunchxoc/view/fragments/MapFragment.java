@@ -61,6 +61,8 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     private  List<SelectedRestaurant> selectedAllRestaurants = new ArrayList<>();
     private final List<Marker> restaurantMarkers = new ArrayList<>();
     private boolean locationRequested = false;
+    private boolean isMapReady = false;
+
 
 
     @Nullable
@@ -97,33 +99,32 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
             mapFragment.getMapAsync(callback);
         }
 
+
+
+
+
         mapViewModel.getCombinedLiveData().observe(getViewLifecycleOwner(), result -> {
-            // Mettez à jour vos listes
+            Log.d("ObserverDebug", "Combined LiveData changed");
 
-
-            if (selectedAllRestaurants != null && !selectedAllRestaurants.isEmpty()) {
-
-                if (result.allRestaurants != null) {
-                    allRestaurants = result.allRestaurants;
-                }
-
-                if (result.selectedRestaurants != null) {
-                    selectedAllRestaurants = result.selectedRestaurants;
-                }
-
-                addRestaurantMarkers(allRestaurants, selectedAllRestaurants);
-            } else {
-
-                if (result.allRestaurants != null) {
-                    allRestaurants = result.allRestaurants;
-                }
-
-
-                addRestaurantMarkers(allRestaurants, new ArrayList<>());
+            if (!isMapReady) {
+                return; // Si la carte n'est pas prête, ne faites rien
             }
 
+            List<Restaurant> allRestaurantsTemp = result.allRestaurants;
+            List<SelectedRestaurant> selectedAllRestaurantsTemp = result.selectedRestaurants;
 
+            if (allRestaurantsTemp != null && selectedAllRestaurantsTemp != null) {
+                if (!selectedAllRestaurantsTemp.isEmpty()) {
+                    addRestaurantMarkers(allRestaurantsTemp, selectedAllRestaurantsTemp);
+                } else {
+                    addRestaurantMarkers(allRestaurantsTemp, new ArrayList<>());
+                }
+            }
         });
+
+
+
+
 
 
 
@@ -133,6 +134,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     @Override
     public void onStart() {
         super.onStart();
+        Log.d("LifecycleDebug", "onStart called");
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationProvider.requestLocationUpdates(this);
         } else {
@@ -140,6 +142,26 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
         }
 
     }
+
+    @Override
+    public void onLocationReceived(double latitude, double longitude) {
+        mapViewModel.fetchRestaurants(latitude, longitude);
+        mapViewModel.fetchAllSelectedRestaurants();
+        if (mMap != null) {
+            LatLng myLocation = new LatLng(latitude, longitude);
+            if (userMarker == null) {
+                userMarker = mMap.addMarker(new MarkerOptions()
+                        .icon(bitmapDescriptorFactory(getContext(), R.drawable.icon_you_are_here))
+                        .position(myLocation)
+                        .title("You're here!"));
+
+            } else {
+                userMarker.setPosition(myLocation);
+            }
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17));
+        }
+    }
+
 
     @Override
     public void onPause() {
@@ -151,9 +173,17 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     @Override
     public void onResume() {
         super.onResume();
+        Log.d("LifecycleDebug", "onResume called");
 
         //TODO methode test (pour compter le nombre de user par restaurant
        // getListRestaurantWithAllItem();
+        locationProvider.requestCurrentLocation(new LocationProvider.OnLocationReceivedListener() {
+            @Override
+            public void onLocationReceived(double latitude, double longitude) {
+                mapViewModel.fetchRestaurants(latitude, longitude);
+                mapViewModel.fetchAllSelectedRestaurants();
+            }
+        });
 
 
     }
@@ -164,6 +194,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
             mMap = googleMap;
             mMap.getUiSettings().setZoomControlsEnabled(true);
             checkAccessRestaurant();
+            isMapReady = true;
         }
     };
 
@@ -197,24 +228,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
         }
     }
 
-    @Override
-    public void onLocationReceived(double latitude, double longitude) {
-        mapViewModel.fetchRestaurants(latitude, longitude);
-        mapViewModel.fetchAllSelectedRestaurants();
-        if (mMap != null) {
-            LatLng myLocation = new LatLng(latitude, longitude);
-            if (userMarker == null) {
-                userMarker = mMap.addMarker(new MarkerOptions()
-                        .icon(bitmapDescriptorFactory(getContext(), R.drawable.icon_you_are_here))
-                        .position(myLocation)
-                        .title("You're here!"));
-
-            } else {
-                userMarker.setPosition(myLocation);
-            }
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(myLocation, 17));
-        }
-    }
 
 
 
@@ -231,64 +244,41 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     }
 
     private void addRestaurantMarkers(List<Restaurant> restaurants, List<SelectedRestaurant> selectedRestaurants) {
+        Log.d("LiveDataDebug", "addRestaurantMarkers called");
+        Log.d("LiveDataDebug", "Restaurants fetched: " + selectedRestaurants.size());
+        Log.d("LiveDataDebug", "Restaurants fetched: " + restaurants.size());
+        Log.d("LiveDataDebug", "addRestaurantMarkers - First Restaurant ID: " + selectedRestaurants.get(0).getRestaurantId());
+
         if (mMap == null) return;
+// 1. Effacer tous les marqueurs
+        for (Marker marker : restaurantMarkers) {
+            marker.remove();
+        }
+        restaurantMarkers.clear();
 
-        // Créer un HashMap pour vérifier rapidement si un restaurant est sélectionné
+// 2. Créer un HashMap pour vérifier rapidement si un restaurant est sélectionné
         HashMap<String, Boolean> isSelectedMap = new HashMap<>();
-
-
-        // Remplissez isSelectedMap seulement si selectedRestaurants n'est ni null ni vide
         if (selectedRestaurants != null && !selectedRestaurants.isEmpty()) {
             for (SelectedRestaurant selectedRestaurant : selectedRestaurants) {
                 isSelectedMap.put(selectedRestaurant.getRestaurantId(), true);
             }
         }
 
-        // Si restaurants est nul, utilisez une liste vide pour éviter des erreurs
+// 3. Ajouter les marqueurs pour tous les restaurants
         if (restaurants == null) {
             restaurants = new ArrayList<>();
         }
-
-        // Créer un set de tous les restaurants par leur id
-        Set<String> newRestaurants = new HashSet<>();
-        for (Restaurant restaurant : restaurants) {
-            newRestaurants.add(restaurant.getId());
-        }
-
-        // Supprimer les marqueurs des restaurants qui ne sont plus dans la liste
-        Iterator<Marker> iterator = restaurantMarkers.iterator();
-        while (iterator.hasNext()) {
-            Marker marker = iterator.next();
-            Restaurant restaurant = (Restaurant) marker.getTag();
-            if (!newRestaurants.contains(restaurant.getId())) {
-                marker.remove();
-                iterator.remove();
-            }
-        }
-
-        // Ajouter les marqueurs pour les nouveaux restaurants
         for (Restaurant restaurant : restaurants) {
             LatLng restaurantLocation = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
-            // Vérifiez si le marqueur pour ce restaurant existe déjà
-            boolean exists = false;
-            for (Marker marker : restaurantMarkers) {
-                if (marker.getTag().equals(restaurant)) {
-                    exists = true;
-                    break;
-                }
-            }
-            // Si le marqueur n'existe pas, créez-en un nouveau
-            if (!exists) {
-                int markerIcon = isSelectedMap.containsKey(restaurant.getId()) ? R.drawable.icon_green_lunch : R.drawable.icon_red_lunch;
-                Marker marker = mMap.addMarker(new MarkerOptions()
-                        .icon(bitmapDescriptorFactory(getContext(), markerIcon))
-                        .position(restaurantLocation)
-                        .title(restaurant.getRestaurantName()));
-
-                marker.setTag(restaurant);
-                restaurantMarkers.add(marker);
-            }
+            int markerIcon = isSelectedMap.containsKey(restaurant.getId()) ? R.drawable.icon_green_lunch : R.drawable.icon_red_lunch;
+            Marker marker = mMap.addMarker(new MarkerOptions()
+                    .icon(bitmapDescriptorFactory(getContext(), markerIcon))
+                    .position(restaurantLocation)
+                    .title(restaurant.getRestaurantName()));
+            marker.setTag(restaurant);
+            restaurantMarkers.add(marker);
         }
+
     }
 
   /*  public void getListRestaurantWithAllItem(){

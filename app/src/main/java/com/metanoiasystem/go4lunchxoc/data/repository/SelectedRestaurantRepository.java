@@ -1,5 +1,7 @@
 package com.metanoiasystem.go4lunchxoc.data.repository;
 
+import android.util.Log;
+
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
@@ -44,6 +46,7 @@ public class SelectedRestaurantRepository {
     // Get all restaurant selected
 
     public Task<QuerySnapshot> getAllSelectedRestaurants(String dateDuJour) {
+        Log.d("ObserverDebug", "repo LiveData changed");
         return getSelectedRestaurantCollection()
          .whereEqualTo("dateSelected", dateDuJour)
                 .get();

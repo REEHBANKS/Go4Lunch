@@ -14,28 +14,37 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.AddToFavoritesUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateSelectedRestaurantUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSelectionUseCaseImpl;
+import com.metanoiasystem.go4lunchxoc.utils.CheckAndHandleExistingRestaurantSelectionUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.GetCurrentDateUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.GetCurrentUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.callbacks.SelectedUseCaseCallback;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class RestaurantDetailViewModel extends ViewModel {
 
-    private final AddToFavoritesUseCase addToFavoritesUseCase;
-    private final CheckIfRestaurantSelectedUseCase checkIfRestaurantSelectedUseCase;
+    private final AddToFavoritesUseCase createAddRestaurantFavoritesUseCase;
     private final CreateNewSelectedRestaurantUseCase createNewSelectedRestaurantUseCase;
-    private final UpdateSelectedRestaurantUseCase updateSelectedRestaurantUseCase;
+    private final CheckAndHandleExistingRestaurantSelectionUseCase checkAndHandleExistingRestaurantSelectionUseCase;
+    private final GetCurrentUseCase getCurrentUseCase;
+    private final GetCurrentDateUseCase getCurrentDateUseCase;
+
 
 
 
     public RestaurantDetailViewModel(AddToFavoritesUseCase addToFavoritesUseCase,
-                                     CheckIfRestaurantSelectedUseCase checkIfRestaurantSelectedUseCase,
                                      CreateNewSelectedRestaurantUseCase createNewSelectedRestaurantUseCase,
-                                     UpdateSelectedRestaurantUseCase updateSelectedRestaurantUseCase, GetSelectedRestaurantsWithIdUseCase getSelectedRestaurantsWithIdUseCase) {
-        this.addToFavoritesUseCase = addToFavoritesUseCase;
-        this.checkIfRestaurantSelectedUseCase = checkIfRestaurantSelectedUseCase;
+                                     CheckAndHandleExistingRestaurantSelectionUseCase checkAndHandleExistingRestaurantSelectionUseCase,
+                                     GetCurrentUseCase getCurrentUseCase,
+                                     GetCurrentDateUseCase getCurrentDateUseCase){
+        this.createAddRestaurantFavoritesUseCase = addToFavoritesUseCase;
         this.createNewSelectedRestaurantUseCase = createNewSelectedRestaurantUseCase;
-        this.updateSelectedRestaurantUseCase = updateSelectedRestaurantUseCase;
+        this.checkAndHandleExistingRestaurantSelectionUseCase = checkAndHandleExistingRestaurantSelectionUseCase;
+        this.getCurrentDateUseCase = getCurrentDateUseCase;
+        this.getCurrentUseCase = getCurrentUseCase;
+
     }
 
     // LiveData to indicate a successful addition to favorites
@@ -70,10 +79,8 @@ public class RestaurantDetailViewModel extends ViewModel {
 
 
 
-
-
-    public void addRestaurantToFavorites(String restaurantId) {
-        addToFavoritesUseCase.execute(restaurantId).addOnCompleteListener(task -> {
+    public void createNewRestaurantFavorites(String restaurantId) {
+        createAddRestaurantFavoritesUseCase.execute(restaurantId).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 addSuccessLiveData.setValue(true);
                 Log.d("FavoriteRestaurantVM", "Successfully added restaurant to favorites.");
@@ -85,59 +92,28 @@ public class RestaurantDetailViewModel extends ViewModel {
     }
 
     public void createOrUpdateSelectedRestaurant(String restaurantId) {
-        Log.d("MyApp", "Méthode createOrUpdateSelectedRestaurant appelée avec restaurantId: " + restaurantId);
-
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
+        FirebaseUser user = getCurrentUseCase.execute();
         if (user != null && restaurantId != null) {
             String userId = user.getUid();
-            Log.d("MyApp", "Utilisateur actuel obtenu: " + user.getUid());
-            String dateDeJour = new SimpleDateFormat("dd/MM/yy").format(new Date());
+            String dateDeJour = getCurrentDateUseCase.execute();
+            checkAndHandleExistingRestaurantSelectionUseCase.execute(restaurantId, userId, dateDeJour, new SelectedUseCaseCallback() {
+                @Override
+                public void onSuccess() {
+                    restaurantCreated.setValue(true);
 
-            checkIfRestaurantSelectedUseCase.execute(userId, dateDeJour)
-                    .addOnCompleteListener(task -> {
-                        if (task.isSuccessful()) {
-                            QuerySnapshot querySnapshot = task.getResult();
-                            Log.d("MyApp", "checkIfRestaurantSelectedUseCase réussi. Nombre de restaurants trouvés: " + (querySnapshot != null ? querySnapshot.size() : 0));
+                }
 
-                            if (querySnapshot != null && !querySnapshot.isEmpty()) {
-                                // Update existing selected restaurant
-                                DocumentSnapshot existingSelectedRestaurant = querySnapshot.getDocuments().get(0);
-                                existingSelectedRestaurant.getReference().update(
-                                        "restaurantId", restaurantId,
-                                        "dateSelected", dateDeJour
-                                ).addOnCompleteListener(updateTask -> {
-                                    if (updateTask.isSuccessful()) {
-                                        Log.d("MyApp", "updateSelectedRestaurantUseCase réussi.");
-                                        restaurantUpdated.setValue(true);
-                                    } else {
-                                        Log.e("MyApp", "Erreur lors de la mise à jour de la sélection existante", updateTask.getException());
-                                        restaurantUpdated.setValue(false);
-                                    }
-                                });
-                            } else {
-                                // Directly create new selected restaurant if none existed
-                                createNewSelectedRestaurant(restaurantId, userId, dateDeJour);
-                            }
-                        } else {
-                            Log.e("MyApp", "Erreur lors de l'exécution de checkIfRestaurantSelectedUseCase", task.getException());
-                        }
-                    });
+                @Override
+                public void onError(Exception e) {
+                    restaurantCreated.setValue(false);
+
+                }
+            });
         }
     }
 
-    private void createNewSelectedRestaurant(String restaurantId, String userId, String dateDeJour) {
-        createNewSelectedRestaurantUseCase.execute(restaurantId, userId, dateDeJour)
-                .addOnCompleteListener(createTask -> {
-                    if (createTask.isSuccessful()) {
-                        Log.d("MyApp", "createNewSelectedRestaurantUseCase réussi.");
-                        restaurantCreated.setValue(true);
-                    } else {
-                        Log.e("MyApp", "Erreur lors de la création d'une nouvelle sélection", createTask.getException());
-                        restaurantCreated.setValue(false);
-                    }
-                });
-    }
+
+
 
 
 
