@@ -12,8 +12,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
+import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
@@ -32,7 +34,7 @@ import java.util.List;
 public class ListRestaurantsFragment extends Fragment implements LocationProvider.OnLocationReceivedListener, ListRestaurantsAdapter.OnRestaurantClickListener {
 
     private ListRestaurantsAdapter adapter;
-    private List<Restaurant> restaurants = new ArrayList<>();
+    private List<RestaurantWithNumberUser> restaurants = new ArrayList<>();
     private List<SelectedRestaurant> listAllSelectedRestaurants;
     private FragmentListRestaurantsBinding binding;
     private LocationProvider provider;
@@ -50,6 +52,8 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
         listRestaurantsViewModel = new ViewModelProvider(this, factory).get(ListRestaurantsViewModel.class);
 
 
+
+
     }
 
     @Nullable
@@ -63,7 +67,31 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
         configureRecyclerView();
         listRestaurantsViewModel.setGetAllSelectedRestaurantsUseCase();
 
+
         provider.requestLocationUpdates(this);
+      //  listRestaurantsViewModel.getRestaurants().observe(getViewLifecycleOwner(), this::updateUI);
+
+
+        listRestaurantsViewModel.getRestaurantWithNumberUser().observe(getViewLifecycleOwner(), this::updateUI);
+
+        /*    StringBuilder resultString = new StringBuilder();
+            for (RestaurantWithNumberUser restaurantWithNumberUser : restaurantWithNumberUserList) {
+                resultString.append(restaurantWithNumberUser.getRestaurant().getRestaurantName())
+                        .append(" : ")
+                        .append(restaurantWithNumberUser.getNumberUser())
+                        .append(" utilisateurs\n");
+            }
+
+            Log.d("RestaurantWithUsers", resultString.toString());
+
+
+        });
+*/
+
+
+        listRestaurantsViewModel.getError().observe(getViewLifecycleOwner(), throwable -> {
+            Log.e("errorListViewModel", "Sorry, error!");
+        });
 
 
         return binding.getRoot();
@@ -72,33 +100,18 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
     @Override
     public void onResume() {
         super.onResume();
+        listRestaurantsViewModel.fetchRestaurantsWithSelectedUsers();
 
-
-
-        listRestaurantsViewModel.getRestaurants().observe(getViewLifecycleOwner(), this::updateUI);
-        listRestaurantsViewModel.getSelectedRestaurants().observe(getViewLifecycleOwner(), selectedRestaurants -> {
-            adapter.setAllSelectedRestaurants(selectedRestaurants);
-            listAllSelectedRestaurants = selectedRestaurants;
-        });
-
-        listRestaurantsViewModel.getCountUsersPerRestaurantLiveData().observe(getViewLifecycleOwner(), countMap -> {
-            adapter.setCountUsersMap(countMap);
-            adapter.notifyDataSetChanged();
-        });
-
-        listRestaurantsViewModel.getError().observe(getViewLifecycleOwner(), throwable -> {
-            Log.e("errorListViewModel", "Sorry, error!");
-        });
     }
 
     @Override
-    public void onRestaurantClicked(Restaurant restaurant) {
-        launchRestaurantDetailActivity(restaurant);
+    public void onRestaurantClicked(RestaurantWithNumberUser restaurantWithNumberUser) {
+        launchRestaurantDetailActivity(restaurantWithNumberUser);
     }
 
-    private void launchRestaurantDetailActivity(Restaurant restaurant) {
+    private void launchRestaurantDetailActivity(RestaurantWithNumberUser restaurantWithNumberUser) {
         Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
-        intent.putExtra(RestaurantDetailActivity.RESTAURANT_KEY, restaurant);
+        intent.putExtra(RestaurantDetailActivity.RESTAURANT_KEY, restaurantWithNumberUser);
         startActivity(intent);
     }
 
@@ -113,7 +126,7 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
         this.binding.fragmentMainRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
 
-    public void updateUI(List<Restaurant> theRestaurants) {
+    public void updateUI(List<RestaurantWithNumberUser> theRestaurants) {
         restaurants.clear();
         restaurants.addAll(theRestaurants);
         adapter.notifyDataSetChanged();

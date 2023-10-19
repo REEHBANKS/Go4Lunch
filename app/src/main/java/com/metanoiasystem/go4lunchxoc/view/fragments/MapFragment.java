@@ -57,8 +57,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     private GoogleMap mMap;
     private  MapViewModel mapViewModel;
     private Marker userMarker;
-    private  List<Restaurant> allRestaurants = new ArrayList<>();
-    private  List<SelectedRestaurant> selectedAllRestaurants = new ArrayList<>();
     private final List<Marker> restaurantMarkers = new ArrayList<>();
     private boolean locationRequested = false;
     private boolean isMapReady = false;
@@ -104,7 +102,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
 
 
         mapViewModel.getCombinedLiveData().observe(getViewLifecycleOwner(), result -> {
-            Log.d("ObserverDebug", "Combined LiveData changed");
 
             if (!isMapReady) {
                 return; // Si la carte n'est pas prête, ne faites rien
@@ -123,18 +120,11 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
         });
 
 
-
-
-
-
-
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        Log.d("LifecycleDebug", "onStart called");
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationProvider.requestLocationUpdates(this);
         } else {
@@ -173,7 +163,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("LifecycleDebug", "onResume called");
 
         //TODO methode test (pour compter le nombre de user par restaurant
        // getListRestaurantWithAllItem();
@@ -229,8 +218,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     }
 
 
-
-
     // Method to change icon marker on the google map
     private BitmapDescriptor bitmapDescriptorFactory(Context context, int vectorResId) {
         Drawable vectorDrawable = ContextCompat.getDrawable(context, vectorResId);
@@ -244,10 +231,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     }
 
     private void addRestaurantMarkers(List<Restaurant> restaurants, List<SelectedRestaurant> selectedRestaurants) {
-        Log.d("LiveDataDebug", "addRestaurantMarkers called");
-        Log.d("LiveDataDebug", "Restaurants fetched: " + selectedRestaurants.size());
-        Log.d("LiveDataDebug", "Restaurants fetched: " + restaurants.size());
-        Log.d("LiveDataDebug", "addRestaurantMarkers - First Restaurant ID: " + selectedRestaurants.get(0).getRestaurantId());
 
         if (mMap == null) return;
 // 1. Effacer tous les marqueurs

@@ -8,6 +8,7 @@ import android.widget.Toast;
 
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
+import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
 import com.metanoiasystem.go4lunchxoc.databinding.ActivityRestaurantDetailBinding;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.AddToFavoritesUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUseCase;
@@ -29,7 +30,7 @@ import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.RestaurantDeta
 public class RestaurantDetailActivity extends AppCompatActivity {
 
     public static String RESTAURANT_KEY = "RESTAURANT_KEY";
-    private Restaurant restaurant;
+    private RestaurantWithNumberUser restaurantWithNumberUser;
     private ActivityRestaurantDetailBinding binding;
     private RestaurantDetailViewModel viewModel;
 
@@ -63,9 +64,9 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         viewModel = new ViewModelProvider(this, restaurantDetailViewModelFactory).get(RestaurantDetailViewModel.class);
 
         // Récupération de l'objet Restaurant passé en extra
-        restaurant = (Restaurant) getIntent().getSerializableExtra(RESTAURANT_KEY);
+        restaurantWithNumberUser = (RestaurantWithNumberUser) getIntent().getSerializableExtra(RESTAURANT_KEY);
 
-        if (restaurant != null) {
+        if (restaurantWithNumberUser != null) {
 
             addRestaurantSelectorListFragment();
         }
@@ -74,7 +75,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
         observeViewModel();
         setPicture();
-        setNameAndAddress(restaurant);
+        setNameAndAddress(restaurantWithNumberUser.getRestaurant());
         setRating();
         UpdateButton();
     }
@@ -83,7 +84,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         // Passez l'objet Restaurant au Fragment
 
         Bundle bundle = new Bundle();
-        bundle.putSerializable(RESTAURANT_KEY, restaurant);
+        bundle.putSerializable(RESTAURANT_KEY, restaurantWithNumberUser);
 
         // Trouvez le fragment par son ID ou créez une nouvelle instance et ajoutez-le à l'activité
         RestaurantSelectorListFragment fragment = (RestaurantSelectorListFragment) getSupportFragmentManager().findFragmentById(R.id.containerDetail);
@@ -100,7 +101,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     // Set Image
 
     public void setPicture(){
-        ImageUtils.loadRestaurantImage(binding.pictureRestaurantDetail, restaurant);
+        ImageUtils.loadRestaurantImage(binding.pictureRestaurantDetail, restaurantWithNumberUser.getRestaurant());
     }
 
 
@@ -111,34 +112,34 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     }
 
     public void setRating() {
-        RatingUtils.setRating(binding.itemListRestaurantRatingBar, restaurant.getRating());
+        RatingUtils.setRating(binding.itemListRestaurantRatingBar, restaurantWithNumberUser.getRestaurant().getRating());
     }
 
     public void UpdateButton() {
 
         binding.buttonLikeRestaurantDetail.setOnClickListener(view -> {
-            if (restaurant != null) {
-                viewModel.createNewRestaurantFavorites(restaurant.getId());
+            if (restaurantWithNumberUser != null) {
+                viewModel.createNewRestaurantFavorites(restaurantWithNumberUser.getRestaurant().getId());
             }
         });
 
         binding.buttonSelectedRestaurant.setOnClickListener(view -> {
-            if (restaurant != null) {
-                viewModel.createOrUpdateSelectedRestaurant(restaurant.getId());
+            if (restaurantWithNumberUser != null) {
+                viewModel.createOrUpdateSelectedRestaurant(restaurantWithNumberUser.getRestaurant().getId());
             }
         });
 
-        if (restaurant.getNumberPhone() != null) {
+        if (restaurantWithNumberUser.getRestaurant().getNumberPhone() != null) {
             binding.buttonCallRestaurantDetail.setOnClickListener(v -> Toast.makeText(getApplicationContext()
-                    , restaurant.getNumberPhone(), Toast.LENGTH_SHORT).show());
+                    , restaurantWithNumberUser.getRestaurant().getNumberPhone(), Toast.LENGTH_SHORT).show());
         } else {
             binding.buttonCallRestaurantDetail.setOnClickListener(v -> Toast.makeText(getApplicationContext()
                     , "Unavailable number!", Toast.LENGTH_SHORT).show());
         }
 
-        if (restaurant.getEmail() != null) {
+        if (restaurantWithNumberUser.getRestaurant().getEmail() != null) {
             binding.buttonWebsiteRestaurantDetail.setOnClickListener(v -> Toast.makeText(getApplicationContext()
-                    , restaurant.getEmail(), Toast.LENGTH_SHORT).show());
+                    , restaurantWithNumberUser.getRestaurant().getEmail(), Toast.LENGTH_SHORT).show());
         } else {
             binding.buttonWebsiteRestaurantDetail.setOnClickListener(v -> Toast.makeText(getApplicationContext()
                     , "Unavailable website!", Toast.LENGTH_SHORT).show());

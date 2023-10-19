@@ -12,6 +12,7 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurant
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateUserUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantsWithSelectedUsersUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentDateUseCaseImpl;
@@ -41,7 +42,7 @@ public class Injector {
     private static HandleExistingSelectionUseCase handleExistingSelectionUseCase = null;
     private static GetCurrentUseCase getCurrentUseCase = null;
     private static GetCurrentDateUseCase getCurrentDateUseCase = null;
-
+    private static FetchRestaurantsWithSelectedUsersUseCase fetchRestaurantsWithSelectedUsersUseCase = null;
 
     public static synchronized UserRepository provideUserRepository() {
         if (userRepository == null) {
@@ -181,6 +182,14 @@ public class Injector {
             getCurrentDateUseCase = new GetCurrentDateUseCaseImpl();
         }
         return getCurrentDateUseCase;
+    }
+
+    public static synchronized  FetchRestaurantsWithSelectedUsersUseCase provideFetchRestaurantsWithSelectedUsersUseCase(){
+        if(fetchRestaurantsWithSelectedUsersUseCase == null){
+            fetchRestaurantsWithSelectedUsersUseCase = new FetchRestaurantsWithSelectedUsersUseCaseImpl(provideGetAllRestaurantsFromFirebaseUseCase(),
+                    provideGetAllSelectedRestaurantsUseCase());
+        }
+        return fetchRestaurantsWithSelectedUsersUseCase;
     }
 
 

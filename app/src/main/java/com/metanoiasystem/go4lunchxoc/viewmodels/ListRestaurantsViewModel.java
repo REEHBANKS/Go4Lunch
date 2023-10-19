@@ -7,13 +7,18 @@ import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
+import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantsWithSelectedUsersUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.FetchRestaurantsWithSelectedUsersUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -23,18 +28,22 @@ public class ListRestaurantsViewModel extends ViewModel {
     private final FetchRestaurantListUseCase fetchRestaurantListUseCase;
     private final GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase;
     private final GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebase;
+    private final FetchRestaurantsWithSelectedUsersUseCase fetchRestaurantsWithSelectedUsersUseCase;
 
-    private final MutableLiveData<Map<String, Integer>> countUsersPerRestaurantLiveData = new MutableLiveData<>();
+
     private final MutableLiveData<List<Restaurant>> restaurantsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<SelectedRestaurant>> selectedRestaurantsLiveData = new MutableLiveData<>();
     private final MutableLiveData<Throwable> errorLiveData = new MutableLiveData<>();
+    private final MutableLiveData<List<RestaurantWithNumberUser>> restaurantsWithNumberUserLiveData = new MutableLiveData<>();
+
 
     public ListRestaurantsViewModel(FetchRestaurantListUseCase fetchRestaurantListUseCase,
                                     GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase,
-    GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebase ) {
+    GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebase) {
         this.fetchRestaurantListUseCase = fetchRestaurantListUseCase;
         this.getAllSelectedRestaurantsUseCase = getAllSelectedRestaurantsUseCase;
         this.getAllRestaurantsFromFirebase = getAllRestaurantsFromFirebase;
+        fetchRestaurantsWithSelectedUsersUseCase = Injector.provideFetchRestaurantsWithSelectedUsersUseCase();
     }
 
     String dateDeJour = new SimpleDateFormat("dd/MM/yy").format(new Date());
@@ -43,14 +52,14 @@ public class ListRestaurantsViewModel extends ViewModel {
         return restaurantsLiveData;
     }
 
+    public LiveData<List<RestaurantWithNumberUser>> getRestaurantWithNumberUser(){
+        return restaurantsWithNumberUserLiveData;
+    }
 
     public LiveData<List<SelectedRestaurant>> getSelectedRestaurants() {
         return selectedRestaurantsLiveData;
     }
 
-    public LiveData<Map<String, Integer>> getCountUsersPerRestaurantLiveData() {
-        return countUsersPerRestaurantLiveData;
-    }
 
     public LiveData<Throwable> getError() {
         return errorLiveData;
@@ -90,27 +99,24 @@ public class ListRestaurantsViewModel extends ViewModel {
 
     }
 
-
-//TODO TO DELETE
-  /*  public void fetchCountUsersForRestaurant(Restaurant restaurant, List<SelectedRestaurant> allSelectedRestaurants) {
-        countUsersForRestaurantUseCase.execute(restaurant, allSelectedRestaurants, new UseCaseCallback<Integer>() {
+    public void fetchRestaurantsWithSelectedUsers() {
+        fetchRestaurantsWithSelectedUsersUseCase.execute(new UseCaseCallback<List<RestaurantWithNumberUser>>() {
             @Override
-            public void onSuccess(Integer result) {
-                Map<String, Integer> currentMap = countUsersPerRestaurantLiveData.getValue();
-                if (currentMap == null) {
-                    currentMap = new HashMap<>();
-                }
-                currentMap.put(restaurant.getId(), result);
-                countUsersPerRestaurantLiveData.setValue(currentMap);
+            public void onSuccess(List<RestaurantWithNumberUser> result) {
+
+                List<RestaurantWithNumberUser>updateList = new ArrayList<>(result);
+
+                restaurantsWithNumberUserLiveData.setValue(updateList);
             }
 
             @Override
             public void onError(Throwable error) {
-                errorLiveData.setValue(error);
+                // Gérer l'erreur ici, par exemple en affichant un message à l'utilisateur ou en mettant à jour un autre LiveData avec l'erreur.
             }
         });
     }
-*/
+
+
 
     public void fetchAllSelectedRestaurants() {
         getAllSelectedRestaurantsUseCase. execute(dateDeJour, new UseCaseCallback<List<SelectedRestaurant>>() {

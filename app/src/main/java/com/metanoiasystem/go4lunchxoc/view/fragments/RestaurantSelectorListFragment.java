@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
+import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
 import com.metanoiasystem.go4lunchxoc.data.models.User;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentRestaurantSelectorListBinding;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.AddToFavoritesUseCase;
@@ -76,10 +77,10 @@ public class RestaurantSelectorListFragment extends Fragment {
 
 
         if (getArguments() != null) {
-            Restaurant restaurant = (Restaurant) getArguments().getSerializable(RESTAURANT_KEY);
+            RestaurantWithNumberUser restaurantWithNumberUser = (RestaurantWithNumberUser) getArguments().getSerializable(RESTAURANT_KEY);
             // Passer l'ID du restaurant au ViewModel
 
-            restaurantSelectorListViewModel.getUsersWhoSelectedThisRestaurant(restaurant.getId());
+            restaurantSelectorListViewModel.getUsersWhoSelectedThisRestaurant(restaurantWithNumberUser.getRestaurant().getId());
 
             observeGetUsersDetailScreen();
 
