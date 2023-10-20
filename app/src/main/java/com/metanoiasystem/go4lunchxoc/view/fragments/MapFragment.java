@@ -7,6 +7,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -37,6 +38,7 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
+import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
 import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
 import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
 import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.RestaurantViewModelFactory;
@@ -47,6 +49,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 
@@ -60,6 +63,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     private final List<Marker> restaurantMarkers = new ArrayList<>();
     private boolean locationRequested = false;
     private boolean isMapReady = false;
+    private Restaurant pendingRestaurant = null;
 
 
 
@@ -69,7 +73,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-
+        Log.d("LIFECYCLE", "Fragment onCreateView called");
         FetchRestaurantListUseCase fetchRestaurantListUseCase = Injector.provideFetchRestaurantListUseCase();
         GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase = Injector.provideGetAllSelectedRestaurantsUseCase();
         GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase = Injector.provideGetAllRestaurantsFromFirebaseUseCase();
@@ -78,6 +82,8 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
                  getAllSelectedRestaurantsUseCase, getAllRestaurantsFromFirebaseUseCase);
         mapViewModel = new ViewModelProvider(this, factory).get(MapViewModel.class);
 
+        observeOneMapLiveData();
+        observeCombinedLiveData();
 
         return inflater.inflate(R.layout.fragment_map, container, false);
 
@@ -90,25 +96,80 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
 
         locationProvider = new LocationProvider(requireContext());
 
-
-
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager().findFragmentById(R.id.map);
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
 
 
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d("LIFECYCLE", "Fragment onStart called");
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationProvider.requestLocationUpdates(this);
+        } else {
+            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION_PERMISSION);
+        }
+
+        locationProvider.requestCurrentLocation(new LocationProvider.OnLocationReceivedListener() {
+            @Override
+            public void onLocationReceived(double latitude, double longitude) {
+                mapViewModel.fetchRestaurants(latitude, longitude);
+                mapViewModel.fetchAllSelectedRestaurants();
+            }
+        });
+
+
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d("LIFECYCLE", "Fragment onPause called");
+        mapViewModel.getOneRestaurantLiveData().removeObservers(getViewLifecycleOwner());
+        mapViewModel.getCombinedLiveData().removeObservers(getViewLifecycleOwner());
+        locationProvider.stopLocationUpdates();
+        userMarker = null;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d("ONEMAP", "Fragment onResume called");
+
+    }
 
 
 
+    private void observeCombinedLiveData() {
+        Log.d("DEBUGO", "observeCombinedLiveData called");
         mapViewModel.getCombinedLiveData().observe(getViewLifecycleOwner(), result -> {
 
             if (!isMapReady) {
+                Log.d("DEBUG", "Map is not ready yet.");
                 return; // Si la carte n'est pas prête, ne faites rien
             }
 
             List<Restaurant> allRestaurantsTemp = result.allRestaurants;
             List<SelectedRestaurant> selectedAllRestaurantsTemp = result.selectedRestaurants;
+
+            // Log pour vérifier si les listes sont nulles ou vides
+            if (allRestaurantsTemp == null || allRestaurantsTemp.isEmpty()) {
+                Log.d("DEBUG", "allRestaurantsTemp is null or empty.");
+            } else {
+                Log.d("DEBUG", "allRestaurantsTemp size: " + allRestaurantsTemp.size());
+            }
+
+            if (selectedAllRestaurantsTemp == null || selectedAllRestaurantsTemp.isEmpty()) {
+                Log.d("DEBUG", "selectedAllRestaurantsTemp is null or empty.");
+            } else {
+                Log.d("DEBUG", "selectedAllRestaurantsTemp size: " + selectedAllRestaurantsTemp.size());
+            }
 
             if (allRestaurantsTemp != null && selectedAllRestaurantsTemp != null) {
                 if (!selectedAllRestaurantsTemp.isEmpty()) {
@@ -118,25 +179,39 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
                 }
             }
         });
-
-
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            locationProvider.requestLocationUpdates(this);
-        } else {
-            requestPermissions(new String[]{android.Manifest.permission.ACCESS_FINE_LOCATION}, REQUEST_CODE_LOCATION_PERMISSION);
+
+
+    public void observeOneMapLiveData() {
+        Log.e("ONEMAP", "OBSERVE ONE MAP OK ");
+        if (mapViewModel == null) {
+            Log.e("ONEMAP", "MAP VIEW NULL");
+            return;
         }
 
+        mapViewModel.getOneRestaurantLiveData().observe(getViewLifecycleOwner(), restaurant -> {
+            if (restaurant == null) {
+                Log.e("ONEMAP", "Received restaurant is null");
+                return;
+            }
+
+            if (isMapReady) {
+                Log.e("ONEMAP", "MAP READY");
+                addSearchRestaurantMarker(restaurant);
+            } else {
+                Log.e("ONEMAP", "RESTAURANT PENDING");
+                pendingRestaurant = restaurant;
+            }
+        });
     }
+
+
+
+
 
     @Override
     public void onLocationReceived(double latitude, double longitude) {
-        mapViewModel.fetchRestaurants(latitude, longitude);
-        mapViewModel.fetchAllSelectedRestaurants();
         if (mMap != null) {
             LatLng myLocation = new LatLng(latitude, longitude);
             if (userMarker == null) {
@@ -153,29 +228,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     }
 
 
-    @Override
-    public void onPause() {
-        super.onPause();
-        locationProvider.stopLocationUpdates();
-        userMarker = null;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-
-        //TODO methode test (pour compter le nombre de user par restaurant
-       // getListRestaurantWithAllItem();
-        locationProvider.requestCurrentLocation(new LocationProvider.OnLocationReceivedListener() {
-            @Override
-            public void onLocationReceived(double latitude, double longitude) {
-                mapViewModel.fetchRestaurants(latitude, longitude);
-                mapViewModel.fetchAllSelectedRestaurants();
-            }
-        });
-
-
-    }
 
     private final OnMapReadyCallback callback = new OnMapReadyCallback() {
         @Override
@@ -184,8 +236,38 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
             mMap.getUiSettings().setZoomControlsEnabled(true);
             checkAccessRestaurant();
             isMapReady = true;
+            Log.d("DEBUGO", "isMapReady = true");
+
+
+
+            // Set the marker click listener here
+            mMap.setOnMarkerClickListener(clickedMarker -> {
+                Log.d("DEBUG", "Marker clicked for restaurant: " + ((Restaurant) clickedMarker.getTag()).getRestaurantName());
+                Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
+                intent.putExtra(RestaurantDetailActivity.RESTAURANT_KEY, (Restaurant) clickedMarker.getTag());
+                startActivity(intent);
+                return true;
+            });
+
+            if (pendingRestaurant != null) {
+                addSearchRestaurantMarker(pendingRestaurant);
+                pendingRestaurant = null;
+            }
+            // Observez les données des restaurants une fois que la carte est prête
+            observeCombinedLiveData();
         }
     };
+
+    private void addSearchRestaurantMarker(Restaurant restaurant) {
+        if (mMap == null) return;
+        LatLng restaurantLocation = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
+        Marker marker = mMap.addMarker(new MarkerOptions()
+                .icon(bitmapDescriptorFactory(getContext(),  R.drawable.icon_green_lunch))
+                .position(restaurantLocation)
+                .title(restaurant.getRestaurantName()));
+        marker.setTag(restaurant);
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(restaurantLocation, 17));
+    }
 
     private void checkAccessRestaurant() {
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
@@ -262,43 +344,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
             restaurantMarkers.add(marker);
         }
     }
-
-  /*  public void getListRestaurantWithAllItem(){
-        Map<Restaurant, Integer> restaurantCountMap = new HashMap<>();
-
-        // Pour chaque restaurant dans allresto, initialisez le compteur à 0
-        for (Restaurant restaurant : allRestaurants){
-            restaurantCountMap.put(restaurant, 0);
-        }
-
-        // Pour chaque restaurant dans selectedresto, augmentez le compteur
-        for (SelectedRestaurant selected : selectedAllRestaurants){
-            Restaurant key = new Restaurant(selected.getRestaurantId());
-            if (restaurantCountMap.containsKey(key)){
-                Integer currentCount = restaurantCountMap.get(key);
-                if (currentCount != null) {
-                    restaurantCountMap.put(key, currentCount + 1);
-                } else {
-                    // Gérer l'erreur ou mettre une valeur par défaut
-                    restaurantCountMap.put(key, 0);
-                }
-            }
-
-        }
-
-        // Si vous voulez afficher les résultats
-        for (Map.Entry<Restaurant, Integer> entry : restaurantCountMap.entrySet()){
-            Log.d("ListSelected", entry.getKey().getRestaurantName() + ": " + entry.getValue());
-        }
-
-        // Si vous voulez retourner ou utiliser la map ailleurs
-        // return restaurantCountMap;
-    }
-
-*/
-
-
-
 
 
 }

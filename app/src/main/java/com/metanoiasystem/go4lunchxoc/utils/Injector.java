@@ -11,15 +11,18 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseC
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateUserUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantFromSearchBarUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantsWithSelectedUsersUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCompleteUserDataUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentDateUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.HandleExistingSelectionUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSelectionUseCaseImpl;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateUserViewDrawerUseCase;
 
 public class Injector {
 
@@ -43,6 +46,9 @@ public class Injector {
     private static GetCurrentUseCase getCurrentUseCase = null;
     private static GetCurrentDateUseCase getCurrentDateUseCase = null;
     private static FetchRestaurantsWithSelectedUsersUseCase fetchRestaurantsWithSelectedUsersUseCase = null;
+    private static FetchRestaurantFromSearchBarUseCase fetchRestaurantFromSearchBarUseCase = null;
+    private static GetCompleteUserDataUseCase getCompleteUserDataUseCase = null;
+    private static UpdateUserViewDrawerUseCase updateUserViewDrawerUseCase = null;
 
     public static synchronized UserRepository provideUserRepository() {
         if (userRepository == null) {
@@ -192,6 +198,27 @@ public class Injector {
         return fetchRestaurantsWithSelectedUsersUseCase;
     }
 
+    public static synchronized FetchRestaurantFromSearchBarUseCase provideFetchRestaurantFromSearchBarUseCase(){
+        if(fetchRestaurantFromSearchBarUseCase == null){
+            fetchRestaurantFromSearchBarUseCase = new FetchRestaurantFromSearchBarUseCase();
+
+        }
+        return fetchRestaurantFromSearchBarUseCase;
+    }
+
+    public static synchronized GetCompleteUserDataUseCase provideGetCompleteUserDataUseCase(){
+        if(getCompleteUserDataUseCase == null){
+            getCompleteUserDataUseCase = new GetCompleteUserDataUseCase();
+        }
+        return getCompleteUserDataUseCase;
+    }
+
+    public static synchronized UpdateUserViewDrawerUseCase provideUpdateUserViewDrawerUseCase(){
+        if(updateUserViewDrawerUseCase == null){
+            updateUserViewDrawerUseCase = new UpdateUserViewDrawerUseCase();
+        }
+         return updateUserViewDrawerUseCase;
+    }
 
 
 

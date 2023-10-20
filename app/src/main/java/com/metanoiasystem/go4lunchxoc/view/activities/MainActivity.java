@@ -4,7 +4,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.lifecycle.Observer;
@@ -25,14 +27,21 @@ import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.navigation.NavigationView;
 import com.metanoiasystem.go4lunchxoc.BuildConfig;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.repository.RestaurantRepository;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.Injector;
+import com.metanoiasystem.go4lunchxoc.utils.NavigationDrawerHandler;
 import com.metanoiasystem.go4lunchxoc.view.fragments.ListRestaurantsFragment;
 import com.metanoiasystem.go4lunchxoc.view.fragments.MapFragment;
 import com.metanoiasystem.go4lunchxoc.view.fragments.WorkmatesFragment;
 import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
+import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.RestaurantViewModelFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,20 +52,30 @@ import io.reactivex.disposables.Disposable;
 public class MainActivity extends AppCompatActivity {
 
     private Fragment mMapFragment, mListRestaurantFragment, mWorkmatesFragment;
-    private int selectedFragment = R.id.maps_view; // valeur par défaut
+    private int selectedFragment = R.id.maps_view;
+     MapViewModel mapViewModelToMain;
+    private NavigationDrawerHandler navigationDrawerHandler;
 
-    // Déclaration de la Toolbar, du DrawerLayout et du ActionBarDrawerToggle
+
     Toolbar toolbar;
     public DrawerLayout drawerLayout;
     public ActionBarDrawerToggle actionBarDrawerToggle;
 
-    // Constantes pour les codes de demande et de vérification des résultats
     private static final int AUTOCOMPLETE_REQUEST_CODE = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        FetchRestaurantListUseCase fetchRestaurantListUseCase = Injector.provideFetchRestaurantListUseCase();
+        GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase = Injector.provideGetAllSelectedRestaurantsUseCase();
+        GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase = Injector.provideGetAllRestaurantsFromFirebaseUseCase();
+
+        RestaurantViewModelFactory factory = new RestaurantViewModelFactory(fetchRestaurantListUseCase,
+                getAllSelectedRestaurantsUseCase, getAllRestaurantsFromFirebaseUseCase);
+        mapViewModelToMain = new ViewModelProvider(this, factory).get(MapViewModel.class);
+
 
         // Set up the toolbar
         toolbar = findViewById(R.id.toolbar);
@@ -92,18 +111,15 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        // Configuration du DrawerLayout et de son bouton de basculement
-        drawerLayout = findViewById(R.id.my_drawer_layout);
-        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
-        drawerLayout.addDrawerListener(actionBarDrawerToggle);
-        actionBarDrawerToggle.syncState();
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24);
 
         if (!Places.isInitialized()) {
             Places.initialize(getApplicationContext(), BuildConfig.RR_KEY);
         }
+
+        navigationDrawerHandler = new NavigationDrawerHandler(this);
+        navigationDrawerHandler.setupNavigationDrawer();
     }
+
 
 
     // Gonflage du menu d'options
@@ -145,12 +161,14 @@ public class MainActivity extends AppCompatActivity {
     // Gestion des sélections d'éléments du menu d'options
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+        // Gérer l'ouverture du tiroir de navigation
+        if (item.getItemId() == android.R.id.home) {
+            navigationDrawerHandler.openDrawer();
             return true;
         }
 
+        // Gérer l'action de recherche
         if (item.getItemId() == R.id.action_search) {
-
             if (mMapFragment.isVisible()) {
                 // ...
             } else if (mListRestaurantFragment.isVisible()) {
@@ -165,17 +183,26 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
 
+        // Si l'actionBarDrawerToggle gère l'item, retournez true
+        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+            return true;
+        }
+
         return super.onOptionsItemSelected(item);
     }
+
 
     // Gestion du résultat de l'intention d'AutoComplete
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
+        Log.d("DEBUG", "onActivityResult called with requestCode: " + requestCode + ", resultCode: " + resultCode);
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE)
+            Log.d("DEBUG", "Inside AUTOCOMPLETE_REQUEST_CODE block");{
             if (resultCode == RESULT_OK) {
+                Log.d("DEBUG", "Result OK for AUTOCOMPLETE_REQUEST_CODE");
                 assert data != null;
                 Place place = Autocomplete.getPlaceFromIntent(data);
-                // Votre logique pour traiter le lieu sélectionné
+                mapViewModelToMain.fetchOneMapViewModel(place.getLatLng(), place.getId(),Objects.requireNonNull(place.getRating()).floatValue());
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 assert data != null;
                 Status status = Autocomplete.getStatusFromIntent(data);

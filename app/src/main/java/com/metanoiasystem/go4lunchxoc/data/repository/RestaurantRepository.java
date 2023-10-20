@@ -5,10 +5,8 @@ import android.util.Log;
 
 
 import androidx.annotation.NonNull;
-import androidx.lifecycle.LiveData;
-import androidx.lifecycle.MutableLiveData;
 
-import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.firestore.CollectionReference;
@@ -23,6 +21,8 @@ import com.metanoiasystem.go4lunchxoc.data.models.apiresponse.AllTheListRestaura
 import com.metanoiasystem.go4lunchxoc.data.models.apiresponse.RestaurantResponse;
 import com.metanoiasystem.go4lunchxoc.data.network.RestaurantService;
 import com.metanoiasystem.go4lunchxoc.data.network.RetrofitClient;
+import com.metanoiasystem.go4lunchxoc.utils.callbacks.RepositoryFetchAllRestaurantFetchCallback;
+import com.metanoiasystem.go4lunchxoc.utils.callbacks.RepositoryFetchOneRestaurantCallback;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -40,6 +40,7 @@ public class RestaurantRepository {
     private static volatile  RestaurantRepository restaurantRepository;
     private final CollectionReference restaurantsCollection = FirebaseFirestore.getInstance().collection("restaurants");
     private Disposable restaurantDisposable;
+    private Disposable oneRestaurantDisposable;
     private boolean apiCalledDuringSession = false; // TODO: Ajouté pour vérifier si l'API a été appelée
 
 
@@ -50,7 +51,7 @@ public class RestaurantRepository {
         return restaurantRepository;
     }
 
-    public void fetchRestaurant(Double latitude, Double longitude, RestaurantFetchCallback callback) {
+    public void fetchRestaurant(Double latitude, Double longitude, RepositoryFetchAllRestaurantFetchCallback callback) {
         if (apiCalledDuringSession) {
 
             getAllRestaurantsFromFirebase();
@@ -64,7 +65,7 @@ public class RestaurantRepository {
     }
 
 
-    private void fetchFromNetwork(Double latitude, Double longitude, RestaurantFetchCallback callback) {
+    private void fetchFromNetwork(Double latitude, Double longitude, RepositoryFetchAllRestaurantFetchCallback callback) {
         restaurantDisposable = streamFetchRestaurantResponse(latitude, longitude)
                 .doFinally(this::dispose) // TODO dispose à la fin de la chaîne d'opération
                 .subscribeWith(new DisposableObserver<List<Restaurant>>() {
@@ -156,7 +157,10 @@ public class RestaurantRepository {
 
 
         RestaurantService restaurantService = RetrofitClient.getRetrofit().create(RestaurantService.class);
-        return restaurantService.getAllRestaurantsResponse(BuildConfig.RR_KEY, location)
+        return restaurantService.getAllRestaurantsResponse(
+                        BuildConfig.RR_KEY,
+                        location,
+                        "place_id,name,vicinity,rating,geometry,photos,opening_hours")
 
 
                 .map((Function<AllTheListRestaurantsResponse, List<Restaurant>>) resultsResponse -> {
@@ -198,9 +202,73 @@ public class RestaurantRepository {
                 .observeOn(AndroidSchedulers.mainThread());
     }
 
-    public interface RestaurantFetchCallback {
-        void onSuccess(List<Restaurant> restaurants);
-        void onError(Throwable error);
+    public void fetchOneRestaurantFromNetwork(LatLng latLng, String id,Float rating, RepositoryFetchOneRestaurantCallback callback) {
+        if (oneRestaurantDisposable != null && !oneRestaurantDisposable.isDisposed()) {
+            oneRestaurantDisposable.dispose();
+        }
+
+        // Start a new fetch operation.
+
+
+        oneRestaurantDisposable = streamFetchOneRestaurantResponse(latLng, id, rating)
+                .subscribeWith(new DisposableObserver<Restaurant>() {
+
+                    @Override
+                    public void onNext(@NonNull Restaurant restaurant) {
+                        callback.onSuccess(restaurant);
+                        Log.d("DEBUG", "Restaurant fetched successfully");
+
+
+                    }
+
+                    @Override
+                    public void onError(@NonNull Throwable e) {
+                        callback.onError(e);
+
+                    }
+
+                    @Override
+                    public void onComplete() {
+                        Log.d("JUSTIN", "On complete");
+
+                    }
+                });
+
     }
 
-}
+          public Observable<Restaurant> streamFetchOneRestaurantResponse(LatLng latLng, String id, Float rating){
+
+
+            RestaurantService restaurantService = RetrofitClient.getRetrofit().create(RestaurantService.class);
+            return restaurantService.getOneRestaurantByIdResponse(BuildConfig.RR_KEY, id)
+                    .map(resultOneResponse -> {
+
+
+                        Boolean isOpen = resultOneResponse.getResult().getOpeningResponse() != null ? resultOneResponse.getResult().getOpeningResponse().getOpen_now() : false;
+                        String photoIsHere = resultOneResponse.getResult().getPhotosResponse() == null || resultOneResponse.getResult().getPhotosResponse().isEmpty() ? null :
+                                resultOneResponse.getResult().getPhotosResponse().get(0).getPhotoReference();
+
+
+                        return new Restaurant(resultOneResponse.getResult().getPlace_id(),
+                                resultOneResponse.getResult().getName(),
+                                resultOneResponse.getResult().getGeometryResponse().getLocationResponse().getLat(),
+                                resultOneResponse.getResult().getGeometryResponse().getLocationResponse().getLng(),
+                                photoIsHere,
+                                resultOneResponse.getResult().getVicinity(),
+                                isOpen,
+                                rating,
+                                0,
+                                resultOneResponse.getResult().getFormatted_phone_number(),
+                                resultOneResponse.getResult().getWebsite());
+
+
+                    })
+
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread());
+
+
+        }
+
+
+    }

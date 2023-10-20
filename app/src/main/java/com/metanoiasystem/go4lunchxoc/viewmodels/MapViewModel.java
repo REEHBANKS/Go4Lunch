@@ -7,12 +7,17 @@ import androidx.lifecycle.MediatorLiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
+import com.google.android.gms.maps.model.LatLng;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
+import com.metanoiasystem.go4lunchxoc.data.repository.RestaurantRepository;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantFromSearchBarUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
+import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseFetchOneRestaurantCallback;
 
 
 import java.text.SimpleDateFormat;
@@ -24,9 +29,12 @@ public class MapViewModel extends ViewModel {
     private final FetchRestaurantListUseCase fetchRestaurantListUseCase;
     private final GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase;
     private final GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase;
+    private final FetchRestaurantFromSearchBarUseCase fetchRestaurantFromSearchBarUseCase;
+
 
     private final MutableLiveData<List<Restaurant>> restaurantsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<SelectedRestaurant>> selectedRestaurantsLiveData = new MutableLiveData<>();
+    private final MutableLiveData<Restaurant> oneRestaurantLiveData = new MutableLiveData<>();
     private final MutableLiveData<Throwable> errorLiveData = new MutableLiveData<>();
     private final MediatorLiveData<CombinedResult> combinedLiveData = new MediatorLiveData<>();
 
@@ -36,6 +44,8 @@ public class MapViewModel extends ViewModel {
         this.fetchRestaurantListUseCase = fetchRestaurantListUseCase;
         this.getAllSelectedRestaurantsUseCase = getAllSelectedRestaurantsUseCase;
         this.getAllRestaurantsFromFirebaseUseCase = getAllRestaurantsFromFirebaseUseCase;
+        fetchRestaurantFromSearchBarUseCase = Injector.provideFetchRestaurantFromSearchBarUseCase();
+
 
 
         combinedLiveData.addSource(restaurantsLiveData, restaurants -> combineData());
@@ -44,13 +54,10 @@ public class MapViewModel extends ViewModel {
 
     String dateDeJour = new SimpleDateFormat("dd/MM/yy").format(new Date());
 
-    public LiveData<List<Restaurant>> getMapLiveData() {
-        return restaurantsLiveData;
-    }
 
-    public LiveData<List<SelectedRestaurant>> getSelectedRestaurants() {
-        return selectedRestaurantsLiveData;
-    }
+
+   public LiveData<Restaurant> getOneRestaurantLiveData() {return oneRestaurantLiveData; }
+
 
     public LiveData<Throwable> getError() {
         return errorLiveData;
@@ -111,4 +118,26 @@ public class MapViewModel extends ViewModel {
             this.selectedRestaurants = selectedRestaurants;
         }
     }
+
+    public void fetchOneMapViewModel(LatLng latLng, String id, Float rating){
+
+        fetchRestaurantFromSearchBarUseCase.execute(latLng, id, rating, new UseCaseFetchOneRestaurantCallback<Restaurant>() {
+            @Override
+            public void onSuccess(Restaurant result) {
+                Log.d("ONEMAP", "Nom du restaurant reçu: " + result.getRestaurantName());
+                oneRestaurantLiveData.setValue(result);
+
+            }
+
+            @Override
+            public void onError(Throwable error) {
+                Log.e("DEBUG", "Error received in ViewModel: " + error.getMessage());
+                errorLiveData.setValue(error);
+
+            }
+        });
+
+
+    }
+
 }

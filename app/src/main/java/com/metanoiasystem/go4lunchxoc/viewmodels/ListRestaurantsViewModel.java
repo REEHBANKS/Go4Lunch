@@ -65,20 +65,7 @@ public class ListRestaurantsViewModel extends ViewModel {
         return errorLiveData;
     }
 
-    public void fetchRestaurants(Double latitude, Double longitude) {
-        fetchRestaurantListUseCase.execute(latitude, longitude, new UseCaseCallback<List<Restaurant>>() {
-            @Override
-            public void onSuccess(List<Restaurant> result) {
-                restaurantsLiveData.setValue(result);
-                Log.d("ListViewModel", "Successfully fetched " + result.size() + " restaurants.");
-            }
 
-            @Override
-            public void onError(Throwable error) {
-                errorLiveData.setValue(error);
-            }
-        });
-    }
 
     public void setGetAllSelectedRestaurantsUseCase() {
             getAllRestaurantsFromFirebase.execute(new UseCaseCallback<List<Restaurant>>(){

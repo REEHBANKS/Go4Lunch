@@ -2,10 +2,9 @@ package com.metanoiasystem.go4lunchxoc.domain.usecase;
 
 import android.util.Log;
 
-import androidx.lifecycle.LiveData;
-
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.repository.RestaurantRepository;
+import com.metanoiasystem.go4lunchxoc.utils.callbacks.RepositoryFetchAllRestaurantFetchCallback;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 
 import java.util.List;
@@ -20,20 +19,20 @@ public class FetchRestaurantListUseCase {
 
     public void execute(Double latitude, Double longitude, UseCaseCallback<List<Restaurant>> callback) {
         Log.d("RestaurantRepo", "Fetching restaurants for lat: " + latitude + " long: " + longitude);
-        restaurantRepository.fetchRestaurant(latitude, longitude, new RestaurantRepository. RestaurantFetchCallback() {
-
+        restaurantRepository.fetchRestaurant(latitude, longitude, new RepositoryFetchAllRestaurantFetchCallback() {
             @Override
             public void onSuccess(List<Restaurant> restaurants) {
                 callback.onSuccess(restaurants);
-                Log.d("RestaurantRepo", "Finished fetching restaurants");
-            }
 
+            }
 
             @Override
             public void onError(Throwable error) {
-                Log.e("RestaurantRepo", "Error fetching restaurants", error);
                 callback.onError(error);
+
             }
+
+
         });
     }
 

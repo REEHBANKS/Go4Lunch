@@ -44,7 +44,15 @@
     <string name="kylian_is_eating_french_chez_guy">Kylian is eating french chz guy</string>
     <string name="open"><font color="#00FF00">Ouvert</font></string>
     <string name="closed"><font color="#FF0000">Fermé</font></string>
-    <string name="not_available"></string> <!-- Chaîne vide pour "information non disponible" -->
+    <string name="not_available"></string>
+    <string name="notification">notification</string>
+    <string name="off">OFF</string>
+    <string name="on">ON</string>
+    <string name="todo12">TODO12</string>
+    <string name="setting">Setting</string>
+    <string name="today_s_lunch">Today\'s lunch</string>
+    <string name="have_you_decided_on_a_restaurant_yet">Have you decided on a restaurant yet?</string>
+    <string name="todo6">TODO6</string> <!-- Chaîne vide pour "information non disponible" -->
 
 
 </resources>

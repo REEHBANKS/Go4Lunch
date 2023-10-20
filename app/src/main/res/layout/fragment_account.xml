@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/app_color"
+    android:layout_gravity="center"
+    android:padding="16dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:ignore="UselessParent">
+
+        <androidx.appcompat.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp"
+            android:gravity="center_vertical">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:padding="16dp"
+                android:text="@string/today_s_lunch"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textSize="25sp"
+                android:textColor="@color/switch_thumb_color"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/restaurant_no_name_text_view"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/have_you_decided_on_a_restaurant_yet"
+                android:layout_gravity="center"
+                android:textColor="@color/switch_thumb_color"
+                android:textSize="18sp"
+                android:textAppearance="?android:textAppearanceLarge"
+                android:textStyle="bold"/>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                tools:ignore="UseCompoundDrawables">
+
+                <ImageView
+                    android:id="@+id/restaurant_image_view"
+                    android:layout_width="68dp"
+                    android:layout_height="68dp"
+                    android:layout_marginStart="45dp"
+                    android:layout_marginEnd="15dp"
+                    android:contentDescription="@string/todo6" />
+
+                <TextView
+                    android:id="@+id/restaurant_name_text_view"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:textColor="@color/switch_thumb_color"
+                    android:textSize="18sp"
+                    android:textAppearance="?android:textAppearanceLarge"
+                    android:textStyle="bold"/>
+
+            </LinearLayout>
+
+
+
+                <TextView
+                    android:id="@+id/restaurant_address_text_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:lineSpacingExtra="4dp"
+                    android:textColor="@color/switch_thumb_color"
+
+                    android:textAppearance="?android:textAppearanceMedium" />
+
+
+
+        </androidx.appcompat.widget.LinearLayoutCompat>
+
+
+
+    </RelativeLayout>
+
+</FrameLayout>
