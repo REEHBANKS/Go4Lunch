@@ -76,6 +76,8 @@ public class MainActivity extends AppCompatActivity {
                 getAllSelectedRestaurantsUseCase, getAllRestaurantsFromFirebaseUseCase);
         mapViewModelToMain = new ViewModelProvider(this, factory).get(MapViewModel.class);
 
+        navigationDrawerHandler = new NavigationDrawerHandler(this);
+
 
         // Set up the toolbar
         toolbar = findViewById(R.id.toolbar);
@@ -160,14 +162,18 @@ public class MainActivity extends AppCompatActivity {
 
     // Gestion des sélections d'éléments du menu d'options
     @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        // Gérer l'ouverture du tiroir de navigation
+    public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
-            navigationDrawerHandler.openDrawer();
+            if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+                getSupportFragmentManager().popBackStack();  // Revenir à l'écran principal
+            } else {
+                navigationDrawerHandler.openNavigationDrawer();  // Ouvrir le tiroir de navigation
+            }
             return true;
-        }
+    }
 
-        // Gérer l'action de recherche
+
+    // Gérer l'action de recherche
         if (item.getItemId() == R.id.action_search) {
             if (mMapFragment.isVisible()) {
                 // ...

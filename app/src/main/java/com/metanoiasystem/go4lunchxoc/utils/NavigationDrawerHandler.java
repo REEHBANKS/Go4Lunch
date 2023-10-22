@@ -9,6 +9,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateUserViewDrawerUseCase;
 import com.metanoiasystem.go4lunchxoc.view.activities.MainActivity;
+import com.metanoiasystem.go4lunchxoc.view.fragments.drawerFragment.AccountFragment;
 
 import java.util.Objects;
 
@@ -23,6 +24,7 @@ public class NavigationDrawerHandler {
         this.drawerLayout = mainActivity.findViewById(R.id.my_drawer_layout);
         this.navigationView = mainActivity.findViewById(R.id.drawer_navigation);
         updateUserViewDrawerUseCase = Injector.provideUpdateUserViewDrawerUseCase();
+
     }
 
     public void setupNavigationDrawer() {
@@ -36,6 +38,10 @@ public class NavigationDrawerHandler {
             // Gestion des clics sur les éléments du menu (à compléter selon vos besoins)
             switch (item.getItemId()) {
                 case R.id.nav_account:
+                    mainActivity.getSupportFragmentManager().beginTransaction()
+                            .replace(R.id.container, new AccountFragment())
+                            .addToBackStack(null)
+                            .commit();
                     // ...
                     break;
                 case R.id.nav_settings:
@@ -50,8 +56,11 @@ public class NavigationDrawerHandler {
         });
     }
 
-    public void openDrawer() {
-        drawerLayout.openDrawer(GravityCompat.START);
+    public void openNavigationDrawer() {
+        if (drawerLayout != null) {
+            drawerLayout.openDrawer(GravityCompat.START);
+        }
     }
+
 }
 

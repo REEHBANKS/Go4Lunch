@@ -7,7 +7,6 @@ import com.metanoiasystem.go4lunchxoc.data.repository.UserRepository;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.AddToFavoritesUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckAndHandleExistingRestaurantSelectionUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateUserUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
@@ -19,6 +18,7 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUs
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCompleteUserDataUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentDateUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentUseCaseImpl;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantForCurrentUserUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.HandleExistingSelectionUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSelectionUseCaseImpl;
@@ -38,7 +38,6 @@ public class Injector {
     private static UpdateExistingRestaurantSelectionUseCase updateExistingRestaurantSelectionUseCase = null;
     private static GetSelectedRestaurantsWithIdUseCase getSelectedRestaurantsWithIdUseCase = null;
     private static FetchRestaurantListUseCase fetchRestaurantListUseCase = null;
-    private static CountUsersForRestaurantUseCase countUsersForRestaurantUseCase = null;
     private static GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase = null;
     private static GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase = null;
     private static CheckAndHandleExistingRestaurantSelectionUseCase checkAndHandleExistingRestaurantSelectionUseCase = null;
@@ -49,6 +48,7 @@ public class Injector {
     private static FetchRestaurantFromSearchBarUseCase fetchRestaurantFromSearchBarUseCase = null;
     private static GetCompleteUserDataUseCase getCompleteUserDataUseCase = null;
     private static UpdateUserViewDrawerUseCase updateUserViewDrawerUseCase = null;
+    private static GetSelectedRestaurantForCurrentUserUseCase getSelectedRestaurantForCurrentUserUseCase = null;
 
     public static synchronized UserRepository provideUserRepository() {
         if (userRepository == null) {
@@ -137,17 +137,10 @@ public class Injector {
         return fetchRestaurantListUseCase;
     }
 
-    public static synchronized CountUsersForRestaurantUseCase provideCountUsersForRestaurantUseCase(){
-        if (countUsersForRestaurantUseCase == null) {
-            countUsersForRestaurantUseCase = new CountUsersForRestaurantUseCase(provideSelectedRestaurantRepository());
-        }
-
-        return countUsersForRestaurantUseCase;
-    }
 
     public static synchronized GetAllSelectedRestaurantsUseCase provideGetAllSelectedRestaurantsUseCase(){
         if (getAllSelectedRestaurantsUseCase == null) {
-            getAllSelectedRestaurantsUseCase = new GetAllSelectedRestaurantsUseCase(provideSelectedRestaurantRepository());
+            getAllSelectedRestaurantsUseCase = new GetAllSelectedRestaurantsUseCase();
         }
 
         return getAllSelectedRestaurantsUseCase;
@@ -218,6 +211,13 @@ public class Injector {
             updateUserViewDrawerUseCase = new UpdateUserViewDrawerUseCase();
         }
          return updateUserViewDrawerUseCase;
+    }
+
+    public static synchronized GetSelectedRestaurantForCurrentUserUseCase provideGetSelectedRestaurantForCurrentUserUseCase(){
+        if(getSelectedRestaurantForCurrentUserUseCase == null){
+            getSelectedRestaurantForCurrentUserUseCase = new GetSelectedRestaurantForCurrentUserUseCase();
+        }
+        return getSelectedRestaurantForCurrentUserUseCase;
     }
 
 

@@ -5,6 +5,7 @@ import android.util.Log;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.data.repository.SelectedRestaurantRepository;
+import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 
 import java.util.ArrayList;
@@ -14,8 +15,8 @@ public class GetAllSelectedRestaurantsUseCase {
 
     private final SelectedRestaurantRepository repository;
 
-    public GetAllSelectedRestaurantsUseCase(SelectedRestaurantRepository repository) {
-        this.repository = repository;
+    public GetAllSelectedRestaurantsUseCase() {
+        repository = Injector.provideSelectedRestaurantRepository();
     }
 
     public void execute(String dateDuJour,UseCaseCallback<List<SelectedRestaurant>> callback) {

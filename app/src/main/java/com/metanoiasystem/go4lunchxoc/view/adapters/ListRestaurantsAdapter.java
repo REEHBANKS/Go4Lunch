@@ -14,7 +14,6 @@ import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsItemBinding;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.CountUsersForRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.ImageUtils;
 import com.metanoiasystem.go4lunchxoc.utils.RatingUtils;
 import com.metanoiasystem.go4lunchxoc.utils.RestaurantStatusUtils;
