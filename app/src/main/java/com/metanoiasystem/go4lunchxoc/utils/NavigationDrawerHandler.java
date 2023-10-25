@@ -4,12 +4,14 @@ import android.app.Activity;
 
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.navigation.NavigationView;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateUserViewDrawerUseCase;
 import com.metanoiasystem.go4lunchxoc.view.activities.MainActivity;
 import com.metanoiasystem.go4lunchxoc.view.fragments.drawerFragment.AccountFragment;
+import com.metanoiasystem.go4lunchxoc.view.fragments.drawerFragment.SettingsFragment;
 
 import java.util.Objects;
 
@@ -42,10 +44,10 @@ public class NavigationDrawerHandler {
                             .replace(R.id.container, new AccountFragment())
                             .addToBackStack(null)
                             .commit();
-                    // ...
                     break;
                 case R.id.nav_settings:
-                    // ...
+                    DialogFragment settingsDialog = new SettingsFragment();
+                    settingsDialog.show(mainActivity.getSupportFragmentManager(), "SettingsDialog");
                     break;
                 case R.id.nav_logout:
                     // ...
