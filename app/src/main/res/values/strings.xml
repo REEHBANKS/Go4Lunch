@@ -52,7 +52,13 @@
     <string name="setting">Setting</string>
     <string name="today_s_lunch">Today\'s lunch</string>
     <string name="have_you_decided_on_a_restaurant_yet">Have you decided on a restaurant yet?</string>
-    <string name="todo6">TODO6</string> <!-- Chaîne vide pour "information non disponible" -->
+    <string name="todo6">TODO6</string>
+    <string name="logout_title">Logout</string>
+    <string name="logout_message">Are you sure you want to logout?</string>
+    <string name="yes">yes</string>
+    <string name="no">no</string>
+    <string name="logout_text">You \'re disconnected!</string>
+    <string name="error_logout">error disconnected</string> <!-- Chaîne vide pour "information non disponible" -->
 
 
 </resources>

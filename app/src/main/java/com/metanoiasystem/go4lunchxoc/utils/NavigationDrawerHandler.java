@@ -1,6 +1,6 @@
 package com.metanoiasystem.go4lunchxoc.utils;
 
-import android.app.Activity;
+import android.widget.Toast;
 
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -9,8 +9,10 @@ import androidx.fragment.app.DialogFragment;
 import com.google.android.material.navigation.NavigationView;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateUserViewDrawerUseCase;
+import com.metanoiasystem.go4lunchxoc.view.activities.ConnexionActivity;
 import com.metanoiasystem.go4lunchxoc.view.activities.MainActivity;
 import com.metanoiasystem.go4lunchxoc.view.fragments.drawerFragment.AccountFragment;
+import com.metanoiasystem.go4lunchxoc.view.fragments.drawerFragment.LogoutHelper;
 import com.metanoiasystem.go4lunchxoc.view.fragments.drawerFragment.SettingsFragment;
 
 import java.util.Objects;
@@ -20,6 +22,7 @@ public class NavigationDrawerHandler {
     private final DrawerLayout drawerLayout;
     private final NavigationView navigationView;
     private final UpdateUserViewDrawerUseCase updateUserViewDrawerUseCase;
+
 
     public NavigationDrawerHandler(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
@@ -50,7 +53,18 @@ public class NavigationDrawerHandler {
                     settingsDialog.show(mainActivity.getSupportFragmentManager(), "SettingsDialog");
                     break;
                 case R.id.nav_logout:
-                    // ...
+                    LogoutHelper logoutHelper = new LogoutHelper(mainActivity, new LogoutHelper.LogoutListener() {
+                        @Override
+                        public void onLogoutSuccess() {
+                            Toast.makeText(mainActivity.getApplicationContext(), R.string.logout_text, Toast.LENGTH_SHORT).show();
+                        }
+
+                        @Override
+                        public void onLogoutFailure(String errorMessage) {
+                            Toast.makeText(mainActivity.getApplicationContext(), R.string.error_logout, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    logoutHelper.showLogoutConfirmationDialog(ConnexionActivity.class);
                     break;
             }
             drawerLayout.closeDrawer(GravityCompat.START);
