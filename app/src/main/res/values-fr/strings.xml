@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Go4LunchXoc</string>
+    <string name="title_activity_restaurant_detail">RestaurantDetailActivity</string>
+    <string name="app_name_toolbar">J\'ai faim !</string>
+    <string name="map_view">Vue Carte</string>
+    <string name="list_view">Vue Liste</string>
+    <string name="workmates">Collègues</string>
+    <string name="your_lunch">VOTRE DÉJEUNER</string>
+    <string name="settings">PARAMÈTRES</string>
+    <string name="logout">DÉCONNEXION</string>
+    <string name="go4lunch">Go4Lunch</string>
+    <string name="todo14">\"TODO\"</string>
+    <string name="kyllian_mbappe">Kyllian Mbappe</string>
+    <string name="km_gmail_com">km@gmail.com</string>
+    <string name="todo8">TODO</string>
+    <string name="le_zinc1">le Zinc</string>
+    <string name="_20_rue_de_paris">"20 rue de paris "</string>
+    <string name="openn">open</string>
+    <string name="_200m">200m</string>
+    <string name="todo10">TODO10</string>
+    <string name="_2">2</string>
+    <string name="bottom_gmail">Se connecter avec Google</string>
+    <string name="bottom_login">Se connecter avec Identifiant</string>
+    <string name="connection_succeed">Connexion réussie !</string>
+    <string name="error_authentication_canceled">Authentification annulée !</string>
+    <string name="error_no_internet">Pas d\'internet !</string>
+    <string name="error_unknown_error">Erreur inconnue !</string>
+    <string name="Restaurant_reminder">Rappel de restaurant</string>
+    <string name="kylian">Kylian</string>
+    <string name="le_zinc">Le Zinc</string>
+    <string name="_5_avenue_des_renards">5 avenue des Renards</string>
+    <string name="todo">todo</string>
+    <string name="todo2">todo2</string>
+    <string name="todo3">todo3</string>
+    <string name="todo4">todo4</string>
+    <string name="todo5">todo5</string>
+    <string name="call">appeler</string>
+    <string name="website">site web</string>
+    <string name="like">aimer</string>
+    <string name="nav_open">Ouvrir</string>
+    <string name="nav_close">Fermer</string>
+    <string name="error_no_user_connected">Tentative de créer un restaurant favori sans utilisateur connecté</string>
+    <string name="todo11">àfaire11</string>
+    <string name="kylian_is_eating_french_chez_guy">Kylian mange français chez Guy</string>
+    <string name="open"><font color="#00FF00">Ouvert</font></string>
+    <string name="closed"><font color="#FF0000">Fermé</font></string>
+    <string name="not_available">non disponible</string>
+    <string name="notification">notification</string>
+    <string name="off">OFF</string>
+    <string name="on">ON</string>
+    <string name="todo12">ÀFAIRE12</string>
+    <string name="setting">Paramètre</string>
+    <string name="today_s_lunch">Déjeuner d\'aujourd\'hui</string>
+    <string name="have_you_decided_on_a_restaurant_yet">Avez-vous déjà choisi un restaurant ?</string>
+    <string name="todo6">ÀFAIRE6</string>
+    <string name="logout_title">Déconnexion</string>
+    <string name="logout_message">Êtes-vous sûr de vouloir vous déconnecter ?</string>
+    <string name="yes">oui</string>
+    <string name="no">non</string>
+    <string name="logout_text">Vous êtes déconnecté !</string>
+    <string name="error_logout">erreur de déconnexion</string> <!-- Chaîne vide pour "information non disponible" -->
+    <string name="unavailable_number">Numéro non disponible !</string>
+    <string name="unavailable_website">Site web non disponible !</string>
+    <string name="restaurant_added_favorites_success">Restaurant ajouté aux favoris avec succès !</string>
+    <string name="restaurant_added_selection_success">Restaurant ajouté à la sélection avec succès !</string>
+    <string name="restaurant_selection_modified">Sélection du restaurant modifiée !</string>
+
+
+</resources>

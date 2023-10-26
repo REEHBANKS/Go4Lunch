@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Go4LunchXoc</string>
     <string name="title_activity_restaurant_detail">RestaurantDetailActivity</string>
@@ -39,12 +40,12 @@
     <string name="like">like</string>
     <string name="nav_open">Open</string>
     <string name="nav_close">Close</string>
-    <string name="error_no_user_connected">Tentative de création d\'un restaurant favori sans utilisateur connecté</string>
+    <string name="error_no_user_connected">Attempting to create a favorite restaurant without a logged in user</string>
     <string name="todo11">todo11</string>
     <string name="kylian_is_eating_french_chez_guy">Kylian is eating french chz guy</string>
-    <string name="open"><font color="#00FF00">Ouvert</font></string>
-    <string name="closed"><font color="#FF0000">Fermé</font></string>
-    <string name="not_available"></string>
+    <string name="open"><font color="#00FF00">Open</font></string>
+    <string name="closed"><font color="#FF0000">Close</font></string>
+    <string name="not_available">not available</string>
     <string name="notification">notification</string>
     <string name="off">OFF</string>
     <string name="on">ON</string>
@@ -59,6 +60,11 @@
     <string name="no">no</string>
     <string name="logout_text">You \'re disconnected!</string>
     <string name="error_logout">error disconnected</string> <!-- Chaîne vide pour "information non disponible" -->
+    <string name="unavailable_number">Unavailable number!</string>
+    <string name="unavailable_website">Unavailable website!</string>
+    <string name="restaurant_added_favorites_success">Restaurant added to favorites successfully!</string>
+    <string name="restaurant_added_selection_success">Restaurant added to selection successfully!</string>
+    <string name="restaurant_selection_modified">Restaurant selection modified!</string>
 
 
 </resources>

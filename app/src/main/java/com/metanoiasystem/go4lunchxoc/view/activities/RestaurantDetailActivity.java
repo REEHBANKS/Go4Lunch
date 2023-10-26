@@ -134,7 +134,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
                     , restaurantWithNumberUser.getRestaurant().getNumberPhone(), Toast.LENGTH_SHORT).show());
         } else {
             binding.buttonCallRestaurantDetail.setOnClickListener(v -> Toast.makeText(getApplicationContext()
-                    , "Unavailable number!", Toast.LENGTH_SHORT).show());
+                    , getString(R.string.unavailable_number), Toast.LENGTH_SHORT).show());
         }
 
         if (restaurantWithNumberUser.getRestaurant().getEmail() != null) {
@@ -142,7 +142,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
                     , restaurantWithNumberUser.getRestaurant().getEmail(), Toast.LENGTH_SHORT).show());
         } else {
             binding.buttonWebsiteRestaurantDetail.setOnClickListener(v -> Toast.makeText(getApplicationContext()
-                    , "Unavailable website!", Toast.LENGTH_SHORT).show());
+                    , getString(R.string.unavailable_website), Toast.LENGTH_SHORT).show());
         }
 
     }
@@ -150,7 +150,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
     private void observeViewModel() {
         viewModel.getAddSuccess().observe(this, success -> {
             if (success) {
-                Toast.makeText(this, "Restaurant ajouté aux favoris avec succès!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.restaurant_added_favorites_success), Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -160,13 +160,13 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
         viewModel.isRestaurantCreated().observe(this, success -> {
             if (success) {
-                Toast.makeText(this, "Restaurant ajouté aux selection avec succès!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, getString(R.string.restaurant_added_selection_success), Toast.LENGTH_SHORT).show();
             }
         });
 
         viewModel.isRestaurantUpdated().observe (this, success -> {
             if (success) {
-                Toast.makeText(this, "Selection restaurant modifier!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this,  getString(R.string.restaurant_selection_modified), Toast.LENGTH_SHORT).show();
             }
         });
     }
