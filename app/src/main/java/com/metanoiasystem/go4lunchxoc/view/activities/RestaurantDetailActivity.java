@@ -3,7 +3,10 @@ package com.metanoiasystem.go4lunchxoc.view.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.ViewModelProvider;
 
+import android.app.AlarmManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.metanoiasystem.go4lunchxoc.R;
@@ -16,12 +19,14 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurant
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSelectionUseCaseImpl;
+import com.metanoiasystem.go4lunchxoc.utils.AlarmHelper;
 import com.metanoiasystem.go4lunchxoc.utils.CheckAndHandleExistingRestaurantSelectionUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.GetCurrentDateUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.GetCurrentUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.HandleExistingSelectionUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.ImageUtils;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
+import com.metanoiasystem.go4lunchxoc.utils.PreferencesManager;
 import com.metanoiasystem.go4lunchxoc.utils.RatingUtils;
 import com.metanoiasystem.go4lunchxoc.view.fragments.RestaurantSelectorListFragment;
 import com.metanoiasystem.go4lunchxoc.viewmodels.RestaurantDetailViewModel;
@@ -126,6 +131,12 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         binding.buttonSelectedRestaurant.setOnClickListener(view -> {
             if (restaurantWithNumberUser != null) {
                 viewModel.createOrUpdateSelectedRestaurant(restaurantWithNumberUser.getRestaurant().getId());
+
+                PreferencesManager preferencesManager = new PreferencesManager(this);
+                preferencesManager.saveRestaurantInfo(restaurantWithNumberUser.getRestaurant().getRestaurantName(),
+                        restaurantWithNumberUser.getRestaurant().getRestaurantAddress());
+                Log.d("GRAYCE", "BTN SELECTED ON");
+
             }
         });
 
@@ -161,6 +172,19 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         viewModel.isRestaurantCreated().observe(this, success -> {
             if (success) {
                 Toast.makeText(this, getString(R.string.restaurant_added_selection_success), Toast.LENGTH_SHORT).show();
+
+                // Récupérez les données de SharedPreferences
+                PreferencesManager preferencesManager = new PreferencesManager(this);
+                String restaurantName = preferencesManager.getRestaurantName();
+                String restaurantAddress = preferencesManager.getRestaurantAddress();
+
+                if (preferencesManager.areNotificationsEnabled()) {
+                    Log.d("GRAYCE", "ALARM SEND");
+                    AlarmHelper alarmHelper = new AlarmHelper(this);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                        alarmHelper.configureAlarm(restaurantName, restaurantAddress);
+                    }
+                }
             }
         });
 
