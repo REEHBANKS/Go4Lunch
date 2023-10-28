@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.widget.Toast;
 
 import com.metanoiasystem.go4lunchxoc.data.models.User;
+import com.metanoiasystem.go4lunchxoc.data.models.UserAndPictureWithYourSelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentWorkmatesBinding;
 import com.metanoiasystem.go4lunchxoc.view.adapters.WorkmatesAdapter;
 import com.metanoiasystem.go4lunchxoc.viewmodels.WorkmatesViewModel;
@@ -26,7 +27,7 @@ public class WorkmatesFragment extends Fragment {
     private FragmentWorkmatesBinding binding;
     private WorkmatesAdapter adapter;
     private WorkmatesViewModel userViewModel;
-    private List<User> users;
+    private List<UserAndPictureWithYourSelectedRestaurant> users;
 
    @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -50,7 +51,8 @@ public class WorkmatesFragment extends Fragment {
         observeViewModel();
 
         // Récupération des utilisateurs
-        userViewModel.fetchAllUsers();
+        userViewModel.fetchUserChosenRestaurants();
+
 
         return binding.getRoot();
     }
@@ -62,7 +64,7 @@ public class WorkmatesFragment extends Fragment {
         this.binding.fragmentListWorkmates.setLayoutManager(new LinearLayoutManager(getActivity()));
     }
     @SuppressLint("NotifyDataSetChanged")
-    private void updateUI(List<User> theUsers){
+    private void updateUI(List<UserAndPictureWithYourSelectedRestaurant> theUsers){
         users.addAll(theUsers);
         adapter.notifyDataSetChanged();
     }

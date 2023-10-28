@@ -31,12 +31,15 @@ import com.google.android.material.navigation.NavigationView;
 import com.metanoiasystem.go4lunchxoc.BuildConfig;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
+import com.metanoiasystem.go4lunchxoc.data.models.UserAndPictureWithYourSelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.data.repository.RestaurantRepository;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetUserChosenRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.NavigationDrawerHandler;
+import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 import com.metanoiasystem.go4lunchxoc.view.fragments.ListRestaurantsFragment;
 import com.metanoiasystem.go4lunchxoc.view.fragments.MapFragment;
 import com.metanoiasystem.go4lunchxoc.view.fragments.WorkmatesFragment;
@@ -113,6 +116,8 @@ public class MainActivity extends AppCompatActivity {
 
         navigationDrawerHandler = new NavigationDrawerHandler(this);
         navigationDrawerHandler.setupNavigationDrawer();
+
+
     }
 
 

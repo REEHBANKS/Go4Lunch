@@ -17,12 +17,15 @@ import android.widget.Toast;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
+import com.metanoiasystem.go4lunchxoc.data.models.UserAndPictureWithYourSelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetUserChosenRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
+import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
 import com.metanoiasystem.go4lunchxoc.view.adapters.ListRestaurantsAdapter;
 import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
@@ -59,24 +62,10 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
 
 
         provider.requestLocationUpdates(this);
-      //  listRestaurantsViewModel.getRestaurants().observe(getViewLifecycleOwner(), this::updateUI);
+
 
 
         listRestaurantsViewModel.getRestaurantWithNumberUser().observe(getViewLifecycleOwner(), this::updateUI);
-
-        /*    StringBuilder resultString = new StringBuilder();
-            for (RestaurantWithNumberUser restaurantWithNumberUser : restaurantWithNumberUserList) {
-                resultString.append(restaurantWithNumberUser.getRestaurant().getRestaurantName())
-                        .append(" : ")
-                        .append(restaurantWithNumberUser.getNumberUser())
-                        .append(" utilisateurs\n");
-            }
-
-            Log.d("RestaurantWithUsers", resultString.toString());
-
-
-        });
-*/
 
 
         listRestaurantsViewModel.getError().observe(getViewLifecycleOwner(), throwable -> {
@@ -91,6 +80,8 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
     public void onResume() {
         super.onResume();
         listRestaurantsViewModel.fetchRestaurantsWithSelectedUsers();
+
+
 
     }
 

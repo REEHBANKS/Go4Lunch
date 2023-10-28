@@ -65,6 +65,9 @@
     <string name="restaurant_added_favorites_success">Restaurant ajouté aux favoris avec succès !</string>
     <string name="restaurant_added_selection_success">Restaurant ajouté à la sélection avec succès !</string>
     <string name="restaurant_selection_modified">Sélection du restaurant modifiée !</string>
+    <string name="chez_guy">Chez Guy</string>
+    <string name="has_not_decided">n\'a pas encore décidé</string>
+    <string name="is_eating">mange à %1$s</string>
 
 
 </resources>

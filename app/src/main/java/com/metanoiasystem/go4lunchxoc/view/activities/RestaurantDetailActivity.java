@@ -12,12 +12,14 @@ import android.widget.Toast;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
+import com.metanoiasystem.go4lunchxoc.data.models.UserAndPictureWithYourSelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.databinding.ActivityRestaurantDetailBinding;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.AddToFavoritesUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetUserChosenRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSelectionUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.utils.AlarmHelper;
 import com.metanoiasystem.go4lunchxoc.utils.CheckAndHandleExistingRestaurantSelectionUseCase;
@@ -28,8 +30,11 @@ import com.metanoiasystem.go4lunchxoc.utils.ImageUtils;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.PreferencesManager;
 import com.metanoiasystem.go4lunchxoc.utils.RatingUtils;
+import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 import com.metanoiasystem.go4lunchxoc.view.fragments.RestaurantSelectorListFragment;
 import com.metanoiasystem.go4lunchxoc.viewmodels.RestaurantDetailViewModel;
+
+import java.util.List;
 
 
 public class RestaurantDetailActivity extends AppCompatActivity {
@@ -116,7 +121,7 @@ public class RestaurantDetailActivity extends AppCompatActivity {
                 PreferencesManager preferencesManager = new PreferencesManager(this);
                 preferencesManager.saveRestaurantInfo(restaurantWithNumberUser.getRestaurant().getRestaurantName(),
                         restaurantWithNumberUser.getRestaurant().getRestaurantAddress());
-                Log.d("GRAYCE", "BTN SELECTED ON");
+
 
             }
         });
@@ -160,12 +165,13 @@ public class RestaurantDetailActivity extends AppCompatActivity {
                 String restaurantAddress = preferencesManager.getRestaurantAddress();
 
                 if (preferencesManager.areNotificationsEnabled()) {
-                    Log.d("GRAYCE", "ALARM SEND");
                     AlarmHelper alarmHelper = new AlarmHelper(this);
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         alarmHelper.configureAlarm(restaurantName, restaurantAddress);
                     }
                 }
+
+
             }
         });
 

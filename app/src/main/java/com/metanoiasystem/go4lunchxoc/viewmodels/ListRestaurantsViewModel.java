@@ -28,7 +28,6 @@ public class ListRestaurantsViewModel extends ViewModel {
 
 
     private final MutableLiveData<List<Restaurant>> restaurantsLiveData = new MutableLiveData<>();
-    private final MutableLiveData<List<SelectedRestaurant>> selectedRestaurantsLiveData = new MutableLiveData<>();
     private final MutableLiveData<Throwable> errorLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<RestaurantWithNumberUser>> restaurantsWithNumberUserLiveData = new MutableLiveData<>();
 
@@ -49,11 +48,6 @@ public class ListRestaurantsViewModel extends ViewModel {
     public LiveData<List<RestaurantWithNumberUser>> getRestaurantWithNumberUser(){
         return restaurantsWithNumberUserLiveData;
     }
-
-    public LiveData<List<SelectedRestaurant>> getSelectedRestaurants() {
-        return selectedRestaurantsLiveData;
-    }
-
 
     public LiveData<Throwable> getError() {
         return errorLiveData;
@@ -98,18 +92,4 @@ public class ListRestaurantsViewModel extends ViewModel {
     }
 
 
-
-    public void fetchAllSelectedRestaurants() {
-        getAllSelectedRestaurantsUseCase. execute(dateDeJour, new UseCaseCallback<List<SelectedRestaurant>>() {
-            @Override
-            public void onSuccess(List<SelectedRestaurant> result) {
-                selectedRestaurantsLiveData.setValue(result);
-            }
-
-            @Override
-            public void onError(Throwable error) {
-                errorLiveData.setValue(error);
-            }
-        });
-    }
 }

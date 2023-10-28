@@ -15,6 +15,7 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantFromSearchBa
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetUserChosenRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseFetchOneRestaurantCallback;
@@ -32,6 +33,7 @@ public class MapViewModel extends ViewModel {
     private final FetchRestaurantFromSearchBarUseCase fetchRestaurantFromSearchBarUseCase;
 
 
+
     private final MutableLiveData<List<Restaurant>> restaurantsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<SelectedRestaurant>> selectedRestaurantsLiveData = new MutableLiveData<>();
     private final MutableLiveData<Restaurant> oneRestaurantLiveData = new MutableLiveData<>();
@@ -43,6 +45,7 @@ public class MapViewModel extends ViewModel {
         getAllSelectedRestaurantsUseCase =Injector.provideGetAllSelectedRestaurantsUseCase();
         getAllRestaurantsFromFirebaseUseCase= Injector.provideGetAllRestaurantsFromFirebaseUseCase();
         fetchRestaurantFromSearchBarUseCase = Injector.provideFetchRestaurantFromSearchBarUseCase();
+
 
 
 
@@ -78,6 +81,7 @@ public class MapViewModel extends ViewModel {
             @Override
             public void onSuccess(List<Restaurant> result) {
                 restaurantsLiveData.setValue(result);
+
             }
 
             @Override
