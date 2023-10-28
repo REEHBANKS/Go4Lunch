@@ -14,7 +14,9 @@ import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentAccountBinding;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentDateUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantForCurrentUserUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.GetCurrentDateUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.SelectedRestaurantCallback;
 
@@ -24,6 +26,9 @@ public class AccountFragment extends DialogFragment {
 
 
     private  GetSelectedRestaurantForCurrentUserUseCase useCase;
+    GetCurrentDateUseCase getCurrentDateUseCase = new GetCurrentDateUseCaseImpl();
+
+    String dateDuJour = getCurrentDateUseCase.execute();
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -45,7 +50,7 @@ public class AccountFragment extends DialogFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        useCase.execute("dateDuJour", new SelectedRestaurantCallback() {
+        useCase.execute(dateDuJour, new SelectedRestaurantCallback() {
             @Override
             public void onRestaurantFound(Restaurant restaurant) {
                 binding.restaurantNameTextView.setText(restaurant.getRestaurantName());
