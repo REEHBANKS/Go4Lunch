@@ -21,7 +21,6 @@ public class NotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        Log.d("GRAYCE", "DECLENH NOTIF");
 
         String restaurantName = intent.getStringExtra("restaurantName");
         String restaurantAddress = intent.getStringExtra("restaurantAddress");

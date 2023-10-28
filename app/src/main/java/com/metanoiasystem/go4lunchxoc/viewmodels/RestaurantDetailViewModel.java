@@ -18,6 +18,7 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSel
 import com.metanoiasystem.go4lunchxoc.utils.CheckAndHandleExistingRestaurantSelectionUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.GetCurrentDateUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.GetCurrentUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.SelectedUseCaseCallback;
 
 import java.text.SimpleDateFormat;
@@ -34,16 +35,12 @@ public class RestaurantDetailViewModel extends ViewModel {
 
 
 
-    public RestaurantDetailViewModel(AddToFavoritesUseCase addToFavoritesUseCase,
-                                     CreateNewSelectedRestaurantUseCase createNewSelectedRestaurantUseCase,
-                                     CheckAndHandleExistingRestaurantSelectionUseCase checkAndHandleExistingRestaurantSelectionUseCase,
-                                     GetCurrentUseCase getCurrentUseCase,
-                                     GetCurrentDateUseCase getCurrentDateUseCase){
-        this.createAddRestaurantFavoritesUseCase = addToFavoritesUseCase;
-        this.createNewSelectedRestaurantUseCase = createNewSelectedRestaurantUseCase;
-        this.checkAndHandleExistingRestaurantSelectionUseCase = checkAndHandleExistingRestaurantSelectionUseCase;
-        this.getCurrentDateUseCase = getCurrentDateUseCase;
-        this.getCurrentUseCase = getCurrentUseCase;
+    public RestaurantDetailViewModel(){
+        createAddRestaurantFavoritesUseCase= Injector.provideAddToFavoritesUseCase();
+        createNewSelectedRestaurantUseCase = Injector.provideCreateNewSelectedRestaurantUseCase();
+        checkAndHandleExistingRestaurantSelectionUseCase = Injector.provideCheckAndHandleExistingRestaurantSelectionUseCase();
+        getCurrentDateUseCase = Injector.provideGetCurrentDateUseCase();
+        getCurrentUseCase =Injector.provideGetCurrentUseCase();
 
     }
 

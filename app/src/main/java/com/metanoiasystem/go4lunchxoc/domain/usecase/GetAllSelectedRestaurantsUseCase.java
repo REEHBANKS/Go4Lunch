@@ -26,7 +26,6 @@ public class GetAllSelectedRestaurantsUseCase {
                 for (DocumentSnapshot doc : task.getResult()) {
                     list.add(doc.toObject(SelectedRestaurant.class));
                 }
-                Log.d("ObserverDebug", "usecaseLiveData changed");
                 callback.onSuccess(list);
 
             } else {

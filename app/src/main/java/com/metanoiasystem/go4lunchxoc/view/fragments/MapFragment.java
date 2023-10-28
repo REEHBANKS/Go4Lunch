@@ -40,7 +40,6 @@ import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
 import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
 import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
-import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.RestaurantViewModelFactory;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -72,14 +71,9 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-        Log.d("LIFECYCLE", "Fragment onCreateView called");
-        FetchRestaurantListUseCase fetchRestaurantListUseCase = Injector.provideFetchRestaurantListUseCase();
-        GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase = Injector.provideGetAllSelectedRestaurantsUseCase();
-        GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase = Injector.provideGetAllRestaurantsFromFirebaseUseCase();
 
-        RestaurantViewModelFactory factory = new RestaurantViewModelFactory(fetchRestaurantListUseCase,
-                 getAllSelectedRestaurantsUseCase, getAllRestaurantsFromFirebaseUseCase);
-        mapViewModel = new ViewModelProvider(this, factory).get(MapViewModel.class);
+
+        mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
 
         observeOneMapLiveData();
         observeCombinedLiveData();

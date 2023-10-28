@@ -30,7 +30,7 @@ import com.metanoiasystem.go4lunchxoc.utils.PreferencesManager;
 import com.metanoiasystem.go4lunchxoc.utils.RatingUtils;
 import com.metanoiasystem.go4lunchxoc.view.fragments.RestaurantSelectorListFragment;
 import com.metanoiasystem.go4lunchxoc.viewmodels.RestaurantDetailViewModel;
-import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.RestaurantDetailViewModelFactory;
+
 
 public class RestaurantDetailActivity extends AppCompatActivity {
 
@@ -46,27 +46,8 @@ public class RestaurantDetailActivity extends AppCompatActivity {
         binding = ActivityRestaurantDetailBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Récupération des UseCases depuis l'Injector
-        AddToFavoritesUseCase addToFavoritesUseCase = Injector.provideAddToFavoritesUseCase();
-        CreateNewSelectedRestaurantUseCase createNewSelectedRestaurantUseCase = Injector.provideCreateNewSelectedRestaurantUseCase();
-        GetSelectedRestaurantsWithIdUseCase getSelectedRestaurantsWithIdUseCase = Injector.provideGetSelectedRestaurantsWithIdUseCase();
-        FetchAllUsersUseCase fetchAllUsersUseCase = Injector.provideFetchAllUsersUseCase();
-        CheckAndHandleExistingRestaurantSelectionUseCase checkAndHandleExistingRestaurantSelectionUseCase = Injector.provideCheckAndHandleExistingRestaurantSelectionUseCase();
-        GetCurrentUseCase getCurrentUseCase = Injector.provideGetCurrentUseCase();
-        GetCurrentDateUseCase getCurrentDateUseCase = Injector.provideGetCurrentDateUseCase();
 
-        // Création de la Factory avec les UseCases en paramètre
-        RestaurantDetailViewModelFactory restaurantDetailViewModelFactory = new RestaurantDetailViewModelFactory(
-                addToFavoritesUseCase,
-                createNewSelectedRestaurantUseCase,
-                getSelectedRestaurantsWithIdUseCase,
-                fetchAllUsersUseCase,
-                checkAndHandleExistingRestaurantSelectionUseCase,
-                getCurrentUseCase, getCurrentDateUseCase
-        );
-
-        // Obtention du ViewModel à partir de la Factory
-        viewModel = new ViewModelProvider(this, restaurantDetailViewModelFactory).get(RestaurantDetailViewModel.class);
+        viewModel = new ViewModelProvider(this).get(RestaurantDetailViewModel.class);
 
         // Récupération de l'objet Restaurant passé en extra
         restaurantWithNumberUser = (RestaurantWithNumberUser) getIntent().getSerializableExtra(RESTAURANT_KEY);

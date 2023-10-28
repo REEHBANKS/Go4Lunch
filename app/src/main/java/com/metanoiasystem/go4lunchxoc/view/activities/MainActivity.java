@@ -41,7 +41,6 @@ import com.metanoiasystem.go4lunchxoc.view.fragments.ListRestaurantsFragment;
 import com.metanoiasystem.go4lunchxoc.view.fragments.MapFragment;
 import com.metanoiasystem.go4lunchxoc.view.fragments.WorkmatesFragment;
 import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
-import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.RestaurantViewModelFactory;
 
 import java.util.Arrays;
 import java.util.List;
@@ -68,13 +67,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        FetchRestaurantListUseCase fetchRestaurantListUseCase = Injector.provideFetchRestaurantListUseCase();
-        GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase = Injector.provideGetAllSelectedRestaurantsUseCase();
-        GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase = Injector.provideGetAllRestaurantsFromFirebaseUseCase();
-
-        RestaurantViewModelFactory factory = new RestaurantViewModelFactory(fetchRestaurantListUseCase,
-                getAllSelectedRestaurantsUseCase, getAllRestaurantsFromFirebaseUseCase);
-        mapViewModelToMain = new ViewModelProvider(this, factory).get(MapViewModel.class);
+        mapViewModelToMain = new ViewModelProvider(this).get(MapViewModel.class);
 
         navigationDrawerHandler = new NavigationDrawerHandler(this);
 

@@ -65,6 +65,7 @@
     <string name="restaurant_added_favorites_success">Restaurant added to favorites successfully!</string>
     <string name="restaurant_added_selection_success">Restaurant added to selection successfully!</string>
     <string name="restaurant_selection_modified">Restaurant selection modified!</string>
+    <string name="chez_guy">chez Guy</string>
 
 
 </resources>

@@ -21,6 +21,7 @@ public class FetchRestaurantsWithSelectedUsersUseCaseImpl implements FetchRestau
     private final GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase;
     private final GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase;
     GetCurrentDateUseCase getCurrentDateUseCase = new GetCurrentDateUseCaseImpl();
+
     String dateDuJour = getCurrentDateUseCase.execute();
 
 

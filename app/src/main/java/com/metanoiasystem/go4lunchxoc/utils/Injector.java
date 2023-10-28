@@ -20,6 +20,7 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentDateUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantForCurrentUserUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetUserChosenRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.HandleExistingSelectionUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSelectionUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateUserViewDrawerUseCase;
@@ -49,6 +50,7 @@ public class Injector {
     private static GetCompleteUserDataUseCase getCompleteUserDataUseCase = null;
     private static UpdateUserViewDrawerUseCase updateUserViewDrawerUseCase = null;
     private static GetSelectedRestaurantForCurrentUserUseCase getSelectedRestaurantForCurrentUserUseCase = null;
+    private static GetUserChosenRestaurantsUseCase getUserChosenRestaurantsUseCase = null;
 
     public static synchronized UserRepository provideUserRepository() {
         if (userRepository == null) {
@@ -121,7 +123,7 @@ public class Injector {
         return updateExistingRestaurantSelectionUseCase;
     }
 
-    public static synchronized GetSelectedRestaurantsWithIdUseCase provideGetSelectedRestaurantsWithIdUseCase(){
+    public static synchronized GetSelectedRestaurantsWithIdUseCase provideGetSelectedRestaurantsWithIdUseCase() {
         if (getSelectedRestaurantsWithIdUseCase == null) {
             getSelectedRestaurantsWithIdUseCase = new GetSelectedRestaurantsWithIdUseCase(provideSelectedRestaurantRepository());
         }
@@ -129,7 +131,7 @@ public class Injector {
         return getSelectedRestaurantsWithIdUseCase;
     }
 
-    public static synchronized FetchRestaurantListUseCase provideFetchRestaurantListUseCase(){
+    public static synchronized FetchRestaurantListUseCase provideFetchRestaurantListUseCase() {
         if (fetchRestaurantListUseCase == null) {
             fetchRestaurantListUseCase = new FetchRestaurantListUseCase();
         }
@@ -138,7 +140,7 @@ public class Injector {
     }
 
 
-    public static synchronized GetAllSelectedRestaurantsUseCase provideGetAllSelectedRestaurantsUseCase(){
+    public static synchronized GetAllSelectedRestaurantsUseCase provideGetAllSelectedRestaurantsUseCase() {
         if (getAllSelectedRestaurantsUseCase == null) {
             getAllSelectedRestaurantsUseCase = new GetAllSelectedRestaurantsUseCase();
         }
@@ -146,82 +148,86 @@ public class Injector {
         return getAllSelectedRestaurantsUseCase;
     }
 
-    public static synchronized GetAllRestaurantsFromFirebaseUseCase provideGetAllRestaurantsFromFirebaseUseCase(){
-        if(getAllRestaurantsFromFirebaseUseCase == null){
-           getAllRestaurantsFromFirebaseUseCase = new GetAllRestaurantsFromFirebaseUseCase(provideRestaurantRepository());
+    public static synchronized GetAllRestaurantsFromFirebaseUseCase provideGetAllRestaurantsFromFirebaseUseCase() {
+        if (getAllRestaurantsFromFirebaseUseCase == null) {
+            getAllRestaurantsFromFirebaseUseCase = new GetAllRestaurantsFromFirebaseUseCase(provideRestaurantRepository());
         }
         return getAllRestaurantsFromFirebaseUseCase;
     }
 
-    public static synchronized CheckAndHandleExistingRestaurantSelectionUseCase provideCheckAndHandleExistingRestaurantSelectionUseCase(){
-        if(checkAndHandleExistingRestaurantSelectionUseCase == null){
+    public static synchronized CheckAndHandleExistingRestaurantSelectionUseCase provideCheckAndHandleExistingRestaurantSelectionUseCase() {
+        if (checkAndHandleExistingRestaurantSelectionUseCase == null) {
             checkAndHandleExistingRestaurantSelectionUseCase = new CheckAndHandleExistingRestaurantSelectionUseCaseImpl(provideCheckIfRestaurantSelectedUseCase(),
-                                                                                                                            provideHandleExistingSelectionUseCase());
+                    provideHandleExistingSelectionUseCase());
         }
         return checkAndHandleExistingRestaurantSelectionUseCase;
     }
 
-    public static synchronized HandleExistingSelectionUseCase provideHandleExistingSelectionUseCase(){
-        if(handleExistingSelectionUseCase == null){
+    public static synchronized HandleExistingSelectionUseCase provideHandleExistingSelectionUseCase() {
+        if (handleExistingSelectionUseCase == null) {
             handleExistingSelectionUseCase = new HandleExistingSelectionUseCaseImpl(provideUpdateExistingRestaurantSelectionUseCase(),
-                                                                                        provideCreateNewSelectedRestaurantUseCase());
+                    provideCreateNewSelectedRestaurantUseCase());
         }
         return handleExistingSelectionUseCase;
     }
 
-    public static synchronized GetCurrentUseCase provideGetCurrentUseCase(){
-        if(getCurrentUseCase == null){
+    public static synchronized GetCurrentUseCase provideGetCurrentUseCase() {
+        if (getCurrentUseCase == null) {
             getCurrentUseCase = new GetCurrentUseCaseImpl();
         }
         return getCurrentUseCase;
     }
 
-    public static synchronized GetCurrentDateUseCase provideGetCurrentDateUseCase(){
-        if(getCurrentDateUseCase == null){
+    public static synchronized GetCurrentDateUseCase provideGetCurrentDateUseCase() {
+        if (getCurrentDateUseCase == null) {
             getCurrentDateUseCase = new GetCurrentDateUseCaseImpl();
         }
         return getCurrentDateUseCase;
     }
 
-    public static synchronized  FetchRestaurantsWithSelectedUsersUseCase provideFetchRestaurantsWithSelectedUsersUseCase(){
-        if(fetchRestaurantsWithSelectedUsersUseCase == null){
+    public static synchronized FetchRestaurantsWithSelectedUsersUseCase provideFetchRestaurantsWithSelectedUsersUseCase() {
+        if (fetchRestaurantsWithSelectedUsersUseCase == null) {
             fetchRestaurantsWithSelectedUsersUseCase = new FetchRestaurantsWithSelectedUsersUseCaseImpl(provideGetAllRestaurantsFromFirebaseUseCase(),
                     provideGetAllSelectedRestaurantsUseCase());
         }
         return fetchRestaurantsWithSelectedUsersUseCase;
     }
 
-    public static synchronized FetchRestaurantFromSearchBarUseCase provideFetchRestaurantFromSearchBarUseCase(){
-        if(fetchRestaurantFromSearchBarUseCase == null){
+    public static synchronized FetchRestaurantFromSearchBarUseCase provideFetchRestaurantFromSearchBarUseCase() {
+        if (fetchRestaurantFromSearchBarUseCase == null) {
             fetchRestaurantFromSearchBarUseCase = new FetchRestaurantFromSearchBarUseCase();
 
         }
         return fetchRestaurantFromSearchBarUseCase;
     }
 
-    public static synchronized GetCompleteUserDataUseCase provideGetCompleteUserDataUseCase(){
-        if(getCompleteUserDataUseCase == null){
+    public static synchronized GetCompleteUserDataUseCase provideGetCompleteUserDataUseCase() {
+        if (getCompleteUserDataUseCase == null) {
             getCompleteUserDataUseCase = new GetCompleteUserDataUseCase();
         }
         return getCompleteUserDataUseCase;
     }
 
-    public static synchronized UpdateUserViewDrawerUseCase provideUpdateUserViewDrawerUseCase(){
-        if(updateUserViewDrawerUseCase == null){
+    public static synchronized UpdateUserViewDrawerUseCase provideUpdateUserViewDrawerUseCase() {
+        if (updateUserViewDrawerUseCase == null) {
             updateUserViewDrawerUseCase = new UpdateUserViewDrawerUseCase();
         }
-         return updateUserViewDrawerUseCase;
+        return updateUserViewDrawerUseCase;
     }
 
-    public static synchronized GetSelectedRestaurantForCurrentUserUseCase provideGetSelectedRestaurantForCurrentUserUseCase(){
-        if(getSelectedRestaurantForCurrentUserUseCase == null){
+    public static synchronized GetSelectedRestaurantForCurrentUserUseCase provideGetSelectedRestaurantForCurrentUserUseCase() {
+        if (getSelectedRestaurantForCurrentUserUseCase == null) {
             getSelectedRestaurantForCurrentUserUseCase = new GetSelectedRestaurantForCurrentUserUseCase();
         }
         return getSelectedRestaurantForCurrentUserUseCase;
     }
 
-
-
+    public static synchronized GetUserChosenRestaurantsUseCase provideGetUserChosenRestaurantsUseCase() {
+        if (getUserChosenRestaurantsUseCase == null) {
+            getUserChosenRestaurantsUseCase = new GetUserChosenRestaurantsUseCase();
+        }
+        return getUserChosenRestaurantsUseCase;
+    }
 
 }
 

@@ -11,15 +11,9 @@ import com.firebase.ui.auth.ErrorCodes;
 import com.firebase.ui.auth.IdpResponse;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.firebase.FirebaseApp;
-import com.google.firebase.FirebaseOptions;
-import com.google.firebase.firestore.util.Logger;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.databinding.ActivityConnexionBinding;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateUserUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
-import com.metanoiasystem.go4lunchxoc.utils.Injector;
-import com.metanoiasystem.go4lunchxoc.viewmodels.UserViewModel;
-import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.UserViewModelFactory;
+import com.metanoiasystem.go4lunchxoc.viewmodels.WorkmatesViewModel;
 
 
 import java.util.Collections;
@@ -27,7 +21,7 @@ import java.util.List;
 
 public class ConnexionActivity extends AppCompatActivity {
 
-    private UserViewModel userViewModel;
+    private WorkmatesViewModel userViewModel;
     private ActivityConnexionBinding binding;
     private static final int RC_SIGN_IN = 123; // Request code for sign in
 
@@ -46,12 +40,9 @@ public class ConnexionActivity extends AppCompatActivity {
         setupEmailListeners();
         setupGoogleListeners();
 
-        CreateUserUseCase createUserUseCase = Injector.provideCreateUserUseCase();
-        FetchAllUsersUseCase fetchAllUsersUseCase = Injector.provideFetchAllUsersUseCase();
 
-        UserViewModelFactory factory = new UserViewModelFactory(createUserUseCase,fetchAllUsersUseCase);
 
-        userViewModel = new ViewModelProvider(this, factory).get(UserViewModel.class);
+        userViewModel = new ViewModelProvider(this).get(WorkmatesViewModel.class);
     }
 
 

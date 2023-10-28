@@ -38,12 +38,10 @@ public class MapViewModel extends ViewModel {
     private final MutableLiveData<Throwable> errorLiveData = new MutableLiveData<>();
     private final MediatorLiveData<CombinedResult> combinedLiveData = new MediatorLiveData<>();
 
-    public MapViewModel(FetchRestaurantListUseCase fetchRestaurantListUseCase,
-                        GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase,
-                        GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase) {
-        this.fetchRestaurantListUseCase = fetchRestaurantListUseCase;
-        this.getAllSelectedRestaurantsUseCase = getAllSelectedRestaurantsUseCase;
-        this.getAllRestaurantsFromFirebaseUseCase = getAllRestaurantsFromFirebaseUseCase;
+    public MapViewModel() {
+        fetchRestaurantListUseCase =Injector.provideFetchRestaurantListUseCase();
+        getAllSelectedRestaurantsUseCase =Injector.provideGetAllSelectedRestaurantsUseCase();
+        getAllRestaurantsFromFirebaseUseCase= Injector.provideGetAllRestaurantsFromFirebaseUseCase();
         fetchRestaurantFromSearchBarUseCase = Injector.provideFetchRestaurantFromSearchBarUseCase();
 
 

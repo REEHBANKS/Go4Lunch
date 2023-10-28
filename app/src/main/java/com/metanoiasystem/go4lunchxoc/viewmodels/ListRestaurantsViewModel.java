@@ -1,7 +1,5 @@
 package com.metanoiasystem.go4lunchxoc.viewmodels;
 
-import android.util.Log;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
@@ -10,7 +8,6 @@ import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantsWithSelectedUsersUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.FetchRestaurantsWithSelectedUsersUseCase;
@@ -21,13 +18,12 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
 
 public class ListRestaurantsViewModel extends ViewModel {
 
     private final FetchRestaurantListUseCase fetchRestaurantListUseCase;
     private final GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase;
-    private final GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebase;
+    private final GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase;
     private final FetchRestaurantsWithSelectedUsersUseCase fetchRestaurantsWithSelectedUsersUseCase;
 
 
@@ -37,12 +33,10 @@ public class ListRestaurantsViewModel extends ViewModel {
     private final MutableLiveData<List<RestaurantWithNumberUser>> restaurantsWithNumberUserLiveData = new MutableLiveData<>();
 
 
-    public ListRestaurantsViewModel(FetchRestaurantListUseCase fetchRestaurantListUseCase,
-                                    GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase,
-    GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebase) {
-        this.fetchRestaurantListUseCase = fetchRestaurantListUseCase;
-        this.getAllSelectedRestaurantsUseCase = getAllSelectedRestaurantsUseCase;
-        this.getAllRestaurantsFromFirebase = getAllRestaurantsFromFirebase;
+    public ListRestaurantsViewModel() {
+     fetchRestaurantListUseCase  = Injector.provideFetchRestaurantListUseCase();
+       getAllSelectedRestaurantsUseCase =Injector.provideGetAllSelectedRestaurantsUseCase();
+        getAllRestaurantsFromFirebaseUseCase = Injector.provideGetAllRestaurantsFromFirebaseUseCase();
         fetchRestaurantsWithSelectedUsersUseCase = Injector.provideFetchRestaurantsWithSelectedUsersUseCase();
     }
 
@@ -68,7 +62,7 @@ public class ListRestaurantsViewModel extends ViewModel {
 
 
     public void setGetAllSelectedRestaurantsUseCase() {
-            getAllRestaurantsFromFirebase.execute(new UseCaseCallback<List<Restaurant>>(){
+            getAllRestaurantsFromFirebaseUseCase.execute(new UseCaseCallback<List<Restaurant>>(){
 
         @Override
         public void onSuccess(List<Restaurant> result) {

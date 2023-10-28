@@ -13,6 +13,7 @@ import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.User;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
+import com.metanoiasystem.go4lunchxoc.utils.Injector;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -24,10 +25,9 @@ public class RestaurantSelectorListViewModel extends ViewModel {
     private final GetSelectedRestaurantsWithIdUseCase getSelectedRestaurantsWithIdUseCase;
     private final FetchAllUsersUseCase fetchAllUsersUseCase;
 
-    public RestaurantSelectorListViewModel(GetSelectedRestaurantsWithIdUseCase getSelectedRestaurantsWithIdUseCase,
-                                           FetchAllUsersUseCase fetchAllUsersUseCase) {
-        this.getSelectedRestaurantsWithIdUseCase = getSelectedRestaurantsWithIdUseCase;
-        this.fetchAllUsersUseCase = fetchAllUsersUseCase;
+    public RestaurantSelectorListViewModel() {
+        getSelectedRestaurantsWithIdUseCase = Injector.provideGetSelectedRestaurantsWithIdUseCase();
+        fetchAllUsersUseCase = Injector.provideFetchAllUsersUseCase();
 
 
     }

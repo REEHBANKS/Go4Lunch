@@ -75,9 +75,10 @@ public class SelectedRestaurantRepository {
         );
     }
 
-    public Task<QuerySnapshot> getAllSelectedRestaurantsWithId(String restaurantId) {
+    public Task<QuerySnapshot> getAllSelectedRestaurantsWithId(String restaurantId,String dateDuJour) {
         return getSelectedRestaurantCollection()
                 .whereEqualTo("restaurantId", restaurantId)
+                .whereEqualTo("dateSelected", dateDuJour)
                 .get();
     }
 

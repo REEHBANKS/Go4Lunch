@@ -26,14 +26,13 @@ import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
 import com.metanoiasystem.go4lunchxoc.view.adapters.ListRestaurantsAdapter;
 import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
-import com.metanoiasystem.go4lunchxoc.viewmodels.viewModelFactory.RestaurantViewModelFactory;
 
 import java.util.ArrayList;
 import java.util.List;
 public class ListRestaurantsFragment extends Fragment implements LocationProvider.OnLocationReceivedListener, ListRestaurantsAdapter.OnRestaurantClickListener {
 
     private ListRestaurantsAdapter adapter;
-    private List<RestaurantWithNumberUser> restaurants = new ArrayList<>();
+    private final List<RestaurantWithNumberUser> restaurants = new ArrayList<>();
     private List<SelectedRestaurant> listAllSelectedRestaurants;
     private FragmentListRestaurantsBinding binding;
     private LocationProvider provider;
@@ -43,15 +42,7 @@ public class ListRestaurantsFragment extends Fragment implements LocationProvide
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        FetchRestaurantListUseCase fetchRestaurantListUseCase = Injector.provideFetchRestaurantListUseCase();
-        GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase = Injector.provideGetAllSelectedRestaurantsUseCase();
-        GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase = Injector.provideGetAllRestaurantsFromFirebaseUseCase();
-        RestaurantViewModelFactory factory = new RestaurantViewModelFactory(fetchRestaurantListUseCase,
-                 getAllSelectedRestaurantsUseCase,getAllRestaurantsFromFirebaseUseCase);
-        listRestaurantsViewModel = new ViewModelProvider(this, factory).get(ListRestaurantsViewModel.class);
-
-
-
+        listRestaurantsViewModel = new ViewModelProvider(this).get(ListRestaurantsViewModel.class);
 
     }
 
