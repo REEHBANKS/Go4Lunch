@@ -39,6 +39,7 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUs
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetUserChosenRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.NavigationDrawerHandler;
+import com.metanoiasystem.go4lunchxoc.utils.callbacks.RestaurantCallback;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 import com.metanoiasystem.go4lunchxoc.view.fragments.ListRestaurantsFragment;
 import com.metanoiasystem.go4lunchxoc.view.fragments.MapFragment;
@@ -206,7 +207,21 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("DEBUG", "Result OK for AUTOCOMPLETE_REQUEST_CODE");
                 assert data != null;
                 Place place = Autocomplete.getPlaceFromIntent(data);
-                mapViewModelToMain.fetchOneMapViewModel(place.getLatLng(), place.getId(),Objects.requireNonNull(place.getRating()).floatValue());
+                mapViewModelToMain.getOneRestaurant(place.getLatLng(), place.getId(), Objects.requireNonNull(place.getRating()).floatValue(), new RestaurantCallback() {
+                    @Override
+                    public void onRestaurantReceived(Restaurant restaurant) {
+                        if (mMapFragment instanceof MapFragment) {
+                            Log.d("ONEMAP ", "Nom du restaurant reçu dans la mainFragment: " + restaurant.getRestaurantName());
+                            ((MapFragment) mMapFragment).addSearchRestaurantMarker(restaurant);
+                        }
+
+                    }
+
+                    @Override
+                    public void onError(Throwable throwable) {
+
+                    }
+                });
             } else if (resultCode == AutocompleteActivity.RESULT_ERROR) {
                 assert data != null;
                 Status status = Autocomplete.getStatusFromIntent(data);

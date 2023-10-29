@@ -104,7 +104,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     @Override
     public void onStart() {
         super.onStart();
-        Log.d("LIFECYCLE", "Fragment onStart called");
         if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             locationProvider.requestLocationUpdates(this);
         } else {
@@ -126,8 +125,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     @Override
     public void onPause() {
         super.onPause();
-        Log.d("LIFECYCLE", "Fragment onPause called");
-        mapViewModel.getOneRestaurantLiveData().removeObservers(getViewLifecycleOwner());
         mapViewModel.getCombinedLiveData().removeObservers(getViewLifecycleOwner());
         locationProvider.stopLocationUpdates();
         userMarker = null;
@@ -136,27 +133,21 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     @Override
     public void onResume() {
         super.onResume();
-        Log.d("ONEMAP", "Fragment onResume called");
 
     }
 
 
 
     private void observeCombinedLiveData() {
-        Log.d("DEBUGO", "observeCombinedLiveData called");
         mapViewModel.getCombinedLiveData().observe(getViewLifecycleOwner(), result -> {
-
             if (!isMapReady) {
-                Log.d("DEBUG", "Map is not ready yet.");
-                return; // Si la carte n'est pas prête, ne faites rien
+                return;
             }
-
             List<Restaurant> allRestaurantsTemp = result.allRestaurants;
             List<SelectedRestaurant> selectedAllRestaurantsTemp = result.selectedRestaurants;
 
             // Log pour vérifier si les listes sont nulles ou vides
             if (allRestaurantsTemp == null || allRestaurantsTemp.isEmpty()) {
-                Log.d("DEBUG", "allRestaurantsTemp is null or empty.");
             } else {
                 Log.d("DEBUG", "allRestaurantsTemp size: " + allRestaurantsTemp.size());
             }
@@ -180,25 +171,10 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
 
 
     public void observeOneMapLiveData() {
-        Log.e("ONEMAP", "OBSERVE ONE MAP OK ");
-        if (mapViewModel == null) {
-            Log.e("ONEMAP", "MAP VIEW NULL");
-            return;
-        }
-
         mapViewModel.getOneRestaurantLiveData().observe(getViewLifecycleOwner(), restaurant -> {
-            if (restaurant == null) {
-                Log.e("ONEMAP", "Received restaurant is null");
-                return;
-            }
 
-            if (isMapReady) {
-                Log.e("ONEMAP", "MAP READY");
-                addSearchRestaurantMarker(restaurant);
-            } else {
-                Log.e("ONEMAP", "RESTAURANT PENDING");
-                pendingRestaurant = restaurant;
-            }
+          //      addSearchRestaurantMarker(restaurant);
+
         });
     }
 
@@ -254,7 +230,8 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
         }
     };
 
-    private void addSearchRestaurantMarker(Restaurant restaurant) {
+    public void addSearchRestaurantMarker(Restaurant restaurant) {
+        Log.d("ONEMAP ", "Nom du restaurant reçu dans la mapFragment: " + restaurant.getRestaurantName());
         if (mMap == null) return;
         LatLng restaurantLocation = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
         Marker marker = mMap.addMarker(new MarkerOptions()

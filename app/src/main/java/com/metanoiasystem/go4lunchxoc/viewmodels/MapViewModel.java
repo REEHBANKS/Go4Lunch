@@ -17,6 +17,7 @@ import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFireba
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetUserChosenRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
+import com.metanoiasystem.go4lunchxoc.utils.callbacks.RestaurantCallback;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseFetchOneRestaurantCallback;
 
@@ -121,23 +122,24 @@ public class MapViewModel extends ViewModel {
         }
     }
 
-    public void fetchOneMapViewModel(LatLng latLng, String id, Float rating){
 
-        fetchRestaurantFromSearchBarUseCase.execute(latLng, id, rating, new UseCaseFetchOneRestaurantCallback<Restaurant>() {
-            @Override
-            public void onSuccess(Restaurant result) {
-                Log.d("ONEMAP", "Nom du restaurant reçu: " + result.getRestaurantName());
-                oneRestaurantLiveData.setValue(result);
 
-            }
 
-            @Override
-            public void onError(Throwable error) {
-                Log.e("DEBUG", "Error received in ViewModel: " + error.getMessage());
-                errorLiveData.setValue(error);
+    public void getOneRestaurant(LatLng latLng, String id, Float rating,RestaurantCallback callback){
+       fetchRestaurantFromSearchBarUseCase.execute(latLng, id, rating, new UseCaseFetchOneRestaurantCallback<Restaurant>() {
+           @Override
+           public void onSuccess(Restaurant result) {
+               Log.d("ONEMAP ", "Nom du restaurant reçu dans la mapViewModel: " + result.getRestaurantName());
+               callback.onRestaurantReceived(result);
+           }
 
-            }
-        });
+           @Override
+           public void onError(Throwable error) {
+               callback.onError(new Exception("Erreur lors de la récupération du restaurant"));
+
+           }
+       });
+
 
 
     }
