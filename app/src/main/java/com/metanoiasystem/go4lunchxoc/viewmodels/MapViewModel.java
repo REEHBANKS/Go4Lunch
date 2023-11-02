@@ -10,12 +10,10 @@ import androidx.lifecycle.ViewModel;
 import com.google.android.gms.maps.model.LatLng;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
-import com.metanoiasystem.go4lunchxoc.data.repository.RestaurantRepository;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantFromSearchBarUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.GetUserChosenRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.RestaurantCallback;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
@@ -77,7 +75,7 @@ public class MapViewModel extends ViewModel {
         }
     }
 
-    public void fetchRestaurants(Double latitude, Double longitude) {
+    public void fetchRestaurants(double latitude, double longitude) {
         fetchRestaurantListUseCase.execute(latitude, longitude, new UseCaseCallback<List<Restaurant>>() {
             @Override
             public void onSuccess(List<Restaurant> result) {

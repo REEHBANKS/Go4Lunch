@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModelProvider;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -32,24 +33,12 @@ import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.data.providers.LocationProvider;
-import com.metanoiasystem.go4lunchxoc.data.repository.SelectedRestaurantRepository;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.GetUserChosenRestaurantsUseCase;
-import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.view.activities.RestaurantDetailActivity;
-import com.metanoiasystem.go4lunchxoc.viewmodels.ListRestaurantsViewModel;
 import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
 
 
 public class MapFragment extends Fragment implements LocationProvider.OnLocationReceivedListener {
@@ -113,6 +102,12 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
         locationProvider.requestCurrentLocation(new LocationProvider.OnLocationReceivedListener() {
             @Override
             public void onLocationReceived(double latitude, double longitude) {
+                SharedPreferences sharedPreferences = requireActivity().getSharedPreferences("location_prefs", Context.MODE_PRIVATE);
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putFloat("latitude", (float) latitude);
+                editor.putFloat("longitude", (float) longitude);
+                editor.apply();
+
                 mapViewModel.fetchRestaurants(latitude, longitude);
                 mapViewModel.fetchAllSelectedRestaurants();
             }
@@ -208,13 +203,12 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
             mMap.getUiSettings().setZoomControlsEnabled(true);
             checkAccessRestaurant();
             isMapReady = true;
-            Log.d("DEBUGO", "isMapReady = true");
+
 
 
 
             // Set the marker click listener here
             mMap.setOnMarkerClickListener(clickedMarker -> {
-                Log.d("DEBUG", "Marker clicked for restaurant: " + ((Restaurant) clickedMarker.getTag()).getRestaurantName());
                 Intent intent = new Intent(getActivity(), RestaurantDetailActivity.class);
                 intent.putExtra(RestaurantDetailActivity.RESTAURANT_KEY, (Restaurant) clickedMarker.getTag());
                 startActivity(intent);
@@ -231,7 +225,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     };
 
     public void addSearchRestaurantMarker(Restaurant restaurant) {
-        Log.d("ONEMAP ", "Nom du restaurant reçu dans la mapFragment: " + restaurant.getRestaurantName());
         if (mMap == null) return;
         LatLng restaurantLocation = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
         Marker marker = mMap.addMarker(new MarkerOptions()
@@ -249,8 +242,9 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
                 locationProvider.requestCurrentLocation(new LocationProvider.OnLocationReceivedListener() {
                     @Override
                     public void onLocationReceived(double latitude, double longitude) {
-                        // Votre code pour traiter la nouvelle localisation reçue
+
                     }
+
                 });
                 locationRequested = true;
             }

@@ -1,5 +1,7 @@
 package com.metanoiasystem.go4lunchxoc.data.repository;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.util.Log;
 
@@ -21,6 +23,7 @@ import com.metanoiasystem.go4lunchxoc.data.models.apiresponse.AllTheListRestaura
 import com.metanoiasystem.go4lunchxoc.data.models.apiresponse.RestaurantResponse;
 import com.metanoiasystem.go4lunchxoc.data.network.RestaurantService;
 import com.metanoiasystem.go4lunchxoc.data.network.RetrofitClient;
+import com.metanoiasystem.go4lunchxoc.utils.MyApp;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.RepositoryFetchAllRestaurantFetchCallback;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.RepositoryFetchOneRestaurantCallback;
 
@@ -46,26 +49,44 @@ public class RestaurantRepository {
 
     public static RestaurantRepository getInstance() {
         if (restaurantRepository == null) {
-            restaurantRepository = new RestaurantRepository();
+            synchronized (RestaurantRepository.class) {
+                if (restaurantRepository == null) {
+                    restaurantRepository = new RestaurantRepository();
+                }
+            }
         }
         return restaurantRepository;
     }
 
-    public void fetchRestaurant(Double latitude, Double longitude, RepositoryFetchAllRestaurantFetchCallback callback) {
-        if (apiCalledDuringSession) {
 
-            getAllRestaurantsFromFirebase();
-        } else {
-            fetchFromNetwork(latitude, longitude, callback);
-        }
-    }
 
     public Task<QuerySnapshot> getAllRestaurantsFromFirebase() {
         return restaurantsCollection.get();
     }
 
+    public void fetchRestaurant(double latitude, double longitude, RepositoryFetchAllRestaurantFetchCallback callback) {
+        SharedPreferences sharedPreferences = MyApp.getAppContext().getSharedPreferences("location_prefs", Context.MODE_PRIVATE);
+        double storedLatitude = sharedPreferences.getFloat("latitude", Float.MIN_VALUE);
+        double storedLongitude = sharedPreferences.getFloat("longitude", Float.MIN_VALUE);
 
-    private void fetchFromNetwork(Double latitude, Double longitude, RepositoryFetchAllRestaurantFetchCallback callback) {
+        if (apiCalledDuringSession || (latitude == storedLatitude && longitude == storedLongitude)) {
+            getAllRestaurantsFromFirebase();
+        } else {
+            // Mettre à jour les SharedPreferences avec les nouvelles coordonnées
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putFloat("latitude", (float) latitude);
+            editor.putFloat("longitude", (float) longitude);
+            editor.apply();
+
+            fetchFromNetwork(latitude, longitude, callback);
+        }
+    }
+
+
+
+
+
+    private void fetchFromNetwork(double latitude, double longitude, RepositoryFetchAllRestaurantFetchCallback callback) {
         restaurantDisposable = streamFetchRestaurantResponse(latitude, longitude)
                 .doFinally(this::dispose) // TODO dispose à la fin de la chaîne d'opération
                 .subscribeWith(new DisposableObserver<List<Restaurant>>() {
@@ -149,7 +170,7 @@ public class RestaurantRepository {
 
     // Function that makes a request to the RestaurantService to fetch all restaurants.
     // It then maps the response to a list of Restaurant objects.
-    public Observable<List<Restaurant>> streamFetchRestaurantResponse(Double latitude, Double longitude) {
+    public Observable<List<Restaurant>> streamFetchRestaurantResponse(double latitude, double longitude) {
 
         String lat = Double.toString(latitude);
         String lng = Double.toString(longitude);

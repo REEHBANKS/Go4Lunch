@@ -175,20 +175,25 @@ public class MainActivity extends AppCompatActivity {
     // Gérer l'action de recherche
         if (item.getItemId() == R.id.action_search) {
             if (mMapFragment.isVisible()) {
-                // ...
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.RATING);
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                        .build(this);
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+                return true;
             } else if (mListRestaurantFragment.isVisible()) {
-                // ...
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.RATING);
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                        .build(this);
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+                return true;
             } else if (mWorkmatesFragment.isVisible()) {
                 Toast.makeText(this, "NOT AVAILABLE", Toast.LENGTH_SHORT).show();
+
             }
-            List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.RATING);
-            Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.FULLSCREEN, fields)
-                    .build(this);
-            startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-            return true;
+
         }
 
-        // Si l'actionBarDrawerToggle gère l'item, retournez true
+
         if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
@@ -200,9 +205,7 @@ public class MainActivity extends AppCompatActivity {
     // Gestion du résultat de l'intention d'AutoComplete
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.d("DEBUG", "onActivityResult called with requestCode: " + requestCode + ", resultCode: " + resultCode);
-        if (requestCode == AUTOCOMPLETE_REQUEST_CODE)
-            Log.d("DEBUG", "Inside AUTOCOMPLETE_REQUEST_CODE block");{
+        if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
                 Log.d("DEBUG", "Result OK for AUTOCOMPLETE_REQUEST_CODE");
                 assert data != null;

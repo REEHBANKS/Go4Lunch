@@ -17,7 +17,7 @@ public class FetchRestaurantListUseCase {
         this.restaurantRepository = RestaurantRepository.getInstance();
     }
 
-    public void execute(Double latitude, Double longitude, UseCaseCallback<List<Restaurant>> callback) {
+    public void execute(double latitude, double longitude, UseCaseCallback<List<Restaurant>> callback) {
         Log.d("RestaurantRepo", "Fetching restaurants for lat: " + latitude + " long: " + longitude);
         restaurantRepository.fetchRestaurant(latitude, longitude, new RepositoryFetchAllRestaurantFetchCallback() {
             @Override
