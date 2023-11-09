@@ -68,7 +68,10 @@
     <string name="chez_guy">chez Guy</string>
     <string name="has_not_decided">hasn\'t decided yet</string>
     <string name="is_eating">is eating %1$s</string>
-
+    <string name="sort">sort</string>
+    <string name="Distance">Distance</string>
+    <string name="Rating">Rating</string>
+    <string name="Alphabetical">Alphabetical</string>
 
 
 </resources>

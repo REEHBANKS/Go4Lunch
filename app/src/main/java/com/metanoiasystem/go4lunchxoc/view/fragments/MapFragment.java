@@ -61,19 +61,11 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
 
-
-
-
-
         mapViewModel = new ViewModelProvider(this).get(MapViewModel.class);
-
-        observeOneMapLiveData();
-        observeCombinedLiveData();
-
         return inflater.inflate(R.layout.fragment_map, container, false);
-
-
     }
+
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -85,8 +77,6 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
         if (mapFragment != null) {
             mapFragment.getMapAsync(callback);
         }
-
-
     }
 
 
@@ -107,6 +97,7 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
                 editor.putFloat("latitude", (float) latitude);
                 editor.putFloat("longitude", (float) longitude);
                 editor.apply();
+                Log.d("DEBUGO", "OlocationWorking.");
 
                 mapViewModel.fetchRestaurants(latitude, longitude);
                 mapViewModel.fetchAllSelectedRestaurants();
@@ -129,50 +120,13 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
     public void onResume() {
         super.onResume();
 
+        if (ContextCompat.checkSelfPermission(requireContext(), android.Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            locationProvider.requestLocationUpdates(this);
+        }
+        mapViewModel.getCombinedLiveData().observe(getViewLifecycleOwner(), this::updateMapWithMarkers);
+        // Vous pouvez également vérifier ici si le restaurant sélectionné a changé et mettre à jour la carte en conséquence.
+
     }
-
-
-
-    private void observeCombinedLiveData() {
-        mapViewModel.getCombinedLiveData().observe(getViewLifecycleOwner(), result -> {
-            if (!isMapReady) {
-                return;
-            }
-            List<Restaurant> allRestaurantsTemp = result.allRestaurants;
-            List<SelectedRestaurant> selectedAllRestaurantsTemp = result.selectedRestaurants;
-
-            // Log pour vérifier si les listes sont nulles ou vides
-            if (allRestaurantsTemp == null || allRestaurantsTemp.isEmpty()) {
-            } else {
-                Log.d("DEBUG", "allRestaurantsTemp size: " + allRestaurantsTemp.size());
-            }
-
-            if (selectedAllRestaurantsTemp == null || selectedAllRestaurantsTemp.isEmpty()) {
-                Log.d("DEBUG", "selectedAllRestaurantsTemp is null or empty.");
-            } else {
-                Log.d("DEBUG", "selectedAllRestaurantsTemp size: " + selectedAllRestaurantsTemp.size());
-            }
-
-            if (allRestaurantsTemp != null && selectedAllRestaurantsTemp != null) {
-                if (!selectedAllRestaurantsTemp.isEmpty()) {
-                    addRestaurantMarkers(allRestaurantsTemp, selectedAllRestaurantsTemp);
-                } else {
-                    addRestaurantMarkers(allRestaurantsTemp, new ArrayList<>());
-                }
-            }
-        });
-    }
-
-
-
-    public void observeOneMapLiveData() {
-        mapViewModel.getOneRestaurantLiveData().observe(getViewLifecycleOwner(), restaurant -> {
-
-          //      addSearchRestaurantMarker(restaurant);
-
-        });
-    }
-
 
 
 
@@ -219,16 +173,32 @@ public class MapFragment extends Fragment implements LocationProvider.OnLocation
                 addSearchRestaurantMarker(pendingRestaurant);
                 pendingRestaurant = null;
             }
+
+            // Vérifiez si les données combinées sont déjà disponibles et mettez à jour la carte
+            if (mapViewModel.getCombinedLiveData().getValue() != null) {
+                updateMapWithMarkers(mapViewModel.getCombinedLiveData().getValue());
+            }
+
             // Observez les données des restaurants une fois que la carte est prête
             observeCombinedLiveData();
         }
+
     };
+
+    private void observeCombinedLiveData() {
+        mapViewModel.getCombinedLiveData().observe(getViewLifecycleOwner(), this::updateMapWithMarkers);
+    }
+
+    private void updateMapWithMarkers(MapViewModel.CombinedResult result) {
+        if (!isMapReady) return;
+        addRestaurantMarkers(result.allRestaurants, result.selectedRestaurants);
+    }
 
     public void addSearchRestaurantMarker(Restaurant restaurant) {
         if (mMap == null) return;
         LatLng restaurantLocation = new LatLng(restaurant.getLatitude(), restaurant.getLongitude());
         Marker marker = mMap.addMarker(new MarkerOptions()
-                .icon(bitmapDescriptorFactory(getContext(),  R.drawable.icon_green_lunch))
+                .icon(bitmapDescriptorFactory(getContext(),  R.drawable.icon_blue_lunch))
                 .position(restaurantLocation)
                 .title(restaurant.getRestaurantName()));
         marker.setTag(restaurant);

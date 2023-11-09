@@ -57,6 +57,13 @@ public class WorkmatesFragment extends Fragment {
         return binding.getRoot();
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        // Récupération des utilisateurs à chaque fois que le fragment redevient actif
+        userViewModel.fetchUserChosenRestaurants();
+    }
+
     private void setupRecyclerView() {
         this.users = new ArrayList<>();
         this.adapter = new WorkmatesAdapter(this.users);
@@ -65,6 +72,7 @@ public class WorkmatesFragment extends Fragment {
     }
     @SuppressLint("NotifyDataSetChanged")
     private void updateUI(List<UserAndPictureWithYourSelectedRestaurant> theUsers){
+        users.clear();
         users.addAll(theUsers);
         adapter.notifyDataSetChanged();
     }

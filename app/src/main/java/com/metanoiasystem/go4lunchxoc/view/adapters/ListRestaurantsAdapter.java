@@ -19,6 +19,8 @@ import com.metanoiasystem.go4lunchxoc.utils.RatingUtils;
 import com.metanoiasystem.go4lunchxoc.utils.RestaurantStatusUtils;
 import com.metanoiasystem.go4lunchxoc.view.viewholders.ListRestaurantsViewHolder;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +83,39 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
         // Set the click listener
         holder.itemView.setOnClickListener(v -> mListener.onRestaurantClicked(restaurant));
     }
+
+    public void sortByDistance() {
+        Collections.sort(restaurantWithNumberUsers, new Comparator<RestaurantWithNumberUser>() {
+            @Override
+            public int compare(RestaurantWithNumberUser r1, RestaurantWithNumberUser r2) {
+                return Double.compare(r1.getRestaurant().getDistanceKm(), r2.getRestaurant().getDistanceKm());
+            }
+        });
+        notifyDataSetChanged();
+    }
+
+    public void sortByRating() {
+        Collections.sort(restaurantWithNumberUsers, new Comparator<RestaurantWithNumberUser>() {
+            @Override
+            public int compare(RestaurantWithNumberUser r1, RestaurantWithNumberUser r2) {
+                return Float.compare(r2.getRestaurant().getRating(), r1.getRestaurant().getRating()); // Note: reversed for descending
+            }
+        });
+        notifyDataSetChanged();
+    }
+
+    public void sortAlphabetically() {
+        Collections.sort(restaurantWithNumberUsers, new Comparator<RestaurantWithNumberUser>() {
+            @Override
+            public int compare(RestaurantWithNumberUser r1, RestaurantWithNumberUser r2) {
+                return r1.getRestaurant().getRestaurantName().compareToIgnoreCase(r2.getRestaurant().getRestaurantName());
+            }
+        });
+        notifyDataSetChanged();
+    }
+
+
+
 
     @Override
     public int getItemCount() {

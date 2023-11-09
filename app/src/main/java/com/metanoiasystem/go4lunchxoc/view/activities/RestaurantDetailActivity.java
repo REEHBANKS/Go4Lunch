@@ -34,6 +34,7 @@ import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 import com.metanoiasystem.go4lunchxoc.view.fragments.RestaurantSelectorListFragment;
 import com.metanoiasystem.go4lunchxoc.viewmodels.RestaurantDetailViewModel;
 
+import java.io.Serializable;
 import java.util.List;
 
 
@@ -54,21 +55,29 @@ public class RestaurantDetailActivity extends AppCompatActivity {
 
         viewModel = new ViewModelProvider(this).get(RestaurantDetailViewModel.class);
 
-        // Récupération de l'objet Restaurant passé en extra
-        restaurantWithNumberUser = (RestaurantWithNumberUser) getIntent().getSerializableExtra(RESTAURANT_KEY);
 
-        if (restaurantWithNumberUser != null) {
+        // Récupération de l'objet passé en extra
+        Serializable extra = getIntent().getSerializableExtra(RESTAURANT_KEY);
 
-            addRestaurantSelectorListFragment();
+        if (extra instanceof RestaurantWithNumberUser) {
+            restaurantWithNumberUser = (RestaurantWithNumberUser) extra;
+            // Utilisez restaurantWithNumberUser comme avant
+        } else if (extra instanceof Restaurant) {
+            Restaurant restaurant = (Restaurant) extra;
+            // Créez un nouveau RestaurantWithNumberUser ou adaptez votre code pour utiliser Restaurant
+            restaurantWithNumberUser = new RestaurantWithNumberUser(restaurant, 0); // Supposons que 0 est le nombre par défaut d'utilisateurs
         }
 
-
-
-        observeViewModel();
-        setPicture();
-        setNameAndAddress(restaurantWithNumberUser.getRestaurant());
-        setRating();
-        UpdateButton();
+        if (restaurantWithNumberUser != null) {
+            // Votre code existant pour utiliser restaurantWithNumberUser
+            addRestaurantSelectorListFragment();
+            setPicture();
+            setNameAndAddress(restaurantWithNumberUser.getRestaurant());
+            setRating();
+            UpdateButton();
+        } else {
+            // Gérez l'erreur ou le cas où l'extra n'est pas de type attendu
+        }
     }
 
     private void addRestaurantSelectorListFragment(){

@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.bumptech.glide.Glide;
@@ -50,7 +51,7 @@ public class WorkmatesAdapter extends RecyclerView.Adapter<WorkmatesViewHolder>{
         if (user.getRestaurantName() != null) {
             String isEatingText = context.getString(R.string.is_eating, user.getRestaurantName());
             holder.getBinding().restaurantNameFragmentWorkMates.setText(isEatingText);
-            holder.getBinding().restaurantNameFragmentWorkMates.setTextColor(context.getResources().getColor(R.color.app_color));
+
         } else {
             holder.getBinding().restaurantNameFragmentWorkMates.setText(context.getString(R.string.has_not_decided));
         }

@@ -9,4 +9,13 @@
         android:icon="@drawable/ic_baseline_search_white_24"
         app:showAsAction="always"/>
 
+    <item
+        android:id="@+id/action_sort"
+        android:title="@string/sort"
+        android:icon="@drawable/ic_sort"
+        app:showAsAction="ifRoom"/>
+
+
+
+
 </menu>

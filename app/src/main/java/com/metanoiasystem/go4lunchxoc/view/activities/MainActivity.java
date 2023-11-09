@@ -13,7 +13,9 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProvider;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
@@ -21,8 +23,10 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.maps.model.LatLng;
 import com.google.android.libraries.places.api.Places;
 import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
 import com.google.android.libraries.places.widget.Autocomplete;
 import com.google.android.libraries.places.widget.AutocompleteActivity;
 import com.google.android.libraries.places.widget.model.AutocompleteActivityMode;
@@ -31,6 +35,7 @@ import com.google.android.material.navigation.NavigationView;
 import com.metanoiasystem.go4lunchxoc.BuildConfig;
 import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
+import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
 import com.metanoiasystem.go4lunchxoc.data.models.UserAndPictureWithYourSelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.data.repository.RestaurantRepository;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
@@ -45,6 +50,8 @@ import com.metanoiasystem.go4lunchxoc.view.fragments.ListRestaurantsFragment;
 import com.metanoiasystem.go4lunchxoc.view.fragments.MapFragment;
 import com.metanoiasystem.go4lunchxoc.view.fragments.WorkmatesFragment;
 import com.metanoiasystem.go4lunchxoc.viewmodels.MapViewModel;
+
+
 
 import java.util.Arrays;
 import java.util.List;
@@ -79,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         // Set up the toolbar
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+        actionBarDrawerToggle = new ActionBarDrawerToggle(this, drawerLayout, R.string.nav_open, R.string.nav_close);
 
 
         if (savedInstanceState != null) {
@@ -123,12 +131,17 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    // Gonflage du menu d'options
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.bar_top_menu, menu);
+
+        // Afficher le bouton de tri uniquement pour mListRestaurantFragment
+        MenuItem sortItem = menu.findItem(R.id.action_sort);
+        sortItem.setVisible(selectedFragment == R.id.list_view);
+
         return true;
     }
+
 
 
     @SuppressLint("NonConstantResourceId")
@@ -146,10 +159,13 @@ public class MainActivity extends AppCompatActivity {
             case R.id.workmates:
                 transaction.show(mWorkmatesFragment);
                 break;
+
+
         }
 
         transaction.commit();
         selectedFragment = fragmentId;
+        invalidateOptionsMenu();
     }
 
     @Override
@@ -168,33 +184,59 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 navigationDrawerHandler.openNavigationDrawer();  // Ouvrir le tiroir de navigation
             }
+
             return true;
-    }
-
-
-    // Gérer l'action de recherche
-        if (item.getItemId() == R.id.action_search) {
-            if (mMapFragment.isVisible()) {
-                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.RATING);
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
-                        .build(this);
-                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-                return true;
-            } else if (mListRestaurantFragment.isVisible()) {
-                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.RATING);
-                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
-                        .build(this);
-                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
-                return true;
-            } else if (mWorkmatesFragment.isVisible()) {
-                Toast.makeText(this, "NOT AVAILABLE", Toast.LENGTH_SHORT).show();
-
-            }
 
         }
 
+        // Gérer l'action de tri
+        if (item.getItemId() == R.id.action_sort) {
+            // Vérifiez si mListRestaurantFragment est visible
+            if (selectedFragment == R.id.list_view && mListRestaurantFragment != null) {
+                ((ListRestaurantsFragment) mListRestaurantFragment).showSortMenu(); // Vous devez passer une vue ici si nécessaire
+            }
+            return true;
+        }
 
-        if (actionBarDrawerToggle.onOptionsItemSelected(item)) {
+
+
+        // Gérer l'action de recherche
+        if (item.getItemId() == R.id.action_search) {
+            // Récupérez la latitude et la longitude stockées
+            SharedPreferences sharedPreferences = getSharedPreferences("location_prefs", Context.MODE_PRIVATE);
+            double storedLatitude = sharedPreferences.getFloat("latitude", Float.MIN_VALUE);
+            double storedLongitude = sharedPreferences.getFloat("longitude", Float.MIN_VALUE);
+
+            // Vérifiez si vous avez des coordonnées valides
+            if (storedLatitude != Float.MIN_VALUE && storedLongitude != Float.MIN_VALUE) {
+                LatLng center = new LatLng(storedLatitude, storedLongitude);
+                double radiusInMeters = 1500;
+                // Convertissez le rayon en degrés pour une utilisation avec RectangularBounds
+                double radiusInDegrees = radiusInMeters / 111320f;
+
+                // Créez les limites rectangulaires
+                RectangularBounds bounds = RectangularBounds.newInstance(
+                        new LatLng(center.latitude - radiusInDegrees, center.longitude - radiusInDegrees),
+                        new LatLng(center.latitude + radiusInDegrees, center.longitude + radiusInDegrees)
+                );
+
+                List<Place.Field> fields = Arrays.asList(Place.Field.ID, Place.Field.NAME, Place.Field.LAT_LNG, Place.Field.RATING);
+                Intent intent = new Autocomplete.IntentBuilder(AutocompleteActivityMode.OVERLAY, fields)
+                        .setLocationBias(bounds)
+                        .build(this);
+                startActivityForResult(intent, AUTOCOMPLETE_REQUEST_CODE);
+            } else {
+                // Gérez le cas où les coordonnées ne sont pas disponibles
+                Toast.makeText(this, "Location not available", Toast.LENGTH_SHORT).show();
+            }
+            return true;
+        } else if (mWorkmatesFragment.isVisible()) {
+            Toast.makeText(this, "NOT AVAILABLE", Toast.LENGTH_SHORT).show();
+        }
+
+
+
+        if (actionBarDrawerToggle != null && actionBarDrawerToggle.onOptionsItemSelected(item)) {
             return true;
         }
 
@@ -207,15 +249,20 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == AUTOCOMPLETE_REQUEST_CODE) {
             if (resultCode == RESULT_OK) {
-                Log.d("DEBUG", "Result OK for AUTOCOMPLETE_REQUEST_CODE");
                 assert data != null;
                 Place place = Autocomplete.getPlaceFromIntent(data);
                 mapViewModelToMain.getOneRestaurant(place.getLatLng(), place.getId(), Objects.requireNonNull(place.getRating()).floatValue(), new RestaurantCallback() {
                     @Override
                     public void onRestaurantReceived(Restaurant restaurant) {
-                        if (mMapFragment instanceof MapFragment) {
-                            Log.d("ONEMAP ", "Nom du restaurant reçu dans la mainFragment: " + restaurant.getRestaurantName());
+                        // Vérifiez quel fragment est actuellement visible
+                        if (mMapFragment.isVisible()) {
+                            // Si c'est le MapFragment, ajoutez un marqueur
                             ((MapFragment) mMapFragment).addSearchRestaurantMarker(restaurant);
+                        } else if (mListRestaurantFragment.isVisible()) {
+                            // Si c'est le ListRestaurantFragment, lancez RestaurantDetailActivity
+                            // Vous devrez peut-être adapter cette partie pour créer un RestaurantWithNumberUser si nécessaire
+                            RestaurantWithNumberUser restaurantWithNumberUser = new RestaurantWithNumberUser(restaurant, 0); // Supposons que 0 est le nombre d'utilisateurs par défaut
+                            ((ListRestaurantsFragment) mListRestaurantFragment).launchRestaurantDetailActivity(restaurantWithNumberUser);
                         }
 
                     }

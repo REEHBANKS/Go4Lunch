@@ -12,6 +12,4 @@ xmlns:tools="http://schemas.android.com/tools">
         tools:listitem="@layout/fragment_list_restaurants_item"/>
 
 
-
-
 </RelativeLayout>
