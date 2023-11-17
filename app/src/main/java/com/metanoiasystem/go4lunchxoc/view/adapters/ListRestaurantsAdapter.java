@@ -98,11 +98,24 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
         Collections.sort(restaurantWithNumberUsers, new Comparator<RestaurantWithNumberUser>() {
             @Override
             public int compare(RestaurantWithNumberUser r1, RestaurantWithNumberUser r2) {
-                return Float.compare(r2.getRestaurant().getRating(), r1.getRestaurant().getRating()); // Note: reversed for descending
+                Float rating1 = r1.getRestaurant().getRating();
+                Float rating2 = r2.getRestaurant().getRating();
+
+
+                if (rating1 == null && rating2 == null) {
+                    return 0;
+                } else if (rating1 == null) {
+                    return 1;
+                } else if (rating2 == null) {
+                    return -1;
+                }
+
+                return Float.compare(rating2, rating1); // Note: reversed for descending
             }
         });
         notifyDataSetChanged();
     }
+
 
     public void sortAlphabetically() {
         Collections.sort(restaurantWithNumberUsers, new Comparator<RestaurantWithNumberUser>() {

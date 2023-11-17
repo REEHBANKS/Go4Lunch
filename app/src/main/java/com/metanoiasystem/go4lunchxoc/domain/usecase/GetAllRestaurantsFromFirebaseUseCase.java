@@ -15,12 +15,15 @@ import java.util.List;
 
 public class GetAllRestaurantsFromFirebaseUseCase {
 
+    // Repository for handling restaurant data.
     private final RestaurantRepository restaurantRepository;
 
+    // Constructor initializing the use case with a restaurant repository.
     public GetAllRestaurantsFromFirebaseUseCase(RestaurantRepository restaurantRepository) {
         this.restaurantRepository = restaurantRepository;
     }
 
+    // Executes the use case to fetch all restaurants from Firebase.
     public void execute(UseCaseCallback<List<Restaurant>> callback) {
         restaurantRepository.getAllRestaurantsFromFirebase().addOnCompleteListener(new OnCompleteListener<QuerySnapshot>() {
             @Override
@@ -33,10 +36,11 @@ public class GetAllRestaurantsFromFirebaseUseCase {
                     }
                     callback.onSuccess(restaurantList);
                 } else {
-                    // Gérer l'erreur
+                    // Handle error if the task is unsuccessful.
                     callback.onError(task.getException());
                 }
             }
         });
     }
 }
+

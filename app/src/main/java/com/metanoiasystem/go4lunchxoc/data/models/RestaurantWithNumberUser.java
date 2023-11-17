@@ -6,7 +6,7 @@ public class RestaurantWithNumberUser implements Serializable {
 
     private Restaurant restaurant;
 
-    private int numberUser;
+    private final int numberUser;
 
     public RestaurantWithNumberUser(Restaurant restaurant, int numberUser) {
         this.restaurant = restaurant;
@@ -15,10 +15,6 @@ public class RestaurantWithNumberUser implements Serializable {
 
     public int  getNumberUser() {
         return numberUser;
-    }
-
-    public void setNumberUser(int numberUser) {
-        this.numberUser = numberUser;
     }
 
     public Restaurant getRestaurant() {

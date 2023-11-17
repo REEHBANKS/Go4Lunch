@@ -104,37 +104,7 @@ public class Restaurant  implements Serializable {
         this.id = id;
     }
 
-    public void setRestaurantName(String restaurantName) {
-        this.restaurantName = restaurantName;
-    }
 
-    public void setLatitude(Double latitude) {
-        this.latitude = latitude;
-    }
-
-    public void setLongitude(Double longitude) {
-        this.longitude = longitude;
-    }
-
-    public void setRestaurantAddress(String restaurantAddress) {
-        this.restaurantAddress = restaurantAddress;
-    }
-
-    public void setOpeningHours(Boolean openingHours) {
-        this.openingHours = openingHours;
-    }
-
-    public void setRating(Float rating) {
-        this.rating = rating;
-    }
-
-    public void setDistanceKm(int distanceKm) {
-        this.distanceKm = distanceKm;
-    }
-
-    public void setUrlPictureRestaurant(String urlPictureRestaurant) {
-        this.urlPictureRestaurant = urlPictureRestaurant;
-    }
 
     @Override
     public String toString() {

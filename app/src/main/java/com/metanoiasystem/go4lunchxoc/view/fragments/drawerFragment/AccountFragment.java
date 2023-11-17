@@ -9,14 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.metanoiasystem.go4lunchxoc.R;
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
-import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentAccountBinding;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentDateUseCaseImpl;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantForCurrentUserUseCase;
-import com.metanoiasystem.go4lunchxoc.utils.GetCurrentDateUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.interfaceUseCase.GetCurrentDateUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.SelectedRestaurantCallback;
 

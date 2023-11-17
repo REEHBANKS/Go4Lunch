@@ -19,29 +19,30 @@ import com.metanoiasystem.go4lunchxoc.view.fragments.drawerFragment.SettingsFrag
 import java.util.Objects;
 
 public class NavigationDrawerHandler {
+    // References to main activity components and use case for updating the user view.
     private final MainActivity mainActivity;
     private final DrawerLayout drawerLayout;
     private final NavigationView navigationView;
     private final UpdateUserViewDrawerUseCase updateUserViewDrawerUseCase;
 
-
+    // Constructor initializing with the main activity context.
     public NavigationDrawerHandler(MainActivity mainActivity) {
         this.mainActivity = mainActivity;
         this.drawerLayout = mainActivity.findViewById(R.id.my_drawer_layout);
         this.navigationView = mainActivity.findViewById(R.id.drawer_navigation);
         updateUserViewDrawerUseCase = Injector.provideUpdateUserViewDrawerUseCase();
-
     }
 
+    // Sets up the navigation drawer with menu items, actions, and user view.
     public void setupNavigationDrawer() {
-        // Configuration de l'icône du tiroir de navigation
+        // Configure the navigation drawer icon and update the user view.
         Objects.requireNonNull(mainActivity.getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
         mainActivity.getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24);
         updateUserViewDrawerUseCase.updateUserView(navigationView);
 
-        // Configuration du NavigationView
+        // Set up the NavigationView with item selection listeners.
         navigationView.setNavigationItemSelectedListener(item -> {
-            // Gestion des clics sur les éléments du menu (à compléter selon vos besoins)
+            // Handle menu item clicks with switch-case (extend as per your requirements).
             switch (item.getItemId()) {
                 case R.id.nav_account:
                     mainActivity.getSupportFragmentManager().beginTransaction()
@@ -72,7 +73,7 @@ public class NavigationDrawerHandler {
             return true;
         });
     }
-
+    // Opens the navigation drawer.
     public void openNavigationDrawer() {
         if (drawerLayout != null) {
             drawerLayout.openDrawer(GravityCompat.START);

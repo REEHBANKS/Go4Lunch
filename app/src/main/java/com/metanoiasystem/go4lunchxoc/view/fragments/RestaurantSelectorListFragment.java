@@ -11,20 +11,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
 import com.metanoiasystem.go4lunchxoc.data.models.User;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentRestaurantSelectorListBinding;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.AddToFavoritesUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchAllUsersUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSelectionUseCaseImpl;
-import com.metanoiasystem.go4lunchxoc.utils.CheckAndHandleExistingRestaurantSelectionUseCase;
-import com.metanoiasystem.go4lunchxoc.utils.GetCurrentDateUseCase;
-import com.metanoiasystem.go4lunchxoc.utils.GetCurrentUseCase;
-import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.view.adapters.RestaurantSelectorListAdapter;
 
 import com.metanoiasystem.go4lunchxoc.viewmodels.RestaurantSelectorListViewModel;

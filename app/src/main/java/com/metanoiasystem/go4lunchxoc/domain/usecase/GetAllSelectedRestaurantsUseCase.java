@@ -13,24 +13,28 @@ import java.util.List;
 
 public class GetAllSelectedRestaurantsUseCase {
 
+    // Repository for handling selected restaurant data.
     private final SelectedRestaurantRepository repository;
 
-    public GetAllSelectedRestaurantsUseCase() {
-        repository = Injector.provideSelectedRestaurantRepository();
+    // Constructor initializing the use case with a selected restaurant repository.
+    public GetAllSelectedRestaurantsUseCase(SelectedRestaurantRepository repository) {
+        this.repository = repository;
     }
 
-    public void execute(String dateDuJour,UseCaseCallback<List<SelectedRestaurant>> callback) {
-        repository.getAllSelectedRestaurants( dateDuJour).addOnCompleteListener(task -> {
+    // Executes the use case to fetch all selected restaurants for a given date.
+    public void execute(String dateDuJour, UseCaseCallback<List<SelectedRestaurant>> callback) {
+        repository.getAllSelectedRestaurants(dateDuJour).addOnCompleteListener(task -> {
             if (task.isSuccessful()) {
                 List<SelectedRestaurant> list = new ArrayList<>();
                 for (DocumentSnapshot doc : task.getResult()) {
                     list.add(doc.toObject(SelectedRestaurant.class));
                 }
                 callback.onSuccess(list);
-
             } else {
+                // Handle error if the task is unsuccessful.
                 callback.onError(task.getException());
             }
         });
     }
 }
+

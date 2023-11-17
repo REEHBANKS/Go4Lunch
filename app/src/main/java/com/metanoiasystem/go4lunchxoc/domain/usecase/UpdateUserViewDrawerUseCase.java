@@ -14,18 +14,21 @@ import com.metanoiasystem.go4lunchxoc.utils.callbacks.CallbackUserUseCase;
 
 public class UpdateUserViewDrawerUseCase {
 
+    // Use case for fetching complete user data.
     private final GetCompleteUserDataUseCase getCompleteUserDataUseCase;
 
-    public UpdateUserViewDrawerUseCase(){
-        getCompleteUserDataUseCase = Injector.provideGetCompleteUserDataUseCase();
+    // Constructor initializing with the get complete user data use case.
+    public UpdateUserViewDrawerUseCase(GetCompleteUserDataUseCase getCompleteUserDataUseCase){
+        this.getCompleteUserDataUseCase = getCompleteUserDataUseCase;
     }
 
+    // Updates the user view in the navigation drawer with user's data.
     public void updateUserView(NavigationView navigationView) {
-        getCompleteUserDataUseCase.execute( new CallbackUserUseCase<User>() {
+        getCompleteUserDataUseCase.execute(new CallbackUserUseCase<User>() {
             @Override
             public void onUserDataFetched(User user) {
                 if (user != null) {
-                    // Mettez à jour la vue avec les données de l'utilisateur
+                    // Update the navigation view with user's information.
                     View headerView = navigationView.getHeaderView(0);
                     TextView navUserName = headerView.findViewById(R.id.name_nav_header);
                     TextView navUserMail = headerView.findViewById(R.id.mail_nav_header);
@@ -34,7 +37,7 @@ public class UpdateUserViewDrawerUseCase {
                     navUserName.setText(user.getUsername());
                     navUserMail.setText(user.getUserMail());
 
-                    // Utilisez Glide pour charger l'image de profil de l'utilisateur
+                    // Use Glide to load the user's profile picture.
                     if (user.getUrlPictureUser() != null && !user.getUrlPictureUser().isEmpty()) {
                         Glide.with(navigationView.getContext())
                                 .load(user.getUrlPictureUser())
@@ -42,16 +45,13 @@ public class UpdateUserViewDrawerUseCase {
                                 .into(navUserPicture);
                     }
                 }
-
             }
 
             @Override
             public void onError(Exception e) {
-
+                // Handle any errors during the user data fetch.
             }
         });
-
     }
-
-
 }
+

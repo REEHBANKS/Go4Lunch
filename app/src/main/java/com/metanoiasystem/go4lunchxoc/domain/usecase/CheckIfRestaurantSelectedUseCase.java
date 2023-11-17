@@ -6,13 +6,18 @@ import com.metanoiasystem.go4lunchxoc.data.repository.SelectedRestaurantReposito
 
 public class CheckIfRestaurantSelectedUseCase {
 
+    // Reference to the SelectedRestaurantRepository.
     private final SelectedRestaurantRepository repository;
 
+    // Constructor initializing the use case with a repository instance.
     public CheckIfRestaurantSelectedUseCase(SelectedRestaurantRepository repository) {
         this.repository = repository;
     }
 
+    // Executes the operation to check if a restaurant is selected by a user on a given date.
+    // Returns a Task<QuerySnapshot> which can be used to determine the result of the query.
     public Task<QuerySnapshot> execute(String userId, String date) {
         return repository.checkIfRestaurantSelected(userId, date);
     }
 }
+

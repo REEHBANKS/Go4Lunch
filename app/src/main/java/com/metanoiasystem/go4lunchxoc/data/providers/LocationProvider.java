@@ -11,9 +11,9 @@ import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.tasks.Task;
-
 public class LocationProvider {
 
+    // Context and FusedLocationProviderClient for location services.
     private final Context context;
     private final FusedLocationProviderClient fusedLocationProviderClient;
     private LocationCallback locationCallback;
@@ -21,11 +21,13 @@ public class LocationProvider {
     private Location previousLocation = null;
     private static final float LOCATION_CHANGE_THRESHOLD = 100.0f;
 
+    // Constructor initializes the FusedLocationProviderClient with the given context.
     public LocationProvider(Context context) {
         this.context = context;
         this.fusedLocationProviderClient = LocationServices.getFusedLocationProviderClient(context);
     }
 
+    // Requests location updates and notifies the listener when a significant location change occurs.
     @SuppressLint("MissingPermission")
     public void requestLocationUpdates(OnLocationReceivedListener listener) {
         this.listener = listener;
@@ -36,7 +38,7 @@ public class LocationProvider {
 
         locationCallback = new LocationCallback() {
 
-
+            // Called when the location result is received.
             @Override
             public void onLocationResult(LocationResult locationResult) {
                 super.onLocationResult(locationResult);
@@ -45,22 +47,18 @@ public class LocationProvider {
                     Location newLocation = locationResult.getLocations().get(latestLocationIndex);
 
                     if (previousLocation == null || previousLocation.distanceTo(newLocation) > LOCATION_CHANGE_THRESHOLD) {
-                        double latitude = newLocation.getLatitude();
-                        double longitude = newLocation.getLongitude();
-                        listener.onLocationReceived(latitude, longitude);
+                        listener.onLocationReceived(newLocation.getLatitude(), newLocation.getLongitude());
                         previousLocation = newLocation;
                     }
                 }
             }
-
-
         };
 
         fusedLocationProviderClient.requestLocationUpdates(locationRequest, locationCallback, Looper.getMainLooper());
     }
 
+    // Requests the current location and notifies the listener.
     public void requestCurrentLocation(OnLocationReceivedListener listener) {
-        // Ici, vous pourriez soit envoyer la dernière localisation connue, soit faire une seule requête de localisation
         @SuppressLint("MissingPermission")
         Task<Location> task = fusedLocationProviderClient.getLastLocation();
         task.addOnSuccessListener(location -> {
@@ -70,12 +68,14 @@ public class LocationProvider {
         });
     }
 
+    // Stops requesting location updates.
     public void stopLocationUpdates() {
         if (locationCallback != null) {
             fusedLocationProviderClient.removeLocationUpdates(locationCallback);
         }
     }
 
+    // Interface for receiving location updates.
     public interface OnLocationReceivedListener {
         void onLocationReceived(double latitude, double longitude);
     }

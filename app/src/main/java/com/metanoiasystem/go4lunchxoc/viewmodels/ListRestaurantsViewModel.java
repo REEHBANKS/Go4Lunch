@@ -6,11 +6,10 @@ import androidx.lifecycle.ViewModel;
 
 import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
-import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.FetchRestaurantListUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllRestaurantsFromFirebaseUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.GetAllSelectedRestaurantsUseCase;
-import com.metanoiasystem.go4lunchxoc.utils.FetchRestaurantsWithSelectedUsersUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.interfaceUseCase.FetchRestaurantsWithSelectedUsersUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;
 

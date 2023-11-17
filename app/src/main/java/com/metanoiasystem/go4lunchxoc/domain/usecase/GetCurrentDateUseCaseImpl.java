@@ -1,6 +1,6 @@
 package com.metanoiasystem.go4lunchxoc.domain.usecase;
 
-import com.metanoiasystem.go4lunchxoc.utils.GetCurrentDateUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.interfaceUseCase.GetCurrentDateUseCase;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;

@@ -1,4 +1,4 @@
-package com.metanoiasystem.go4lunchxoc.utils;
+package com.metanoiasystem.go4lunchxoc.domain.interfaceUseCase;
 
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.QuerySnapshot;

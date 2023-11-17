@@ -11,21 +11,22 @@ import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.metanoiasystem.go4lunchxoc.data.models.FavoriteRestaurant;
-
 public class FavoriteRestaurantRepository {
 
-    private static volatile  FavoriteRestaurantRepository instance;
+    // Singleton instance of the repository.
+    private static volatile FavoriteRestaurantRepository instance;
 
-
-    //Collections
+    // Firebase collection names.
     private static final String RESTAURANTS_COLLECTION = "restaurants";
     private static final String FAVORITE_RESTAURANTS_SUBCOLLECTION = "favoriteRestaurants";
 
-    private FavoriteRestaurantRepository () {
+    // Private constructor for singleton pattern.
+    private FavoriteRestaurantRepository() {
     }
 
-    public static FavoriteRestaurantRepository  getInstance() {
-        FavoriteRestaurantRepository  result = instance;
+    // Singleton instance getter with double-checked locking.
+    public static FavoriteRestaurantRepository getInstance() {
+        FavoriteRestaurantRepository result = instance;
         if (result != null) {
             return result;
         }
@@ -37,7 +38,7 @@ public class FavoriteRestaurantRepository {
         }
     }
 
-    // Get Collection References
+    // Returns a reference to the favorite restaurants sub-collection in Firestore.
     private CollectionReference getFavoriteRestaurantCollection() {
         return FirebaseFirestore.getInstance()
                 .collection(RESTAURANTS_COLLECTION)
@@ -45,12 +46,11 @@ public class FavoriteRestaurantRepository {
                 .collection(FAVORITE_RESTAURANTS_SUBCOLLECTION);
     }
 
-    // Create Favorite restaurant in Firestore
-
+    // Creates a new favorite restaurant entry in Firestore.
     public Task<Void> createFavoriteRestaurant(String restaurantID) {
         FirebaseUser user = getCurrentUser();
         if (user == null) {
-            Log.e("FavoriteRestaurantRepo", "Tentative de création d'un restaurant favori sans utilisateur connecté.");
+            Log.e("FavoriteRestaurantRepo", "Attempt to create favorite restaurant without logged-in user.");
             return Tasks.forException(new Exception("No user connected")); // Create a failed task
         }
 
@@ -59,11 +59,9 @@ public class FavoriteRestaurantRepository {
         return this.getFavoriteRestaurantCollection().document(restaurantID).set(favoriteRestaurantToCreate);
     }
 
-
+    // Gets the current Firebase user, if any.
     @Nullable
     public FirebaseUser getCurrentUser() {
         return FirebaseAuth.getInstance().getCurrentUser();
     }
-
-
 }

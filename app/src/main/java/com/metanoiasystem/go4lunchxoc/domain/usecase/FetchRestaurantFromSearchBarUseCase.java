@@ -11,37 +11,30 @@ import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseFetchOneRestaurantC
 
 public class FetchRestaurantFromSearchBarUseCase {
 
+    // Repository for handling restaurant data.
     private final RestaurantRepository restaurantRepository;
 
-    public FetchRestaurantFromSearchBarUseCase(){
-        restaurantRepository = Injector.provideRestaurantRepository();
+    // Constructor to initialize the use case with a restaurant repository.
+    public FetchRestaurantFromSearchBarUseCase(RestaurantRepository restaurantRepository) {
+        this.restaurantRepository = restaurantRepository;
     }
 
-
-
+    // Executes the use case to fetch restaurant details based on search parameters.
     public void execute(LatLng latLng, String id, Float rating, UseCaseFetchOneRestaurantCallback<Restaurant> callback) {
-        Log.d("DEBUG", "execute called in UseCase");
-
-        restaurantRepository.fetchOneRestaurantFromNetwork(latLng, id,rating, new RepositoryFetchOneRestaurantCallback<Restaurant>() {
+        restaurantRepository.fetchOneRestaurantFromNetwork(latLng, id, rating, new RepositoryFetchOneRestaurantCallback<Restaurant>() {
 
             @Override
             public void onSuccess(Restaurant restaurant) {
-                Log.d("DEBUG", "Restaurant fetched in UseCase");
+                // Callback for successful restaurant retrieval.
                 callback.onSuccess(restaurant);
-
-
             }
 
             @Override
             public void onError(Throwable error) {
-                Log.e("DEBUG", "Error fetching restaurant in UseCase", error);
+                // Callback for handling errors during restaurant retrieval.
                 callback.onError(error);
             }
         });
     }
-
-
-
-
-
 }
+

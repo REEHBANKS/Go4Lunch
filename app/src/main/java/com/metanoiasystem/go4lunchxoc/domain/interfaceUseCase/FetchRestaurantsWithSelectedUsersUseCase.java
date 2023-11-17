@@ -1,4 +1,4 @@
-package com.metanoiasystem.go4lunchxoc.utils;
+package com.metanoiasystem.go4lunchxoc.domain.interfaceUseCase;
 
 import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.UseCaseCallback;

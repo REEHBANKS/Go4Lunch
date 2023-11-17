@@ -8,20 +8,25 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 public class RetrofitClient {
 
-
+    // Singleton instance of Retrofit.
     private static Retrofit retrofit;
 
+    // Provides a single instance of Retrofit. If it doesn't exist, it's created with specified configurations.
     public static Retrofit getRetrofit() {
         if (retrofit != null) {
             return retrofit;
         }
+
+        // Interceptor for logging network requests and responses.
         HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
         logging.setLevel(HttpLoggingInterceptor.Level.BODY);
 
+        // OkHttpClient with logging interceptor.
         OkHttpClient client = new OkHttpClient.Builder()
                 .addInterceptor(logging)
                 .build();
 
+        // Retrofit builder with base URL, Gson converter, RxJava2 adapter, and OkHttpClient.
         retrofit = new Retrofit.Builder()
                 .baseUrl("https://maps.googleapis.com")
                 .addConverterFactory(GsonConverterFactory.create())
@@ -32,3 +37,4 @@ public class RetrofitClient {
         return retrofit;
     }
 }
+

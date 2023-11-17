@@ -1,5 +1,11 @@
+buildscript {
+    dependencies {
+        classpath "org.jacoco:org.jacoco.core:0.8.7"
+    }
+}
 plugins {
     id 'com.android.application'
+    id 'jacoco'
 }
     def localProperties = new Properties()
     def localPropertiesFile = rootProject.file('local.properties')
@@ -8,6 +14,43 @@ plugins {
     }
 
     def apiKey = localProperties['RR_KEY'] ?: "DefaultAPIKey"
+
+jacoco {
+    toolVersion = "0.8.7"
+    reportsDir = file("$buildDir/customJacocoReportDir")
+}
+
+
+
+task jacocoTestReport(type: JacocoReport, dependsOn: ['testDebugUnitTest']) {
+    reports {
+        html.required = true
+        xml.required = true
+        csv.required = false // Si vous ne voulez pas de rapport CSV
+    }
+
+    classDirectories.setFrom(fileTree(
+            dir: 'build/intermediates/javac/debug/classes',
+            excludes: ['**/R.class',
+                       '**/R$*.class',
+                       '**/*$ViewInjector*.*',
+                       '**/*$ViewBinder*.*',
+                       '**/BuildConfig.*',
+                       '**/Manifest*.*']
+    ))
+    sourceDirectories.setFrom(files('src/main/java'))
+    executionData.setFrom(fileTree(dir: 'build', includes: [
+            'jacoco/testDebugUnitTest.exec',
+            'outputs/code-coverage/connected/*coverage.ec'
+    ]))
+}
+
+tasks.withType(Test) {
+    jacoco.includeNoLocationClasses = true
+    jacoco.excludes = ['jdk.internal.*']
+}
+
+// Make sure to add the Jacoco plugin to the classpath in your buildscript dependencies if needed:
 
 
 
@@ -34,6 +77,9 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            testCoverageEnabled = true
         }
     }
     compileOptions {
@@ -95,6 +141,21 @@ dependencies {
     implementation 'com.github.bumptech.glide:glide:4.12.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.12.0'
 
+    // Test
+    testImplementation 'org.mockito:mockito-core:5.7.0'
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.10.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.10.0'
+    testImplementation 'com.google.android.gms:play-services-tasks:18.0.2'
+    testImplementation "org.robolectric:robolectric:4.10"
+    testImplementation 'junit:junit:4.13.2'
+
+
+
 
 }
 apply plugin: 'com.google.gms.google-services'
+
+
+
+
+

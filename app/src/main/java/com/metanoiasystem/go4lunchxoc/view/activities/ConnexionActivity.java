@@ -23,48 +23,41 @@ public class ConnexionActivity extends AppCompatActivity {
 
     private WorkmatesViewModel userViewModel;
     private ActivityConnexionBinding binding;
-    private static final int RC_SIGN_IN = 123; // Request code for sign in
-
+    private static final int RC_SIGN_IN = 123; // Request code for sign-in process
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        FirebaseApp.initializeApp(this);
-
+        FirebaseApp.initializeApp(this); // Initialize Firebase
 
         binding = ActivityConnexionBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        //FirebaseAuth.getInstance().setLogLevel(Logger.Level.DEBUG);
-
+        // Setup listeners for email and Google login buttons
         setupEmailListeners();
         setupGoogleListeners();
 
-
-
+        // Initialize the user view model
         userViewModel = new ViewModelProvider(this).get(WorkmatesViewModel.class);
     }
 
-
-    // Set up listener for email login button
+    // Sets up listener for email login button
     private void setupEmailListeners() {
         binding.loginButton.setOnClickListener(view -> startEmailConnexionInActivity());
     }
 
-    // Set up listener for Google login button
+    // Sets up listener for Google login button
     private void setupGoogleListeners() {
         binding.gmailButton.setOnClickListener(view -> startGoogleConnexionInActivity());
     }
 
-    // Start the email sign-in flow
+    // Starts the email sign-in flow
     private void startEmailConnexionInActivity() {
-        // Choose authentication providers
-        List<AuthUI.IdpConfig> providers = Collections.singletonList(
-                new AuthUI.IdpConfig.EmailBuilder().build());
+        // Specify email authentication provider
+        List<AuthUI.IdpConfig> providers = Collections.singletonList(new AuthUI.IdpConfig.EmailBuilder().build());
 
-        // Launch the activity with specified theme, providers, and logo
-        startActivityForResult(
-                AuthUI.getInstance()
+        // Launch sign-in activity with specified theme and providers
+        startActivityForResult(AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(providers)
@@ -74,15 +67,13 @@ public class ConnexionActivity extends AppCompatActivity {
                 RC_SIGN_IN);
     }
 
-    // Start the Google sign-in flow
+    // Starts the Google sign-in flow
     private void startGoogleConnexionInActivity() {
-        // Choose authentication providers
-        List<AuthUI.IdpConfig> providers = Collections.singletonList(
-                new AuthUI.IdpConfig.GoogleBuilder().build());
+        // Specify Google authentication provider
+        List<AuthUI.IdpConfig> providers = Collections.singletonList(new AuthUI.IdpConfig.GoogleBuilder().build());
 
-        // Launch the activity with specified theme, providers, and logo
-        startActivityForResult(
-                AuthUI.getInstance()
+        // Launch sign-in activity with specified theme and providers
+        startActivityForResult(AuthUI.getInstance()
                         .createSignInIntentBuilder()
                         .setTheme(R.style.LoginTheme)
                         .setAvailableProviders(providers)
@@ -95,27 +86,25 @@ public class ConnexionActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        this.handleResponseAfterSignIn(requestCode, resultCode, data);
+        // Handle sign-in response
+        handleResponseAfterSignIn(requestCode, resultCode, data);
     }
 
-    // Show a Snackbar with a message
+    // Displays a Snackbar with a message
     private void showSnackBar(String message) {
         Snackbar.make(binding.getRoot(), message, Snackbar.LENGTH_SHORT).show();
     }
 
-    // Method that handles response after SignIn Activity close
+    // Handles response after sign-in activity closes
     private void handleResponseAfterSignIn(int requestCode, int resultCode, Intent data) {
         IdpResponse response = IdpResponse.fromResultIntent(data);
 
         if (requestCode == RC_SIGN_IN) {
-            // SUCCESS
-            if (resultCode == RESULT_OK) {
+            if (resultCode == RESULT_OK) { // Sign-in success
                 userViewModel.createUser();
                 showSnackBar(getString(R.string.connection_succeed));
                 startMainActivity();
-
-            } else {
-                // ERRORS
+            } else { // Sign-in error handling
                 if (response == null) {
                     showSnackBar(getString(R.string.error_authentication_canceled));
                 } else if (response.getError() != null) {
@@ -129,12 +118,9 @@ public class ConnexionActivity extends AppCompatActivity {
         }
     }
 
-    // Launching Main Activity
+    // Launches the Main Activity
     private void startMainActivity() {
-        // Create an Intent object for the MainActivity
         Intent intent = new Intent(this, MainActivity.class);
-        // Start the MainActivity
         startActivity(intent);
     }
-
 }

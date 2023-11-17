@@ -6,23 +6,14 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.firestore.DocumentSnapshot;
-import com.google.firebase.firestore.QuerySnapshot;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.AddToFavoritesUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.CheckIfRestaurantSelectedUseCase;
 import com.metanoiasystem.go4lunchxoc.domain.usecase.CreateNewSelectedRestaurantUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.GetSelectedRestaurantsWithIdUseCase;
-import com.metanoiasystem.go4lunchxoc.domain.usecase.UpdateExistingRestaurantSelectionUseCaseImpl;
-import com.metanoiasystem.go4lunchxoc.utils.CheckAndHandleExistingRestaurantSelectionUseCase;
-import com.metanoiasystem.go4lunchxoc.utils.GetCurrentDateUseCase;
-import com.metanoiasystem.go4lunchxoc.utils.GetCurrentUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.usecase.GetCurrentUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.interfaceUseCase.CheckAndHandleExistingRestaurantSelectionUseCase;
+import com.metanoiasystem.go4lunchxoc.domain.interfaceUseCase.GetCurrentDateUseCase;
 import com.metanoiasystem.go4lunchxoc.utils.Injector;
 import com.metanoiasystem.go4lunchxoc.utils.callbacks.SelectedUseCaseCallback;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
 
 public class RestaurantDetailViewModel extends ViewModel {
 

@@ -5,18 +5,21 @@ import android.content.SharedPreferences;
 
 public class PreferencesManager {
 
+    // Constants for SharedPreferences.
     private static final String PREFERENCES_NAME = "MyApp";
     private static final String KEY_RESTAURANT_NAME = "restaurantName";
     private static final String KEY_RESTAURANT_ADDRESS = "restaurantAddress";
-    private static final String KEY_NOTIFICATION_STATE = "notificationState"; // Nouvelle clé pour l'état de la notification
+    private static final String KEY_NOTIFICATION_STATE = "notificationState"; // Key for notification state
 
-    private SharedPreferences sharedPreferences;
+    // SharedPreferences instance.
+    private final SharedPreferences sharedPreferences;
 
+    // Constructor initializing with the application context.
     public PreferencesManager(Context context) {
         sharedPreferences = context.getSharedPreferences(PREFERENCES_NAME, Context.MODE_PRIVATE);
     }
 
-    // Sauvegarde les informations du restaurant
+    // Saves restaurant information (name and address) in SharedPreferences.
     public void saveRestaurantInfo(String name, String address) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString(KEY_RESTAURANT_NAME, name);
@@ -24,27 +27,26 @@ public class PreferencesManager {
         editor.apply();
     }
 
-    // Récupère le nom du restaurant
+    // Retrieves the saved restaurant name.
     public String getRestaurantName() {
         return sharedPreferences.getString(KEY_RESTAURANT_NAME, "");
     }
 
-    // Récupère l'adresse du restaurant
+    // Retrieves the saved restaurant address.
     public String getRestaurantAddress() {
         return sharedPreferences.getString(KEY_RESTAURANT_ADDRESS, "");
     }
 
+    // Checks if notifications are enabled.
     public boolean areNotificationsEnabled() {
-        return sharedPreferences.getBoolean("notifications_enabled", true); // Par défaut, les notifications sont activées
+        return sharedPreferences.getBoolean("notifications_enabled", true); // Default is enabled.
     }
 
-
-    // Sauvegarde l'état de la notification (on/off)
+    // Saves the notification state (enabled/disabled).
     public void saveNotificationState(boolean state) {
         SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean(KEY_NOTIFICATION_STATE, state);
         editor.apply();
     }
-
 }
 

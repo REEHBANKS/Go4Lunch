@@ -39,14 +39,14 @@ import io.reactivex.schedulers.Schedulers;
 
 public class RestaurantRepository {
 
-
+    // Singleton instance and Firestore collection reference for restaurants.
     private static volatile  RestaurantRepository restaurantRepository;
     private final CollectionReference restaurantsCollection = FirebaseFirestore.getInstance().collection("restaurants");
     private Disposable restaurantDisposable;
     private Disposable oneRestaurantDisposable;
-    private boolean apiCalledDuringSession = false; // TODO: Ajouté pour vérifier si l'API a été appelée
+    private boolean apiCalledDuringSession = false;
 
-
+    // Singleton pattern to get the instance of RestaurantRepository.
     public static RestaurantRepository getInstance() {
         if (restaurantRepository == null) {
             synchronized (RestaurantRepository.class) {
@@ -58,12 +58,11 @@ public class RestaurantRepository {
         return restaurantRepository;
     }
 
-
-
+    // Fetches all restaurants from Firestore.
     public Task<QuerySnapshot> getAllRestaurantsFromFirebase() {
         return restaurantsCollection.get();
     }
-
+    // Fetches restaurants based on location and updates them in Firestore.
     public void fetchRestaurant(double latitude, double longitude, RepositoryFetchAllRestaurantFetchCallback callback) {
         SharedPreferences sharedPreferences = MyApp.getAppContext().getSharedPreferences("location_prefs", Context.MODE_PRIVATE);
         double storedLatitude = sharedPreferences.getFloat("latitude", Float.MIN_VALUE);
@@ -72,7 +71,6 @@ public class RestaurantRepository {
         if (apiCalledDuringSession || (latitude == storedLatitude && longitude == storedLongitude)) {
             getAllRestaurantsFromFirebase();
         } else {
-            // Mettre à jour les SharedPreferences avec les nouvelles coordonnées
             SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putFloat("latitude", (float) latitude);
             editor.putFloat("longitude", (float) longitude);
@@ -82,26 +80,21 @@ public class RestaurantRepository {
         }
     }
 
-
-
-
-
+    // Internal method to fetch restaurant data from the network.
     private void fetchFromNetwork(double latitude, double longitude, RepositoryFetchAllRestaurantFetchCallback callback) {
+        // Implementation for fetching and handling restaurant data.
         restaurantDisposable = streamFetchRestaurantResponse(latitude, longitude)
-                .doFinally(this::dispose) // TODO dispose à la fin de la chaîne d'opération
+                .doFinally(this::dispose)
                 .subscribeWith(new DisposableObserver<List<Restaurant>>() {
                     @Override
                     public void onNext(@NonNull List<Restaurant> restaurants) {
-                        // Avant d'ajouter les nouveaux restaurants, supprimez les anciens de Firestore
                         clearRestaurantsFromFirestore().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
-                                apiCalledDuringSession = true; // Mise à jour du drapeau une fois que les données ont été récupérées avec succès
+                                apiCalledDuringSession = true;
 
                                 // Ajout des nouveaux restaurants à Firestore
                                 addRestaurantsToFirestore(restaurants).addOnCompleteListener(additionTask -> {
                                     if (additionTask.isSuccessful()) {
-                                        // TODO TO DELETE result.setValue(restaurants);
-                                        // Log.d("API_CALLING", "Nombre de restaurants reçus : " + restaurants.size());
                                         callback.onSuccess(restaurants);
                                     } else {
                                         callback.onError(additionTask.getException());
@@ -120,58 +113,48 @@ public class RestaurantRepository {
 
                     @Override
                     public void onComplete() {
-                        // Vous pouvez ajouter des logs ou d'autres opérations si nécessaire
                     }
                 });
     }
-
+    // Disposes the current restaurantDisposable if not already disposed.
     public void dispose() {
+        // Implementation for disposing the disposable.
         if (restaurantDisposable != null && !restaurantDisposable.isDisposed()) {
             restaurantDisposable.dispose();
         }
     }
-
+    // Adds a list of restaurants to Firestore in a batch operation.
     private Task<Void> addRestaurantsToFirestore(List<Restaurant> restaurants) {
+        // Implementation for adding restaurants to Firestore.
         WriteBatch batch = FirebaseFirestore.getInstance().batch();
 
         for (Restaurant restaurant : restaurants) {
-            DocumentReference docRef = restaurantsCollection.document(); // Création d'un ID de document unique
-            batch.set(docRef, restaurant); // Ajout du restaurant au batch
+            DocumentReference docRef = restaurantsCollection.document();
+            batch.set(docRef, restaurant);
         }
-
-        return batch.commit(); // Commit le batch pour ajouter tous les restaurants à Firestore
+        return batch.commit();
     }
 
-
-
-
+    // Clears restaurants from Firestore, except "favorites" and "selected" documents.
     private Task<Void> clearRestaurantsFromFirestore() {
-        // Utilisez une liste pour stocker toutes les tâches de suppression
+        // Implementation for clearing restaurants from Firestore.
         List<Task<Void>> deleteTasks = new ArrayList<>();
-
-        // Récupérez tous les documents et ajoutez leurs tâches de suppression à la liste
         return restaurantsCollection.get().continueWithTask(task -> {
             if (task.isSuccessful() && task.getResult() != null) {
                 for (QueryDocumentSnapshot document : task.getResult()) {
                     String docId = document.getId();
-                    // Ne supprimez pas les documents "favoris" et "selected"
                     if (!docId.equals("favorites") && !docId.equals("selected")) {
                         deleteTasks.add(document.getReference().delete());
                     }
                 }
             }
-            // Attendez que toutes les tâches de suppression soient terminées
             return Tasks.whenAll(deleteTasks);
         });
     }
 
-
-
-
-    // Function that makes a request to the RestaurantService to fetch all restaurants.
-    // It then maps the response to a list of Restaurant objects.
+    // Streams restaurant responses from the network based on location.
     public Observable<List<Restaurant>> streamFetchRestaurantResponse(double latitude, double longitude) {
-
+        // Implementation for streaming restaurant responses.
         String lat = Double.toString(latitude);
         String lng = Double.toString(longitude);
         String location = lat + "," + lng;
@@ -183,11 +166,8 @@ public class RestaurantRepository {
                         location,
                         "place_id,name,vicinity,rating,geometry,photos,opening_hours")
 
-
                 .map((Function<AllTheListRestaurantsResponse, List<Restaurant>>) resultsResponse -> {
                     ArrayList<Restaurant> restaurants = new ArrayList<>();
-
-
 
                     for (RestaurantResponse restaurantResponse : resultsResponse.getResults()) {
                         Boolean isOpen = restaurantResponse.getOpeningResponse() != null ? restaurantResponse.getOpeningResponse().getOpen_now() : false;
@@ -199,7 +179,6 @@ public class RestaurantRepository {
                                 , restaurantResponse.getGeometryResponse().getLocationResponse().getLng(), results);
                         float distanceResults = results[0];
                         int distance = (int) distanceResults;
-
 
                         Restaurant restaurant = new Restaurant(restaurantResponse.getPlace_id(),
                                 restaurantResponse.getName(),
@@ -213,62 +192,43 @@ public class RestaurantRepository {
 
                         restaurants.add(restaurant);
                     }
-
                     return restaurants;
-
                 })
-
-
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread());
     }
-
+    // Fetches details of a single restaurant from the network.
     public void fetchOneRestaurantFromNetwork(LatLng latLng, String id,Float rating, RepositoryFetchOneRestaurantCallback callback) {
+        // Implementation for fetching a single restaurant.
         if (oneRestaurantDisposable != null && !oneRestaurantDisposable.isDisposed()) {
             oneRestaurantDisposable.dispose();
         }
-
-        // Start a new fetch operation.
-
-
         oneRestaurantDisposable = streamFetchOneRestaurantResponse(latLng, id, rating)
                 .subscribeWith(new DisposableObserver<Restaurant>() {
 
                     @Override
                     public void onNext(@NonNull Restaurant restaurant) {
                         callback.onSuccess(restaurant);
-                        Log.d("DEBUG", "Restaurant fetched successfully");
-
-
                     }
-
                     @Override
                     public void onError(@NonNull Throwable e) {
                         callback.onError(e);
-
                     }
-
                     @Override
                     public void onComplete() {
-                        Log.d("JUSTIN", "On complete");
-
                     }
                 });
-
     }
-
+          // Streams a single restaurant response based on ID and location.
           public Observable<Restaurant> streamFetchOneRestaurantResponse(LatLng latLng, String id, Float rating){
-
-
+              // Implementation for streaming a single restaurant response.
             RestaurantService restaurantService = RetrofitClient.getRetrofit().create(RestaurantService.class);
             return restaurantService.getOneRestaurantByIdResponse(BuildConfig.RR_KEY, id)
                     .map(resultOneResponse -> {
 
-
                         Boolean isOpen = resultOneResponse.getResult().getOpeningResponse() != null ? resultOneResponse.getResult().getOpeningResponse().getOpen_now() : false;
                         String photoIsHere = resultOneResponse.getResult().getPhotosResponse() == null || resultOneResponse.getResult().getPhotosResponse().isEmpty() ? null :
                                 resultOneResponse.getResult().getPhotosResponse().get(0).getPhotoReference();
-
 
                         return new Restaurant(resultOneResponse.getResult().getPlace_id(),
                                 resultOneResponse.getResult().getName(),
@@ -281,15 +241,8 @@ public class RestaurantRepository {
                                 0,
                                 resultOneResponse.getResult().getFormatted_phone_number(),
                                 resultOneResponse.getResult().getWebsite());
-
-
                     })
-
                     .subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread());
-
-
         }
-
-
     }
