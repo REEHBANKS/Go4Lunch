@@ -1,6 +1,6 @@
 package com.metanoiasystem.go4lunchxoc.view.adapters;
 
-import android.annotation.SuppressLint;
+
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.ViewGroup;
@@ -8,29 +8,23 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.recyclerview.widget.RecyclerView;
-
-import com.metanoiasystem.go4lunchxoc.data.models.Restaurant;
 import com.metanoiasystem.go4lunchxoc.data.models.RestaurantWithNumberUser;
-import com.metanoiasystem.go4lunchxoc.data.models.SelectedRestaurant;
-import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsBinding;
 import com.metanoiasystem.go4lunchxoc.databinding.FragmentListRestaurantsItemBinding;
 import com.metanoiasystem.go4lunchxoc.utils.ImageUtils;
 import com.metanoiasystem.go4lunchxoc.utils.RatingUtils;
 import com.metanoiasystem.go4lunchxoc.utils.RestaurantStatusUtils;
 import com.metanoiasystem.go4lunchxoc.view.viewholders.ListRestaurantsViewHolder;
-
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
 public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurantsViewHolder> {
 
     private final List<RestaurantWithNumberUser> restaurantWithNumberUsers;
     private final OnRestaurantClickListener mListener;
 
     public ListRestaurantsAdapter(List<RestaurantWithNumberUser> restaurantWithNumberUsers, OnRestaurantClickListener listener) {
-        this.restaurantWithNumberUsers = restaurantWithNumberUsers;;
+        this.restaurantWithNumberUsers = restaurantWithNumberUsers;
         this.mListener = listener;
 
     }
@@ -52,9 +46,9 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
 
     @Override
     public void onBindViewHolder(ListRestaurantsViewHolder holder, int position) {
+        // Get the restaurant data at the current position
         RestaurantWithNumberUser restaurant = restaurantWithNumberUsers.get(position);
-
-
+        // Bind the restaurant data to the holder views
 
         // Set Name
         holder.getBinding().itemListRestaurantName.setText(restaurant.getRestaurant().getRestaurantName());
@@ -95,6 +89,7 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
     }
 
     public void sortByRating() {
+        // Sort the restaurant list by rating
         Collections.sort(restaurantWithNumberUsers, new Comparator<RestaurantWithNumberUser>() {
             @Override
             public int compare(RestaurantWithNumberUser r1, RestaurantWithNumberUser r2) {
@@ -118,6 +113,7 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
 
 
     public void sortAlphabetically() {
+        // Sort the restaurant list alphabetically by name
         Collections.sort(restaurantWithNumberUsers, new Comparator<RestaurantWithNumberUser>() {
             @Override
             public int compare(RestaurantWithNumberUser r1, RestaurantWithNumberUser r2) {
@@ -131,6 +127,7 @@ public class ListRestaurantsAdapter extends RecyclerView.Adapter<ListRestaurants
 
 
     @Override
+    // Return the total number of items in the list
     public int getItemCount() {
         return restaurantWithNumberUsers.size();
     }

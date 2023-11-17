@@ -16,7 +16,7 @@ import com.metanoiasystem.go4lunchxoc.R;
 
 public class LogoutHelper {
 
-
+    // Interface for handling logout callbacks
     public interface LogoutListener {
         void onLogoutSuccess();
         void onLogoutFailure(String errorMessage);
@@ -25,51 +25,56 @@ public class LogoutHelper {
     private final Context context;
     private final LogoutListener listener;
 
+    // Constructor initializing context and listener
     public LogoutHelper(Context context, LogoutListener listener) {
         this.context = context;
         this.listener = listener;
     }
 
+    // Display a confirmation dialog for logging out
     public void showLogoutConfirmationDialog(final Class<?> loginActivityClass) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
-        builder.setTitle(R.string.logout_title);
-        builder.setMessage(R.string.logout_message);
+        builder.setTitle(R.string.logout_title); // Set title for the dialog
+        builder.setMessage(R.string.logout_message); // Set message for the dialog
 
+        // Positive button for confirmation
         builder.setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                clearCredentials(loginActivityClass);
+                clearCredentials(loginActivityClass); // Clear credentials and logout
             }
         });
 
+        // Negative button for cancellation
         builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
+                dialog.dismiss(); // Dismiss the dialog
             }
         });
 
-        AlertDialog dialog = builder.create();
-        dialog.show();
+        AlertDialog dialog = builder.create(); // Create the dialog
+        dialog.show(); // Show the dialog
     }
 
+    // Method to clear user credentials and sign out
     private void clearCredentials(final Class<?> loginActivityClass) {
         AuthUI.getInstance()
-                .signOut(context)
+                .signOut(context) // Sign out from Firebase Authentication
                 .addOnCompleteListener(new OnCompleteListener<Void>() {
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {
-                            FirebaseAuth.getInstance().signOut();
-                            context.startActivity(new Intent(context, loginActivityClass));
+                            FirebaseAuth.getInstance().signOut(); // Additional sign out for Firebase Auth
+                            context.startActivity(new Intent(context, loginActivityClass)); // Redirect to login activity
                             if (context instanceof Activity) {
-                                ((Activity) context).finish();
+                                ((Activity) context).finish(); // Finish the current activity
                             }
                             if (listener != null) {
-                                listener.onLogoutSuccess();
+                                listener.onLogoutSuccess(); // Notify logout success
                             }
                         } else {
                             if (listener != null) {
-                                listener.onLogoutFailure(task.getException().getMessage());
+                                listener.onLogoutFailure(task.getException().getMessage()); // Notify logout failure
                             }
                         }
                     }
