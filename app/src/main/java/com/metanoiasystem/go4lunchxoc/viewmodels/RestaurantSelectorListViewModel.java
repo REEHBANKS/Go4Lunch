@@ -28,29 +28,26 @@ public class RestaurantSelectorListViewModel extends ViewModel {
     public RestaurantSelectorListViewModel() {
         getSelectedRestaurantsWithIdUseCase = Injector.provideGetSelectedRestaurantsWithIdUseCase();
         fetchAllUsersUseCase = Injector.provideFetchAllUsersUseCase();
-
-
     }
 
-    // LiveData  indicates list changes
+    // LiveData indicates changes in the list
     private final MutableLiveData<List<User>> usersLiveDataDetailScreen = new MutableLiveData<>();
 
     public LiveData<List<User>> getUsersDetailScreen() {
         return usersLiveDataDetailScreen;
     }
 
-
-
     public void getUsersWhoSelectedThisRestaurant(String restaurantId){
 
+        // Success listener for fetching selected restaurants by their IDs
         getSelectedRestaurantsWithIdUseCase.execute(restaurantId).addOnSuccessListener(selectedRestaurants -> {
+            // Create a map to quickly check if a restaurant is selected by any user
             HashMap<String, SelectedRestaurant> selectedRestaurantMap = new HashMap<>();
             for (SelectedRestaurant selectedRestaurant : selectedRestaurants) {
                 selectedRestaurantMap.put(selectedRestaurant.getUserId(), selectedRestaurant);
             }
 
-
-
+            // Fetch all users and add them to a list
             fetchAllUsersUseCase.execute().addOnSuccessListener(querySnapshot -> {
                 List<User> allUsers = new ArrayList<>();
                 for (DocumentSnapshot documentSnapshot : querySnapshot.getDocuments()) {
@@ -60,7 +57,7 @@ public class RestaurantSelectorListViewModel extends ViewModel {
                     }
                 }
 
-
+                // Filter users who have selected the restaurant
                 List<User> selectedUsers = new ArrayList<>();
                 for (User user : allUsers) {
                     if (selectedRestaurantMap.containsKey(user.getUid())) {
@@ -68,16 +65,13 @@ public class RestaurantSelectorListViewModel extends ViewModel {
                     }
                 }
 
-
+                // Update the LiveData with the list of selected users
                 usersLiveDataDetailScreen.setValue(selectedUsers);
             });
         });
-
-
-
-
     }
-
 }
+
+
 
 

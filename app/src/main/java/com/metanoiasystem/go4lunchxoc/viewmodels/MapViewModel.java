@@ -26,38 +26,37 @@ import java.util.Date;
 import java.util.List;
 public class MapViewModel extends ViewModel {
 
+    // Use cases for fetching data
     private final FetchRestaurantListUseCase fetchRestaurantListUseCase;
     private final GetAllSelectedRestaurantsUseCase getAllSelectedRestaurantsUseCase;
     private final GetAllRestaurantsFromFirebaseUseCase getAllRestaurantsFromFirebaseUseCase;
     private final FetchRestaurantFromSearchBarUseCase fetchRestaurantFromSearchBarUseCase;
 
-
-
+    // LiveData objects for observing data changes
     private final MutableLiveData<List<Restaurant>> restaurantsLiveData = new MutableLiveData<>();
     private final MutableLiveData<List<SelectedRestaurant>> selectedRestaurantsLiveData = new MutableLiveData<>();
     private final MutableLiveData<Restaurant> oneRestaurantLiveData = new MutableLiveData<>();
     private final MutableLiveData<Throwable> errorLiveData = new MutableLiveData<>();
     private final MediatorLiveData<CombinedResult> combinedLiveData = new MediatorLiveData<>();
 
+    // Constructor initializes use cases
     public MapViewModel() {
-        fetchRestaurantListUseCase =Injector.provideFetchRestaurantListUseCase();
-        getAllSelectedRestaurantsUseCase =Injector.provideGetAllSelectedRestaurantsUseCase();
-        getAllRestaurantsFromFirebaseUseCase= Injector.provideGetAllRestaurantsFromFirebaseUseCase();
+        fetchRestaurantListUseCase = Injector.provideFetchRestaurantListUseCase();
+        getAllSelectedRestaurantsUseCase = Injector.provideGetAllSelectedRestaurantsUseCase();
+        getAllRestaurantsFromFirebaseUseCase = Injector.provideGetAllRestaurantsFromFirebaseUseCase();
         fetchRestaurantFromSearchBarUseCase = Injector.provideFetchRestaurantFromSearchBarUseCase();
 
-
-
-
+        // Combine data from different LiveData sources
         combinedLiveData.addSource(restaurantsLiveData, restaurants -> combineData());
         combinedLiveData.addSource(selectedRestaurantsLiveData, selectedRestaurants -> combineData());
     }
 
     String dateDeJour = new SimpleDateFormat("dd/MM/yy").format(new Date());
 
-
-
-   public LiveData<Restaurant> getOneRestaurantLiveData() {return oneRestaurantLiveData; }
-
+    // Getters for LiveData objects
+    public LiveData<Restaurant> getOneRestaurantLiveData() {
+        return oneRestaurantLiveData;
+    }
 
     public LiveData<Throwable> getError() {
         return errorLiveData;
@@ -67,6 +66,7 @@ public class MapViewModel extends ViewModel {
         return combinedLiveData;
     }
 
+    // Method to combine data from different LiveData sources
     private void combineData() {
         List<Restaurant> restaurants = restaurantsLiveData.getValue();
         List<SelectedRestaurant> selectedRestaurants = selectedRestaurantsLiveData.getValue();
@@ -75,12 +75,12 @@ public class MapViewModel extends ViewModel {
         }
     }
 
+    // Method to fetch restaurants based on location
     public void fetchRestaurants(double latitude, double longitude) {
         fetchRestaurantListUseCase.execute(latitude, longitude, new UseCaseCallback<List<Restaurant>>() {
             @Override
             public void onSuccess(List<Restaurant> result) {
                 restaurantsLiveData.setValue(result);
-
             }
 
             @Override
@@ -91,12 +91,12 @@ public class MapViewModel extends ViewModel {
         });
     }
 
+    // Method to fetch all selected restaurants
     public void fetchAllSelectedRestaurants() {
         getAllSelectedRestaurantsUseCase.execute(dateDeJour, new UseCaseCallback<List<SelectedRestaurant>>() {
             @Override
             public void onSuccess(List<SelectedRestaurant> result) {
                 Log.d("LiveDataDebu", "Selected Restaurants fetched successfully");
-                // Créez une nouvelle instance de la liste pour forcer une mise à jour du LiveData
                 List<SelectedRestaurant> updatedList = new ArrayList<>(result);
                 selectedRestaurantsLiveData.setValue(updatedList);
             }
@@ -109,7 +109,7 @@ public class MapViewModel extends ViewModel {
         });
     }
 
-
+    // Nested class for combined data results
     public static class CombinedResult {
         public final List<Restaurant> allRestaurants;
         public final List<SelectedRestaurant> selectedRestaurants;
@@ -120,26 +120,22 @@ public class MapViewModel extends ViewModel {
         }
     }
 
+    // Method to fetch one specific restaurant
+    public void getOneRestaurant(LatLng latLng, String id, Float rating, RestaurantCallback callback) {
+        fetchRestaurantFromSearchBarUseCase.execute(latLng, id, rating, new UseCaseFetchOneRestaurantCallback<Restaurant>() {
+            @Override
+            public void onSuccess(Restaurant result) {
+                Log.d("ONEMAP ", "Nom du restaurant reçu dans la mapViewModel: " + result.getRestaurantName());
+                callback.onRestaurantReceived(result);
+            }
 
-
-
-    public void getOneRestaurant(LatLng latLng, String id, Float rating,RestaurantCallback callback){
-       fetchRestaurantFromSearchBarUseCase.execute(latLng, id, rating, new UseCaseFetchOneRestaurantCallback<Restaurant>() {
-           @Override
-           public void onSuccess(Restaurant result) {
-               Log.d("ONEMAP ", "Nom du restaurant reçu dans la mapViewModel: " + result.getRestaurantName());
-               callback.onRestaurantReceived(result);
-           }
-
-           @Override
-           public void onError(Throwable error) {
-               callback.onError(new Exception("Erreur lors de la récupération du restaurant"));
-
-           }
-       });
-
-
-
+            @Override
+            public void onError(Throwable error) {
+                callback.onError(new Exception("Erreur lors de la récupération du restaurant"));
+            }
+        });
     }
-
 }
+
+
+

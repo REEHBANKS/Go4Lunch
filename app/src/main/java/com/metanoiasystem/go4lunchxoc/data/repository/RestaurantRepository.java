@@ -64,6 +64,7 @@ public class RestaurantRepository {
     }
     // Fetches restaurants based on location and updates them in Firestore.
     public void fetchRestaurant(double latitude, double longitude, RepositoryFetchAllRestaurantFetchCallback callback) {
+        Log.d("RestaurantRepository", "fetchRestaurant called with lat: " + latitude + " and lng: " + longitude);
         SharedPreferences sharedPreferences = MyApp.getAppContext().getSharedPreferences("location_prefs", Context.MODE_PRIVATE);
         double storedLatitude = sharedPreferences.getFloat("latitude", Float.MIN_VALUE);
         double storedLongitude = sharedPreferences.getFloat("longitude", Float.MIN_VALUE);
@@ -82,22 +83,28 @@ public class RestaurantRepository {
 
     // Internal method to fetch restaurant data from the network.
     private void fetchFromNetwork(double latitude, double longitude, RepositoryFetchAllRestaurantFetchCallback callback) {
+        Log.d("RestaurantRepository", "Fetching from network for lat: " + latitude + " and lng: " + longitude);
         // Implementation for fetching and handling restaurant data.
         restaurantDisposable = streamFetchRestaurantResponse(latitude, longitude)
                 .doFinally(this::dispose)
                 .subscribeWith(new DisposableObserver<List<Restaurant>>() {
                     @Override
                     public void onNext(@NonNull List<Restaurant> restaurants) {
+                        Log.d("RestaurantRepository", "Received " + restaurants.size() + " restaurants from API");
                         clearRestaurantsFromFirestore().addOnCompleteListener(task -> {
                             if (task.isSuccessful()) {
+                                Log.d("RestaurantRepository", "Cleared restaurants in Firestore successfully");
+                                // ...
+
                                 apiCalledDuringSession = true;
 
-                                // Ajout des nouveaux restaurants à Firestore
+                                // Add news nouveaux Firestore
                                 addRestaurantsToFirestore(restaurants).addOnCompleteListener(additionTask -> {
                                     if (additionTask.isSuccessful()) {
                                         callback.onSuccess(restaurants);
                                     } else {
                                         callback.onError(additionTask.getException());
+                                        Log.e("RestaurantRepository", "Error clearing restaurants in Firestore: " + task.getException().getMessage());
                                     }
                                 });
                             } else {
@@ -109,6 +116,7 @@ public class RestaurantRepository {
                     @Override
                     public void onError(@NonNull Throwable e) {
                         callback.onError(e);
+                        Log.e("RestaurantRepository", "Error fetching restaurants: " + e.getMessage());
                     }
 
                     @Override
